@@ -1,0 +1,234 @@
+AIM NATURE CURE ERP
+Prescripto → AIM Nature Cure Gap Analysis & Adaptation Plan
+Companion to PRD v1.0  |  Version 1.0  |  August 2026
+1. Purpose of This Document
+The PRD (AIM_Nature_Cure_ERP_PRD_v1_0) defines what the system must do. This document answers the next question: given Prescripto — the MERN-stack hospital-management repo you're using as the starting codebase — as-is, what already matches the PRD, what needs rebranding or rework, and what has to be built from zero. It is organized to be read alongside the PRD, section by section, and ends with a revised, Prescripto-specific phase plan and an immediate action list.
+2. Bottom-Line Verdict
+Prescripto gives you a working three-workspace skeleton (Patient / Admin / Doctor) on the React + Express + MongoDB + JWT stack the PRD already leans toward. That skeleton — auth, role-based routing, a doctor record, and a dashboard shell — is worth keeping and is realistically 10–15% of the total AIM Nature Cure build.
+Everything that makes this an ERP for a nature-cure hospital — therapies, packages, consultations, billing beyond a single appointment fee, doctor revenue and incentives, follow-ups, leads, social media proof, personal workspace, daily/weekly/monthly reporting, and audit logs — does not exist in Prescripto today. That is the bulk of the PRD (Sections 5.5 through 5.19) and it is net-new engineering, not adaptation.
+One structural point matters more than any single feature: Prescripto's biggest workspace, the patient-facing frontend/ app (booking, patient login, patient profile), maps to a PRD role that is explicitly out of Version 1. Per PRD Section 4.1, only Admin and Doctor are V1 users — patients do not log into the system in Version 1. So frontend/ is not part of the MVP; it's a head start on the "Patient Portal" item the PRD lists under Section 7.3 Future Enhancements. Don't spend Phase 1–9 effort rebranding it — park it.
+3. What to KEEP As-Is
+Technology stack decision: React (Vite) + Express + MongoDB + JWT auth. This matches PRD Section 12's "likely direction" and removes the need for a stack debate.
+Three-workspace repo structure (separate frontend / admin / backend folders) — mirrors the PRD's Admin vs Doctor separation and can absorb a future Patient Portal without restructuring.
+JWT authentication pattern and the .env-based secret handling (MONGODB_URI, JWT_SECRET) — satisfies PRD FR-001 and the Security requirements in Section 11.
+Role-gated routing pattern already proven across admin/src/pages/Admin and admin/src/pages/Doctor — this is exactly the RBAC shape PRD FR-002 asks for; it just needs Admin/Doctor permissions data-driven instead of folder-based, per FR-004.
+doctorModel.js as the seed for the Doctor entity (name, specialty, fees, availability, credentials already present) — extend, don't replace.
+4. What to REBRAND / REPURPOSE
+PRD Area
+Prescripto Today
+Action
+Notes
+userModel.js (patient)
+Login/registration fields for a self-service patient
+MODIFY
+Rename conceptually to Patient. Add: source/lead field, assigned doctor, status (Active/Inactive/Completed) — PRD FR-027, FR-031, FR-034. Self-registration flow itself becomes admin/doctor-entered data, since patients don't log in in V1.
+admin/src/pages/Admin/Dashboard.jsx
+Basic hospital metrics overview
+MODIFY
+Reshape into the PRD 5.2 Admin Dashboard: today's revenue/consultations/sessions, pending follow-ups, new leads, doctor-wise revenue chart, 30-day trend charts — FR-008 to FR-017.
+admin/src/pages/Doctor/DoctorDashboard.jsx
+Doctor overview shell
+MODIFY
+Reshape into PRD 5.3 Doctor Dashboard: today's patients, follow-ups due, revenue-to-target, projected incentive, tasks, social-media prompt — FR-018 to FR-026.
+admin/src/pages/Admin/AddDoctor.jsx, DoctorsList.jsx
+Doctor onboarding + listing
+MODIFY
+Add monthly target and incentive-rule fields at doctor level (FR-068) and link to the new IncentiveConfiguration screen (PRD 9.2).
+appointmentModel.js + booking flow
+Patient books a slot, pays via Stripe/Razorpay, one fee per appointment
+REBRAND
+Repurpose the underlying pattern (date/time linking Patient↔Doctor) as the basis for TherapySession scheduling, not as a public booking flow. Strip the payment-gateway checkout — PRD billing is manual invoice + cash/UPI/card/bank recording (FR-055, FR-056), not online checkout.
+5. What to REMOVE or PARK for Later
+PRD Area
+Prescripto Today
+Action
+Notes
+frontend/ (entire patient-facing app)
+Public site: Home, Doctors directory, patient Login/Register, booking, MyAppointments, Verify (payment)
+PARK (Future)
+No PRD V1 role uses this. Matches PRD Section 7.3 "Patient Portal — Future" and 18 "Future Scalability." Keep the code in a branch rather than deleting; it's a legitimate head start on that future feature, just not V1 work.
+Stripe / Razorpay payment-gateway integration (Verify.jsx and backend hooks)
+Online payment capture for bookings
+REMOVE (from V1)
+PRD FR-056 lists Cash, UPI, Card, Bank Transfer as manually recorded modes by Admin/Doctor — not a checkout API. Online gateway integration isn't in MVP scope (Section 14) and isn't listed under Future Scalability either, so don't carry the dependency forward unless it resurfaces with the Patient Portal.
+Public doctor-browsing/filtering UI (Doctors.jsx)
+Patient-facing directory with specialty filters
+PARK (Future)
+Useful UI pattern to reuse later for the internal "Patient List" / "My Patients" screens (PRD Section 9), but its patient-facing purpose goes away in V1.
+6. What Must Be Built From Scratch
+This is the real scope of the project. None of the following exist in Prescripto in any form. Grouped by PRD Section 5 subsection:
+PRD Area
+Prescripto Today
+Action
+Notes
+5.5 Consultation & Medical Records
+No consultation entity at all — appointments have no clinical notes
+BUILD NEW
+Consultation model (chief complaint, history, diagnosis, treatment plan, immutability rule BR-13) + New Consultation / Consultation History screens.
+5.6–5.7 Therapy & Packages
+No therapy or package concept — appointments are generic bookings
+BUILD NEW
+Therapy, TherapyPackage, PackageTherapy, PatientPackage, TherapySession models; Therapy Master, Package Master, Therapy Assignment, Therapy Sessions screens.
+5.8 Billing & Payments
+Single Stripe/Razorpay charge per appointment; no invoice concept
+BUILD NEW
+Invoice, InvoiceItem, Payment models with partial-payment and status tracking (Paid/Partial/Pending) — FR-057, FR-058, BR-08, BR-15.
+5.9–5.10 Doctor Revenue & Incentives
+No revenue attribution or incentive logic exists
+BUILD NEW
+DoctorRevenue, IncentiveRule, DoctorTarget, DoctorIncentive models + calculation engine off paid amounts only (BR-09) and the Incentive Configuration screen.
+5.11–5.12 Follow-Ups & Reminders
+No follow-up concept beyond a booked appointment
+BUILD NEW
+FollowUp, FollowUpNote, Reminder models; overdue-flagging logic; Follow-Up List/Detail screens — this is flagged as a core operational requirement in the PRD.
+5.13 WhatsApp Communication
+No WhatsApp touchpoint
+BUILD NEW
+Simple deep-link (wa.me) button on patient record + outcome logging in FollowUpNote — lightweight per FR-085 to FR-088.
+5.14 Lead Management
+No lead-source capture
+BUILD NEW
+LeadSource model, capture at registration, and a source-performance report — FR-089 to FR-092.
+5.15 Social Media Activity
+Not present
+BUILD NEW
+SocialActivity model with file upload, Admin review states (Reviewed/Flagged) — FR-093 to FR-095.
+5.16–5.17 Doctor Notes & Tasks
+Not present
+BUILD NEW
+DoctorNote (private, BR-03) and DoctorTask models + Personal Notes / My Tasks screens.
+5.18 Daily Closing Report
+Not present
+BUILD NEW
+DailyReport model + submission/review flow between Doctor and Admin.
+5.19 Reporting (Daily/Weekly/Monthly)
+No reporting layer
+BUILD NEW
+Aggregation queries across the new models + PDF/CSV export (FR-112).
+Cross-cutting: Audit Logging
+No change tracking
+BUILD NEW
+AuditLog model capturing user, timestamp, and change summary on every create/update/delete of a critical entity — Section 11 and BR-10.
+Cross-cutting: RBAC data model
+Roles are hard-wired by folder (admin/ vs doctor pages), not configurable
+BUILD NEW
+Role entity + permission checks so Admin can create/deactivate accounts (FR-004) without a code change.
+7. Database Model Gap
+PRD Section 10 defines 26 logical entities. Prescripto's backend/models/ currently has 3. The table below is the full checklist.
+PRD Entity
+Status in Prescripto
+User / Patient (userModel.js)
+Exists — needs new fields
+Doctor (doctorModel.js)
+Exists — needs target/incentive links
+Appointment (appointmentModel.js)
+Exists — repurpose as TherapySession seed
+Role
+Missing
+LeadSource
+Missing
+Consultation
+Missing
+TreatmentPlan
+Missing
+Therapy
+Missing
+TherapyPackage
+Missing
+PackageTherapy
+Missing
+PatientPackage
+Missing
+TherapySession
+Missing
+Invoice / InvoiceItem
+Missing
+Payment
+Missing
+DoctorRevenue
+Missing
+IncentiveRule / DoctorTarget / DoctorIncentive
+Missing
+FollowUp / FollowUpNote
+Missing
+Reminder
+Missing
+SocialActivity
+Missing
+DoctorNote
+Missing
+DoctorTask
+Missing
+DailyReport
+Missing
+AuditLog
+Missing
+Notification
+Missing
+8. Screen Inventory Gap
+PRD Section 9 lists roughly 19 Admin screens and 15 Doctor screens (plus 4 shared). Prescripto's admin/ workspace currently has 4 Admin screens and 3 Doctor screens — the rest need to be designed and built.
+Workspace
+Exists Today
+Required by PRD
+Net New
+Shared (Login, Forgot Password, My Profile, Notifications)
+Login only
+4
+3
+Admin
+Dashboard, AddDoctor, DoctorsList, AllAppointments (4)
+19
+~15
+Doctor
+DoctorDashboard, DoctorAppointments, DoctorProfile (3)
+15
+~12
+9. Revised Development Phases (Prescripto-Specific)
+This refines PRD Section 15 for a Prescripto starting point rather than a blank repository. Same nine phases, adjusted first step:
+PRD Area
+Prescripto Today
+Action
+Notes
+Phase 1 — Foundation & Auth
+JWT + role folders already exist
+MODIFY
+Fork the repo, strip frontend/'s payment gateway and public booking flow, park frontend/ on its own branch, convert admin/'s hard-coded role folders into a data-driven Role/permission model.
+Phase 2 — Patients & Doctor Workflow
+userModel + basic patient fields exist
+MODIFY + BUILD
+Extend Patient schema (source, assigned doctor, status); build Consultation and TreatmentPlan from scratch; build the patient timeline view.
+Phase 3 — Therapies & Packages
+Nothing exists
+BUILD NEW
+Full new module — Therapy, TherapyPackage, PackageTherapy, PatientPackage, TherapySession, plus Admin Therapy/Package Master screens.
+Phase 4 — Billing & Payments
+Only single-charge Stripe/Razorpay checkout exists
+REMOVE + BUILD
+Remove the gateway; build Invoice/InvoiceItem/Payment with manual mode recording and partial-payment tracking.
+Phase 5 — Revenue & Incentives
+Nothing exists
+BUILD NEW
+Full new module — this is the PRD's flagged "core business requirement" and "core custom feature."
+Phase 6 — Follow-Ups & Reminders
+Nothing exists
+BUILD NEW
+Full new module — flagged as core operational requirement.
+Phase 7 — Leads & Social Media
+Nothing exists
+BUILD NEW
+Full new module.
+Phase 8 — Reports & Analytics
+Basic dashboard shell exists
+MODIFY + BUILD
+Reshape existing dashboards into PRD-spec KPIs; build the daily/weekly/monthly report engine and export from scratch.
+Phase 9 — Security, Testing & Deployment
+Basic .env/JWT pattern exists
+MODIFY + BUILD
+Add AuditLog, harden RBAC, add validation across every new module, then test and deploy.
+10. Immediate Next Steps
+Confirm with the team that the frontend/ patient app is parked, not deleted, and is out of the Version 1 timeline — this changes effort estimates significantly if assumed otherwise.
+Design the AIM-specific Mongoose schemas for the 23 missing entities (Section 7) before touching any UI — the PRD's business rules (BR-05, BR-06, BR-07: no hard-coded prices, targets, or follow-up counts) need to be schema-level decisions, not UI decisions.
+Decide the RBAC approach: keep folder-based admin/doctor separation (fast, matches current repo) vs. move to a single app with a Role/permission table (matches PRD FR-002/FR-004 more literally, more flexible for the Phase-2 Receptionist/Accounts roles in PRD Section 4.2).
+Strip Stripe/Razorpay dependencies and the public booking route from the active branch early, so nobody builds new features against a payment flow that's being removed.
+Re-run this gap analysis after Phase 3 (Therapies & Packages) — it's the first genuinely new domain model and a good checkpoint on how closely the rest of the build is tracking the PRD.
+Prepared as a companion to AIM_Nature_Cure_ERP_PRD_v1_0.docx — Version 1.0, August 2026.

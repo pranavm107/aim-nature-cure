@@ -1,0 +1,148 @@
+AIM NATURE CURE ERP
+Implementation Roadmap — Prescripto to Complete ERP, Step by Step
+Companion to PRD v1.0 and the Gap Analysis  |  Version 1.0  |  August 2026
+How to Use This Roadmap
+This turns the gap analysis into an execution order. Each stage lists the concrete steps to do, in order, and a checkpoint that tells you when the stage is actually done — not just started. Follow the stages in sequence; within a stage, follow the numbered steps in sequence, since later steps in a stage usually depend on earlier ones (you can't mark a therapy session complete before the therapy exists).
+Suggested pace assumes one developer working full-time, or two working in parallel on independent stages once Stage 0–1 are done. Adjust the week labels to your team size — the order matters more than the timing.
+Stage 0 — Repo Prep (before any new feature work)
+Do this before writing any AIM Nature Cure feature. It stops you building on top of code that's about to be removed.
+Fork/clone Prescripto into the AIM Nature Cure repo.
+Create two branches: main for the ERP build, and archive/patient-portal — move the entire frontend/ workspace there untouched and remove it from main. This is your parked "future Patient Portal" starting point.
+On main, delete the Stripe/Razorpay integration and the Verify.jsx payment-callback flow from backend and admin — nothing in Version 1 needs online checkout.
+Set up three environments (local, staging, production) with fresh MongoDB databases and rotated JWT_SECRET values — don't reuse Prescripto's demo credentials.
+Re-read PRD Section 16 (Acceptance Criteria) and Section 17 (Business Rules) once — BR-05, BR-06, BR-07 (nothing hard-coded: prices, targets, follow-up counts) affect schema design from Stage 1 onward, so it's cheaper to internalize them now than to refactor later.
+Set up a tracker (even a spreadsheet) with one row per FR-### from the PRD, so nothing gets silently dropped across nine stages.
+Stage 1 — Foundation & Access Control
+Stage 1: Auth, Roles, Users   Week 1
+Replace Prescripto's folder-based role split with a real, data-driven RBAC layer everything else will sit on.
+Design the Role and User schema: role field (admin/doctor for V1), permissions if you want screen-level granularity, active/inactive flag.
+Extend the existing JWT middleware to check role from the token/database instead of assuming "whoever hits /admin/* is an admin."
+Build the Admin → User Management screen: create, activate, deactivate accounts (FR-004).
+Wire up password reset (FR-003) using Prescripto's existing mail/token pattern if present, or a simple token-link flow if not.
+Add configurable session expiry on inactivity (FR-005).
+Redirect unauthenticated access to login, and unauthorized-role access to a proper access-denied screen, not a blank page (FR-007, Section 11).
+Checkpoint / Definition of Done: Both Admin and Doctor accounts can be created by an Admin, log in, and are blocked from each other's screens by role — not by which URL folder they happen to be in.
+Stage 2 — Patients & Consultations
+Stage 2: Patient Records + Clinical Notes   Weeks 2–3
+Turn Prescripto's self-service patient into an internally-managed patient record with a real consultation history.
+Extend the Patient schema: lead source, assigned doctor, status (Active/Inactive/Completed Treatment), unique Patient ID generator (FR-027, FR-028, FR-031).
+Build Patient Registration (Admin/Doctor entered, not self-service) reusing the AddDoctor form pattern.
+Build Patient search by name/phone/Patient ID (FR-029) and the Patient List screens for Admin (all patients) and Doctor (assigned only) — this is where BR-02 gets enforced.
+Build the Patient Detail screen with an empty timeline section — you'll populate it as later stages add consultations, therapies, invoices, and follow-ups.
+Build the Consultation model (chief complaint, history, observations, diagnosis, treatment plan, diet/lifestyle notes, doctor notes, optional prescription) and the New Consultation screen.
+Enforce consultation immutability after submission (BR-13) — corrections become an addendum note, not an edit.
+Build Consultation History on the Patient Detail screen.
+Checkpoint / Definition of Done: A doctor can register a patient, write a consultation, see it appear (read-only) in that patient's history, and an admin can see every patient while a doctor only sees their own.
+Stage 3 — Therapies & Packages
+Stage 3: Therapy Catalog + Session Tracking   Weeks 4–5
+This is the first entirely new domain model — the therapy/package engine the rest of billing and revenue depends on.
+Build the Therapy model and Admin Therapy Master screen (name, description, duration, price, active/inactive) — FR-041 to FR-043.
+Build TherapyPackage + PackageTherapy (junction) and the Package Master screen — a package is one or more therapies, each with a session count (FR-046 to FR-048).
+Build Therapy Assignment on the Doctor side: assign individual therapies or a package to a patient (FR-044, FR-049).
+On package assignment, auto-generate the individual TherapySession records for tracking (FR-050) — this is the piece with no Prescripto equivalent at all, build it carefully.
+Build the Therapy Sessions screen: mark each session complete with date/notes, and show consumed vs. remaining sessions per package (FR-045, FR-051).
+Make sure prices are pulled from the Therapy/Package config, never hard-coded (FR-052, BR-07).
+Checkpoint / Definition of Done: Assigning a package to a patient creates the right number of sessions; marking sessions complete correctly decrements the remaining count; a deactivated therapy can't be newly assigned but existing sessions stay valid (BR-14).
+Stage 4 — Billing & Payments
+Stage 4: Invoices + Manual Payment Recording   Week 6
+Replace the single-charge checkout with a real invoice/payment model tied to consultations, therapies, and packages.
+Build Invoice + InvoiceItem models: itemized line items referencing consultations, therapy sessions, or packages, with quantities and prices (FR-053, FR-054).
+Build invoice generation from a patient visit (Admin or Doctor can trigger it).
+Build the Payment model and a "record payment" action supporting Cash, UPI, Card, Bank Transfer (FR-055, FR-056) — enforce BR-08 (invoice must exist before a payment can attach to it).
+Support partial payments with an outstanding-balance display and a Paid/Partial/Pending status on the invoice (FR-057, FR-058, BR-15).
+Record date, amount, mode, and recorded-by user on every payment (FR-059) — this feeds both revenue and audit logging later.
+Add a printable/downloadable receipt view (FR-060).
+Checkpoint / Definition of Done: An invoice generated from a consultation or therapy session shows correct line items and total; a partial payment updates the outstanding balance and status correctly; a receipt renders.
+Stage 5 — Doctor Revenue & Incentives
+Stage 5: Revenue Attribution + Incentive Engine   Weeks 7–8
+The PRD flags this as a core custom feature — build it once billing (Stage 4) is solid, since it's calculated entirely from paid amounts.
+Build the revenue aggregation query: sum paid amounts (not invoiced amounts, per BR-09 and FR-067) attributable to a doctor's consultations, therapy sessions, and packages, filterable by today/week/month (FR-062, FR-063).
+Document and implement the attribution rule for the edge case the PRD flags: a package assigned by one doctor but delivered by another (FR-062 note) — decide this before coding it, not while coding it.
+Build DoctorRevenue views: Admin's per-doctor and comparative doctor-wise report (FR-064, FR-066); Doctor's own breakdown by patient and service (FR-065).
+Build IncentiveRule + DoctorTarget config screen: target amount, period, percentage, effective date, per doctor, fully Admin-configurable (FR-068, BR-04, BR-05).
+Build the incentive calculation: when eligible revenue reaches or exceeds target, compute the incentive amount automatically (FR-069). Verify against the PRD's worked example (₹30,000 target, 5%, ₹32,000 achieved → ₹1,600 incentive).
+Build DoctorIncentive records for Admin review/approval before payout (FR-070) and the Doctor's own projected-incentive view (FR-071, FR-024 on the dashboard).
+Design the schema so a future tiered-incentive rule (Section 5.10 future enhancement) doesn't require a rebuild — even though you're only implementing single-tier now.
+Checkpoint / Definition of Done: Setting a target and percentage for a doctor, then recording enough paid revenue to cross it, produces the correct calculated incentive automatically, visible to both Admin and the Doctor.
+Stage 6 — Follow-Ups & Reminders
+Stage 6: Follow-Up Scheduling + Overdue Tracking   Weeks 9–10
+Flagged as a core operational requirement — no patient follow-up should be able to silently fall through.
+Build FollowUp + FollowUpNote models: expected date, communication mode (Phone/WhatsApp/In-Person), outcome notes, whether another follow-up is required (FR-073, FR-077).
+Make the required follow-up count per patient an Admin-configurable setting, not hard-coded (FR-074, BR-06) — default to ~3 but store it as config.
+Build the Follow-Up List (today, upcoming, overdue) and Follow-Up Detail screens for the Doctor (FR-075).
+Build the overdue-flagging logic: a scheduled date has passed with no outcome recorded (FR-076) — a simple query run on dashboard load is enough for V1, no need for a background job yet.
+Add the "schedule next follow-up from the same screen" flow after an outcome is recorded (FR-078).
+Build the Admin cross-doctor follow-up status view and the completed/pending/overdue counts (FR-079, FR-080).
+Add in-app reminders for follow-ups due today/tomorrow and approaching task due-dates (FR-081 to FR-084) — in-app only, no SMS/email integration for V1.
+Wire the WhatsApp deep-link button onto the patient record (FR-085, FR-086) — this is a thin feature, don't over-build it; it just opens wa.me with the number pre-filled.
+Checkpoint / Definition of Done: Scheduling a follow-up makes it appear on the Doctor Dashboard when due, an unactioned overdue one gets flagged automatically, and completing it lets the doctor schedule the next one in the same flow.
+Stage 7 — Leads & Social Media
+Stage 7: Acquisition Tracking   Week 11
+Two independently simple modules — good candidates to split across two people if you have them.
+Build LeadSource as a configurable reference list (Google, Instagram, Website, WhatsApp, Referral, Walk-In, Other + Admin-added custom sources) and capture it at patient registration (FR-089, FR-090).
+Lock the lead source after registration unless an Admin explicitly overrides it (BR-12).
+Build the Admin lead source report: patient counts and revenue attributed per source (FR-091).
+Build the lead-stage tracking (Lead Captured → Contacted → Appointment Booked → Visited → Treatment Started → Payment Received) if you want funnel visibility in V1 — the PRD lists this as a stage model, not necessarily a UI (FR-092).
+Build SocialActivity: platform, post type, date, optional URL, description, screenshot upload (FR-093).
+Build the Admin Social Media Review screen with Reviewed/Flagged states and the weekly submission-count summary on the Admin Dashboard (FR-094, FR-095).
+Checkpoint / Definition of Done: A patient's lead source shows up correctly in the source report with counts and revenue; a doctor's social post submission with a screenshot appears in Admin's review queue and can be marked reviewed.
+Stage 8 — Doctor Workspace, Daily Reports & Analytics
+Stage 8: Personal Tools + Reporting Layer   Weeks 12–13
+Closes out the feature list: private doctor tools, the daily-closing ritual, and the reporting layer that reads everything built so far.
+Build DoctorNote (private free-text, search/pin/archive) and enforce BR-03: Admin cannot access these under any circumstance — check this at the API layer, not just hidden in the UI (FR-096 to FR-099).
+Build DoctorTask (title, description, due date, priority, status) sorted by due date on the dashboard, with overdue highlighting and optional reminders (FR-100 to FR-104).
+Build DailyReport: end-of-day submission (patients handled, consultations, sessions, revenue, follow-ups, social activity summary, carry-forward notes) and the Admin review/comment/flag screen (FR-105 to FR-108).
+Build the Daily report aggregation view (FR-109) pulling from consultations, sessions, revenue, payments, follow-ups, and leads already built in Stages 2–7.
+Build the Weekly report (patient growth, revenue, therapy performance, doctor revenue, follow-up rate, lead conversion) (FR-110).
+Build the Monthly report (target achievement, incentive eligibility, patient growth, therapy/package performance, lead effectiveness, payment reconciliation) (FR-111).
+Add PDF/CSV export on all three report views (FR-112).
+Reshape the existing Prescripto Admin and Doctor dashboards into the PRD-spec KPI sets now that the underlying data exists (FR-008 to FR-026).
+Checkpoint / Definition of Done: All three report periods show numbers that trace correctly back to the underlying invoices, sessions, and follow-ups, exports produce valid files, and both dashboards show live KPIs instead of Prescripto's original placeholders.
+Stage 9 — Security, Audit, Testing & Deployment
+Stage 9: Harden and Ship   Weeks 14–15
+Nothing new functionally — this stage makes everything built in Stages 1–8 trustworthy and production-ready.
+Build the AuditLog model and wrap every create/update/delete on a critical entity (patients, invoices, payments, incentive rules, consultations) with a log entry: user, timestamp, change summary (Section 11, BR-10).
+Do a full RBAC pass: try accessing every Admin screen as a Doctor and vice versa; confirm access-denied responses, not blank pages or leaked data.
+Add/verify client- and server-side validation on every form built since Stage 1, with clear error messages (Section 11).
+Confirm HTTPS everywhere and bcrypt (or equivalent) password hashing carried over correctly from Prescripto's auth base.
+Validate file uploads (social media proofs) for type/size and confirm they're not served from an unauthenticated public URL.
+Run the full PRD Section 16 Acceptance Criteria checklist end to end, module by module, and fix gaps.
+Set up a documented daily database backup with a tested restore procedure.
+Deploy to production.
+Checkpoint / Definition of Done: Every PRD Section 16 acceptance criterion passes, every critical action shows up in the audit log with the right user and timestamp, and role boundaries hold under manual testing — not just "the happy path works."
+Suggested Timeline at a Glance
+Stage
+Focus
+Approx. Duration
+0
+Repo prep — strip payment gateway, park patient app
+2–3 days
+1
+Auth, roles, user management
+1 week
+2
+Patients & consultations
+2 weeks
+3
+Therapies & packages
+2 weeks
+4
+Billing & payments
+1 week
+5
+Revenue & incentives
+2 weeks
+6
+Follow-ups & reminders
+2 weeks
+7
+Leads & social media
+1 week
+8
+Doctor workspace, daily reports, analytics
+2 weeks
+9
+Security, audit, testing, deployment
+2 weeks
+Total: roughly 15–16 weeks for one full-time developer end-to-end. Stages 3, 5, and 6 are the heaviest — each introduces a domain model with no Prescripto precedent and business logic (session tracking, incentive math, overdue detection) that needs care, not just CRUD screens. If you split work across two developers once Stage 1 is done, Stages 2–4 (patient-facing data) and Stages 6–7 (follow-up/lead tracking) can run in parallel tracks, with Stage 5 (revenue/incentives) waiting on Stage 4's billing data.
+Prepared as a companion to AIM_Nature_Cure_ERP_PRD_v1_0.docx and the Prescripto Gap Analysis — Version 1.0, August 2026.

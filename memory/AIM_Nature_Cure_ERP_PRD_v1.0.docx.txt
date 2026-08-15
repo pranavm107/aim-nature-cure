@@ -1,0 +1,1077 @@
+
+AIM NATURE CURE
+Enterprise Resource Planning System
+
+
+Software Requirements & Product Specification Document
+Version 1.0  |  August 2026
+Classification: Confidential
+
+Prepared for
+AIM Nature Cure Hospital
+A Nature Cure & Wellness Hospital
+
+Table of Contents
+1.  Executive Summary
+2.  Business Context
+3.  Business Goals
+4.  User Roles
+5.  Functional Requirements
+    5.1   Authentication & Access Control
+    5.2   Admin Dashboard
+    5.3   Doctor Dashboard
+    5.4   Patient Management
+    5.5   Consultation & Medical Records
+    5.6   Therapy Management
+    5.7   Therapy Packages
+    5.8   Billing & Payments
+    5.9   Doctor Revenue Tracking
+    5.10  Incentive Calculation
+    5.11  Follow-Up Management
+    5.12  Reminders
+    5.13  WhatsApp / Patient Communication
+    5.14  Lead Management
+    5.15  Social Media Activity Tracking
+    5.16  Doctor Personal Workspace
+    5.17  Doctor Tasks
+    5.18  Daily Closing / Daily Report
+    5.19  Reporting (Daily / Weekly / Monthly)
+6.  Hospital Owner / Management View
+7.  Recommended Enhancements
+8.  Complete User Workflows
+9.  Screen Inventory
+10. Database Requirements
+11. Non-Functional Requirements
+12. Technology Strategy
+13. Development Strategy
+14. MVP Scope
+15. Development Phases
+16. Acceptance Criteria
+17. Business Rules
+18. Future Scalability
+19. Final Summary
+
+1. Executive Summary
+AIM Nature Cure ERP is a purpose-built internal management system for AIM Nature Cure, a nature cure and wellness hospital. The system is designed to centralize all day-to-day clinical, operational, and financial activities into a single platform that the clinical and administrative team can use from any device.
+
+Why it is being developed
+Currently, patient records, therapy tracking, billing, follow-ups, and doctor performance are managed through informal or disconnected methods. This results in missed follow-ups, inconsistent revenue tracking, and limited management visibility. A structured ERP will formalize these workflows and make the hospital's operations transparent and auditable.
+
+What problem it solves
+•  Eliminates informal patient record-keeping
+•  Enables systematic follow-up management to improve patient retention
+•  Provides accurate revenue and incentive tracking for doctors
+•  Gives management real-time visibility into hospital performance
+•  Creates a structured workspace for doctors to manage consultations, therapy sessions, tasks, and social media activity
+
+Primary Users
+•  Admin — oversees all hospital operations, doctors, revenue, and reporting
+•  Doctor — manages patient consultations, therapy sessions, follow-ups, tasks, and daily activity
+
+What Version 1 will deliver
+The first version of AIM Nature Cure ERP will deliver a fully functional system covering patient management, consultation and treatment records, therapy and package management, billing and payment tracking, doctor revenue calculation, configurable incentive rules, follow-up scheduling and reminders, lead source tracking, social media proof submission, doctor personal workspace, and daily, weekly, and monthly reporting.
+
+2. Business Context
+AIM Nature Cure is a nature cure and wellness hospital that offers treatments based on natural therapies. The hospital provides a range of services including steam baths, hip baths, and other established nature cure therapies, combined with consultations, diet guidance, and lifestyle recommendations.
+
+2.1 Current Operational Workflow
+Doctors
+The hospital hires doctors who are responsible for patient intake, consultations, treatment planning, and therapy sessions. Since some doctors are hired from outside the local area and provided with on-site accommodation, they are available during extended hours and are expected to remain productive during patient-free intervals — including uploading social media content.
+
+Therapy-Based Revenue
+Revenue is generated through consultations and therapy sessions. Therapy packages are offered where patients can purchase a combination of sessions at a defined price. Doctors are expected to generate revenue through the therapies and packages they recommend and deliver.
+
+Doctor Monthly Targets & Incentives
+Each doctor is assigned a monthly revenue target. If the doctor's eligible revenue meets or exceeds the target, they receive a percentage-based incentive. Currently this tracking is informal; the ERP will automate it.
+
+Patient Follow-Ups
+After a patient's first visit, the doctor is expected to follow up with them a defined number of times (approximately three sessions based on initial requirements, but this will be configurable). Follow-ups are conducted by phone or WhatsApp. Currently there is no system to track whether follow-ups are completed or overdue.
+
+Lead Generation & Social Media
+Patients arrive through multiple channels including Google, Instagram, the hospital website, WhatsApp, referrals, and walk-ins. Tracking which source produces visits and revenue is a management requirement. Doctors are expected to post on social media regularly and submit proof of activity within the ERP.
+
+Daily Accounting
+The admin requires a daily view of payments received — including cash, UPI, card, and bank transfer — and whether the amounts have been correctly recorded. This is a financial control requirement.
+
+Management Reporting
+The hospital owner requires visibility into daily, weekly, and monthly performance metrics covering revenue, patient volumes, doctor performance, therapy performance, follow-up completion, and lead source effectiveness.
+
+3. Business Goals
+#
+Goal
+Priority
+BG-01
+Centralize all patient records in a single, searchable system
+High
+BG-02
+Track doctor activity, consultations, and therapy sessions
+High
+BG-03
+Track therapy services and package consumption accurately
+High
+BG-04
+Automate doctor incentive calculation based on configurable rules
+High
+BG-05
+Prevent missed follow-ups through scheduling and reminders
+High
+BG-06
+Track patient lead sources to evaluate marketing effectiveness
+High
+BG-07
+Improve patient retention through structured follow-up management
+High
+BG-08
+Provide full revenue visibility to management at daily/monthly level
+High
+BG-09
+Simplify daily payment recording and reconciliation
+High
+BG-10
+Provide daily, weekly, and monthly management reports
+High
+BG-11
+Create accountability through structured ERP activity logging
+Medium
+BG-12
+Track and verify doctor social media activity via proof submission
+Medium
+BG-13
+Provide doctors with a personal workspace for notes, tasks, and planning
+Medium
+
+Note: Artificial Intelligence is not a requirement in Version 1. AI assistance may be evaluated as a future enhancement once the core ERP is operational.
+
+4. User Roles
+4.1 Version 1 Roles
+Admin
+The Admin represents the hospital management or owner. The Admin has full access to all modules.
+
+Responsibility Area
+Scope
+Hospital Operations
+Manage doctors, patients, therapies, and packages
+Financial Management
+Billing, payments, revenue tracking, incentives
+Reporting
+Daily, weekly, and monthly performance reports
+Doctor Management
+Set targets, review incentives, monitor performance
+Lead Tracking
+Track patient acquisition sources
+Social Media Monitoring
+Review doctor-submitted social media proof
+Settings & Configuration
+Manage all system configuration
+
+Doctor
+The Doctor has access to their own operational workspace. Doctors cannot access other doctors' patient records or revenue data.
+
+Responsibility Area
+Scope
+Patient Records
+Add, edit, and view their assigned patients
+Consultations
+Record consultation notes, diagnosis, and treatment plans
+Therapy Sessions
+Track therapy assignments and session completion
+Follow-Ups
+Create and complete patient follow-ups
+Social Media
+Submit daily social media posts and proof
+Personal Workspace
+Personal notes, tasks, and reminders
+Daily Report
+Submit end-of-day activity summary
+Revenue View
+View own revenue and incentive status
+
+4.2 Future Roles (Not in Version 1)
+Note: The following roles were not explicitly requested and are recommended for future versions.
+
+Role
+Purpose
+Phase
+Receptionist
+Appointment booking, patient check-in, payment collection
+Phase 2
+Accounts Staff
+Billing, payment reconciliation, daily closing
+Phase 2
+Therapist
+Track own assigned therapy sessions
+Phase 3
+Management / Owner
+Read-only dashboard for revenue and performance KPIs
+Phase 2
+Super Admin
+System-level configuration and user management
+Phase 3
+
+5. Functional Requirements
+5.1 Authentication & Access Control
+[FR-001]  The system shall provide a secure login screen with username/email and password.
+[FR-002]  The system shall implement role-based access control (RBAC). Admins and Doctors see different dashboards and module sets.
+[FR-003]  Users shall be able to reset their password via a secure flow.
+[FR-004]  Admin shall be able to create, activate, and deactivate user accounts.
+[FR-005]  Sessions shall expire after a configurable inactivity period.
+[FR-006]  All authenticated actions shall be associated with the logged-in user for audit purposes.
+[FR-007]  Access to all protected pages shall require a valid session. Unauthenticated access shall redirect to the login screen.
+
+5.2 Admin Dashboard
+The Admin Dashboard provides a real-time operational overview of the hospital.
+
+[FR-008]  Display today's patient count, consultation count, and therapy session count.
+[FR-009]  Display today's total revenue collected (all payment modes).
+[FR-010]  Display count of active doctors.
+[FR-011]  Display count of pending and overdue follow-ups.
+[FR-012]  Display count of new leads today.
+[FR-013]  Display monthly revenue progress against the period total.
+[FR-014]  Display a doctor-wise revenue comparison for the current month.
+[FR-015]  Display a chart showing patient volume over the past 30 days.
+[FR-016]  Display a chart showing daily revenue over the past 30 days.
+[FR-017]  Display a summary of follow-up completion rate.
+
+5.3 Doctor Dashboard
+The Doctor Dashboard is the primary daily workspace for each doctor.
+
+[FR-018]  Display the doctor's patients scheduled for today.
+[FR-019]  Display today's consultation count.
+[FR-020]  Display today's therapy sessions.
+[FR-021]  Display follow-ups due today and count of overdue follow-ups.
+[FR-022]  Display the doctor's revenue generated today.
+[FR-023]  Display the doctor's current month revenue, monthly target, and percentage achieved.
+[FR-024]  Display the doctor's projected incentive for the current period.
+[FR-025]  Display pending tasks and upcoming reminders.
+[FR-026]  Display a prompt or status for today's social media activity submission.
+
+5.4 Patient Management
+[FR-027]  Admin and Doctor shall be able to register a new patient with the following details: full name, date of birth or age, gender, phone number, address, source of referral, and assigned doctor.
+[FR-028]  Each patient shall be assigned a unique system-generated Patient ID.
+[FR-029]  The system shall provide patient search by name, phone number, and Patient ID.
+[FR-030]  Doctor shall be able to edit patient demographics and contact information.
+[FR-031]  Patient status shall be tracked: Active, Inactive, Completed Treatment.
+[FR-032]  Each patient record shall maintain a timeline showing all visits, consultations, therapies, payments, and follow-ups in chronological order.
+[FR-033]  Admin shall be able to view all patients. Doctor shall be able to view their assigned patients.
+[FR-034]  The system shall capture the referral or lead source at the time of patient registration.
+
+5.5 Consultation & Medical Records
+[FR-035]  Doctor shall be able to create a consultation record for any of their assigned patients.
+[FR-036]  Consultation record shall include: date, chief complaint, medical history summary, clinical observations, diagnosis, treatment plan, diet and lifestyle recommendations, therapy recommendations, and doctor notes.
+[FR-037]  Prescription field shall be available but is not mandatory.
+[FR-038]  Consultation records shall be immutable once submitted. If corrections are needed, a follow-up note can be added.
+[FR-039]  All past consultations for a patient shall be viewable in the consultation history.
+[FR-040]  Admin shall be able to view all consultation records. Doctor shall only view consultations they created.
+Note: Highly specialized clinical fields such as specific diagnostic codes or structured vitals are not required in Version 1 and should not be added unless explicitly requested.
+
+5.6 Therapy Management
+[FR-041]  Admin shall be able to create a therapy with the following fields: therapy name, description, duration (in minutes), standard price, and active/inactive status.
+[FR-042]  Admin shall be able to edit and deactivate therapies.
+[FR-043]  Inactive therapies shall not appear in new package or session creation.
+[FR-044]  Doctor shall be able to assign one or more therapies to a patient as part of a treatment plan.
+[FR-045]  Each therapy session assigned to a patient shall be tracked individually. Doctor shall mark each session as complete and record the date and any notes.
+
+Note: Examples from requirements discussion include steam bath and hip bath. These are examples only. Admin can create any therapy appropriate for nature cure practice.
+
+5.7 Therapy Packages
+[FR-046]  Admin shall be able to create a therapy package with a name, description, total package price, validity period, and active/inactive status.
+[FR-047]  A package shall consist of one or more therapies, each with a specified number of sessions.
+[FR-048]  Example package structure: Steam Bath x 3 sessions + Hip Bath x 2 sessions = Total Package Price.
+[FR-049]  Admin or Doctor shall be able to assign a package to a patient.
+[FR-050]  When a patient is assigned a package, the system shall create the appropriate number of individual therapy sessions for tracking.
+[FR-051]  The system shall track consumed sessions and remaining sessions for each active package.
+[FR-052]  Package prices shall be fully configurable by Admin. No prices shall be hard-coded in the system.
+
+5.8 Billing & Payments
+[FR-053]  The system shall generate an invoice for each patient visit or service, including consultation charges, therapy session charges, and package charges.
+[FR-054]  Invoice shall include: patient name, Patient ID, date, itemized services, quantities, individual prices, and total amount.
+[FR-055]  Admin or Doctor shall be able to record payments against invoices.
+[FR-056]  Supported payment modes: Cash, UPI, Card, Bank Transfer.
+[FR-057]  The system shall support partial payments. Outstanding balance shall be tracked and displayed.
+[FR-058]  Payment status on each invoice shall show as Paid, Partial, or Pending.
+[FR-059]  Each payment transaction shall be recorded with the date, amount, mode, and recorded-by user.
+[FR-060]  A printable or downloadable receipt shall be available for each payment.
+[FR-061]  Refund handling is out of scope for Version 1. It will be considered as a future enhancement.
+
+5.9 Doctor Revenue Tracking
+This is a key business requirement. The system must calculate and display the revenue attributed to each doctor.
+
+[FR-062]  Revenue attributed to a doctor shall be calculated from: consultations conducted by the doctor, therapy sessions delivered by the doctor, and packages assigned by the doctor.
+[FR-063]  Revenue shall be viewable by today, current week, and current month.
+[FR-064]  Admin shall be able to view revenue by individual doctor.
+[FR-065]  Doctor shall be able to view their own revenue breakdown by patient and by service.
+[FR-066]  Admin shall be able to view a comparative doctor-wise revenue report.
+[FR-067]  The revenue calculation logic shall be based on paid amounts, not invoiced amounts, to avoid counting unpaid balances as revenue.
+Note: Revenue attribution rules (e.g. whether a package assigned by Doctor A but sessions conducted by Doctor B counts toward which doctor) shall be clarified during implementation and documented as a business rule.
+
+5.10 Incentive Calculation
+Incentive calculation is a core custom feature of this ERP.
+
+[FR-068]  Admin shall be able to configure an incentive rule per doctor with the following fields: target amount, target period (monthly), incentive percentage, and effective date.
+[FR-069]  When a doctor's eligible revenue for the period reaches or exceeds the target, the system shall automatically calculate the incentive amount.
+[FR-070]  Incentive amounts shall be displayed to the Admin for review and approval before payout.
+[FR-071]  The Doctor shall be able to view their projected incentive based on revenue to date.
+[FR-072]  No incentive values (targets or percentages) shall be hard-coded. All values are configurable by Admin.
+
+Example Configuration (for illustration only)
+Monthly Target: ₹30,000    |    Incentive Percentage: 5%
+If doctor achieves ₹32,000 in eligible revenue, incentive = ₹32,000 × 5% = ₹1,600
+
+Future Enhancement: Tiered Incentive Rules
+The data model shall be designed to support tiered incentive rules in a future version, for example:
+•  ₹0 – ₹20,000:  0% incentive
+•  ₹20,001 – ₹30,000:  3% incentive
+•  ₹30,001 – ₹50,000:  5% incentive
+Note: Tiered incentives are not required in Version 1 but the schema should not prevent their addition.
+
+5.11 Follow-Up Management
+Follow-up management is a core operational requirement. The system must ensure that no patient follow-up is missed.
+
+[FR-073]  Doctor shall be able to create a follow-up schedule for any patient, specifying the expected follow-up date and communication mode (Phone, WhatsApp, In-Person).
+[FR-074]  The required number of follow-up sessions per patient shall be configurable by Admin. The default from requirements is approximately three sessions, but this must not be hard-coded.
+[FR-075]  The system shall show today's scheduled follow-ups prominently on the Doctor Dashboard.
+[FR-076]  The system shall automatically flag overdue follow-ups (follow-ups where the scheduled date has passed and no outcome was recorded).
+[FR-077]  Doctor shall be able to record the outcome of a follow-up: Notes, Patient Response, and whether a next follow-up is required.
+[FR-078]  After completing a follow-up, the Doctor shall be able to schedule the next follow-up from the same screen.
+[FR-079]  Admin shall be able to view follow-up status for all patients across all doctors.
+[FR-080]  The system shall display counts of: follow-ups completed today, pending follow-ups, and overdue follow-ups.
+
+5.12 Reminders
+[FR-081]  The system shall generate reminders for follow-ups scheduled for today and the next day.
+[FR-082]  The system shall generate reminders for tasks with due dates approaching.
+[FR-083]  The system shall surface overdue follow-up reminders on the Doctor Dashboard.
+[FR-084]  Reminders shall be displayed as in-app notifications. External SMS or email integration is a future enhancement.
+
+5.13 WhatsApp / Patient Communication
+For Version 1, a lightweight WhatsApp communication workflow is sufficient and practical.
+
+[FR-085]  Each patient record shall display the patient's phone number with a WhatsApp button.
+[FR-086]  Clicking the WhatsApp button shall open WhatsApp (web or app) with the patient's number pre-filled. An optional predefined message template may be used.
+[FR-087]  The Doctor communicates with the patient manually through WhatsApp.
+[FR-088]  After communication, the Doctor shall record the outcome (notes, response, and next steps) in the follow-up record within the ERP.
+Note: Direct WhatsApp API integration (automated messaging, delivery receipts) is out of scope for Version 1 and will be considered as a future enhancement.
+
+5.14 Lead Management
+Lead management allows the hospital to track where patients come from and which sources convert to revenue.
+
+[FR-089]  Patient lead source shall be captured at registration. Supported sources: Google, Instagram, Hospital Website, WhatsApp, Doctor Referral, Patient Referral, Walk-In, Other.
+[FR-090]  Admin shall be able to add custom lead sources.
+[FR-091]  Admin shall be able to view a lead source report showing patient counts and revenue attributed per source.
+[FR-092]  The system shall allow tracking of a lead through the following stages: Lead Captured, Contacted, Appointment Booked, Visited, Treatment Started, Payment Received.
+
+5.15 Social Media Activity Tracking
+Doctors are expected to post regularly on social media during available intervals. The ERP provides a mechanism to submit and verify this activity.
+
+[FR-093]  Doctor shall be able to submit a social media activity entry with: platform (Instagram, Facebook, YouTube, etc.), post type (Reel, Post, Story, Video), post date, post URL (optional), description, and screenshot or image proof (upload).
+[FR-094]  Admin shall be able to view all social media submissions and mark them as Reviewed or Flagged.
+[FR-095]  Admin Dashboard shall show a summary count of social media submissions today and this week.
+Note: The system does not automatically verify activity on Instagram or any social media platform. All submissions are manual. Automated social media API integration is out of scope for Version 1.
+
+5.16 Doctor Personal Workspace
+The personal workspace is a private area for the doctor's own use and is not part of the official patient record.
+
+[FR-096]  Doctor shall have access to a personal notes area where they can write free-text entries.
+[FR-097]  Notes can include treatment ideas, patient planning thoughts, content ideas, or any personal professional content.
+[FR-098]  Personal notes shall be visible only to the Doctor who created them. Admin shall not have access to personal notes.
+[FR-099]  Doctor shall be able to search, pin, and archive personal notes.
+Note: Doctor personal notes are strictly separate from official patient medical records. This distinction is critical and must be maintained in both the UI and data layer.
+
+5.17 Doctor Tasks
+[FR-100]  Doctor shall be able to create a personal task with: title, description, due date, priority (High / Medium / Low), and status (Pending / In Progress / Completed).
+[FR-101]  Tasks shall be displayed on the Doctor Dashboard sorted by due date.
+[FR-102]  Overdue tasks shall be highlighted.
+[FR-103]  Doctor shall be able to set a reminder on a task.
+[FR-104]  Example task: 'Call Arun Kumar for follow-up by Tuesday.'
+
+5.18 Daily Closing / Daily Report
+At the end of each working day, the Doctor submits a structured daily report to the Admin.
+
+[FR-105]  Doctor shall be able to submit a daily closing report containing: patients handled, consultations completed, therapy sessions delivered, revenue generated, follow-ups completed, follow-ups pending, social media activity (summary), and any pending work to carry forward.
+[FR-106]  Admin shall be able to view all doctor daily reports.
+[FR-107]  Admin shall be able to flag or add comments to a daily report.
+[FR-108]  The system shall indicate if a Doctor has not submitted a daily report by a configurable time.
+
+5.19 Reporting
+Daily Report
+[FR-109]  Daily report shall include: patient count, consultations, therapy sessions, revenue (total and by payment mode), payments received, follow-ups completed vs. pending, new leads, and doctor-wise performance summary.
+
+Weekly Report
+[FR-110]  Weekly report shall include: patient growth (new vs. returning), total revenue, therapy-wise performance, doctor-wise revenue, follow-up completion rate, and lead conversion summary.
+
+Monthly Report
+[FR-111]  Monthly report shall include: total revenue, target achievement per doctor, incentive eligibility summary, patient growth, returning patient rate, therapy and package performance, lead source effectiveness, follow-up conversion, and payment reconciliation summary.
+
+[FR-112]  Reports shall be viewable on-screen and exportable to PDF or CSV.
+
+
+6. Hospital Owner / Management View
+The hospital owner does not need access to individual consultation notes or therapy session details. They require a high-level performance and financial overview.
+
+Information Area
+Metrics Required
+Revenue
+Daily, weekly, monthly revenue totals and trend
+Patient Growth
+New patients, returning patients, monthly growth rate
+Doctor Performance
+Revenue per doctor, target achievement, incentive status
+Therapy Performance
+Most-used therapies, revenue per therapy, package sales
+Pending Payments
+Outstanding invoices and collection status
+Follow-Up Performance
+Completion rates and overdue counts
+Lead Source Performance
+Patient and revenue by acquisition source
+Social Media Activity
+Posts submitted this week per doctor
+Expenses (Phase 2)
+Basic expense tracking against revenue
+
+Note: The owner view can be implemented as a read-only role or as a dedicated management dashboard accessible by Admin. This will be finalised during UI design.
+
+7. Recommended Enhancements
+The following features were not explicitly requested in the requirements conversation. They are recommended based on practical operational needs and are separated clearly from the Version 1 scope.
+
+7.1 High Priority Recommendations
+Feature
+Rationale
+Owner Dashboard (read-only)
+Separate high-level view without operational access
+'Attention Required' panel
+Surfaces overdue follow-ups, unpaid invoices, and missed reports in one place
+Patient timeline view
+Chronological history of all patient interactions on one screen
+Payment reconciliation
+Daily closing with total cash/UPI/card match against recorded payments
+Daily cash closing
+Admin confirms daily collections are accurate and accounted for
+Expense tracking
+Basic expense logging to compare against revenue
+Discount approval workflow
+Discounts require Admin approval before application
+Patient feedback collection
+Simple rating or comment form after treatment completion
+Doctor leave management
+Mark leave days; exclude from performance targets accordingly
+Data export
+Export patients, invoices, or reports to Excel or CSV
+Audit logs
+Record all create/edit/delete actions with user and timestamp
+
+7.2 Medium Priority Recommendations
+Feature
+Rationale
+Inventory management
+Track consumables used in therapies
+HR / Payroll
+Manage doctor salary with incentive integration
+Room / bed management
+Track accommodation for resident doctors or patients
+Membership plans
+Recurring patient memberships for regular wellness visits
+Referral program
+Track and reward patient-to-patient referrals
+Campaign management
+Track specific marketing campaigns and their ROI
+
+7.3 Future Enhancements
+Feature
+Notes
+Patient portal
+Patients view their own records, reports, and invoices
+Online appointment booking
+Public-facing booking page linked to the ERP
+WhatsApp Business API
+Automated follow-up messages and appointment reminders
+Mobile application
+Native mobile app for doctors in the field
+Advanced analytics
+Trend analysis, patient retention prediction
+AI-assisted features
+Possible future addition after core ERP is stable
+
+8. Complete User Workflows
+8.1 Patient Journey
+Stage
+Action
+Performed By
+Registration
+Patient details entered, source captured, doctor assigned
+Admin / Doctor
+Consultation
+Chief complaint, history, diagnosis, and treatment plan recorded
+Doctor
+Treatment Plan
+Therapies and packages recommended and assigned
+Doctor
+Therapy Sessions
+Sessions scheduled, conducted, and marked complete
+Doctor
+Billing
+Invoice generated for consultation and therapies
+Admin / Doctor
+Payment
+Payment recorded against invoice (cash/UPI/card/bank)
+Admin / Doctor
+Follow-Up
+Doctor schedules and completes follow-up calls/WhatsApp
+Doctor
+Repeat Visit
+Patient returns; new consultation created; timeline updated
+Doctor
+
+8.2 Doctor Daily Workflow
+Step
+Activity
+1
+Login → View Doctor Dashboard
+2
+Review today's patients, follow-ups due, tasks, and reminders
+3
+Conduct patient consultations; record consultation notes
+4
+Assign and deliver therapy sessions; mark sessions complete
+5
+Follow up with patients via WhatsApp or phone; record outcomes
+6
+Complete personal tasks; add notes to workspace
+7
+Submit social media activity proof
+8
+Submit daily closing report
+
+8.3 Revenue & Incentive Workflow
+Patient → Service Delivered → Invoice Generated → Payment Recorded → Doctor Revenue Updated → Monthly Total Compared Against Target → Incentive Calculated
+
+8.4 Lead Workflow
+Source (Google / Instagram / Website / Referral / Walk-In) → Lead Registered → Patient Contacted → Appointment Booked → Visit Completed → Treatment Started → Payment Received → Revenue Attributed to Source
+
+8.5 Follow-Up Workflow
+Initial Visit → Follow-Up Schedule Created → Reminder Triggered on Due Date → Doctor Calls/WhatsApps Patient → Outcome Recorded → Next Follow-Up Scheduled (if required) → Follow-Up Cycle Complete After Configured Number of Sessions
+
+9. Screen Inventory
+9.1 Shared Screens
+Screen
+Purpose
+Primary User
+Login
+Authenticate into the system
+All users
+Forgot Password
+Initiate password reset
+All users
+My Profile
+View and update personal account details
+All users
+Notifications
+View all system reminders and alerts
+All users
+
+9.2 Admin Screens
+Screen
+Purpose
+Admin Dashboard
+Hospital overview: revenue, patients, doctors, follow-ups, leads
+Doctor List
+View, add, edit, and deactivate doctors
+Doctor Detail
+View individual doctor profile, revenue, targets, and incentives
+Incentive Configuration
+Set and edit incentive rules per doctor
+Patient List
+Search and browse all patients
+Patient Detail
+Full patient profile with timeline
+Therapy Master
+Create, edit, and deactivate therapies
+Package Master
+Create, edit, and deactivate therapy packages
+Invoice List
+Browse and search all invoices
+Invoice Detail
+View invoice items, payment status, and record payment
+Payment List
+View all payments with filter by date/mode/doctor
+Daily Revenue Report
+Day-wise revenue breakdown by doctor, therapy, and mode
+Weekly Report
+Patient and revenue summary for the week
+Monthly Report
+Full performance report including incentives and targets
+Doctor Daily Reports
+Review submitted daily closing reports from all doctors
+Lead Management
+View leads, stages, and source attribution
+Social Media Review
+Review doctor-submitted social media proofs
+User Management
+Create, edit, and deactivate system users and roles
+Settings
+System-wide configuration (follow-up count, payment modes, sources, etc.)
+
+9.3 Doctor Screens
+Screen
+Purpose
+Doctor Dashboard
+Personal overview: patients today, follow-ups, revenue, tasks
+My Patients
+View and search assigned patients
+Patient Registration
+Add a new patient
+Patient Detail
+View patient profile, timeline, and all records
+New Consultation
+Record consultation notes for a patient
+Consultation History
+View past consultations for a patient
+Therapy Assignment
+Assign therapies or packages to a patient
+Therapy Sessions
+View and mark individual therapy sessions as complete
+Follow-Up List
+View all follow-ups: today, upcoming, overdue
+Follow-Up Detail
+Record outcome, notes, and schedule next follow-up
+My Revenue
+Personal revenue summary by date range
+My Incentive
+Target progress and projected incentive for current period
+Social Media Submission
+Upload post screenshot, URL, and description
+Personal Notes
+Free-text personal notes with search and pin
+My Tasks
+Create and manage personal tasks and reminders
+Daily Closing Report
+Submit end-of-day activity summary
+
+10. Database Requirements
+The following entities represent the core data model for AIM Nature Cure ERP. This is a logical model; physical schema design will follow during the development phase.
+
+Entity
+Purpose
+Key Relationships
+User
+System users (Admin, Doctor)
+Has Role; Doctor has Patients
+Role
+RBAC roles and permissions
+Assigned to User
+Doctor
+Extended profile for Doctor users
+Linked to User; has Patients, Revenue, Targets
+Patient
+Patient demographics and registration
+Assigned to Doctor; has Consultations, Invoices, FollowUps
+LeadSource
+Reference list of acquisition sources
+Referenced by Patient
+Appointment
+Scheduled appointments (future)
+Linked to Patient and Doctor
+Consultation
+Clinical consultation record
+Belongs to Patient and Doctor
+TreatmentPlan
+Overall treatment strategy
+Belongs to Consultation
+Therapy
+Therapy master record
+Referenced by PackageTherapy and TherapySession
+TherapyPackage
+Package master record
+Contains PackageTherapy items
+PackageTherapy
+Junction: therapies and quantities in a package
+Links TherapyPackage and Therapy
+PatientPackage
+A package assigned to a patient
+Links Patient and TherapyPackage
+TherapySession
+Individual therapy session for a patient
+Belongs to Patient, Doctor, Therapy
+Invoice
+Invoice record for a patient visit
+Belongs to Patient; has InvoiceItems and Payments
+InvoiceItem
+Line item on an invoice
+Belongs to Invoice; references Therapy or Package
+Payment
+Payment transaction against an invoice
+Belongs to Invoice; recorded by User
+DoctorRevenue
+Aggregated revenue snapshot per doctor
+Belongs to Doctor; period-based
+IncentiveRule
+Configurable incentive rule per doctor
+Belongs to Doctor
+DoctorTarget
+Monthly target for a doctor
+Belongs to Doctor; period-based
+DoctorIncentive
+Calculated incentive record
+Belongs to Doctor and DoctorTarget
+FollowUp
+Follow-up schedule for a patient
+Belongs to Patient and Doctor
+FollowUpNote
+Outcome notes for a follow-up session
+Belongs to FollowUp
+Reminder
+System-generated or manual reminders
+Belongs to User; linked to FollowUp or Task
+SocialActivity
+Doctor social media submission
+Belongs to Doctor
+DoctorNote
+Doctor personal notes
+Belongs to Doctor; private
+DoctorTask
+Doctor personal tasks
+Belongs to Doctor
+DailyReport
+Doctor's daily closing report
+Belongs to Doctor; date-indexed
+AuditLog
+Record of all data changes
+References User and any entity
+Notification
+In-app notifications
+Belongs to User
+
+Note: Final schema design, including column definitions, data types, indexes, and foreign key constraints, will be produced during the development phase after the base repository is selected and the technology stack is confirmed.
+
+11. Non-Functional Requirements
+Category
+Requirement
+Responsive Design
+The application shall be usable on desktop, tablet, and mobile browsers without loss of functionality.
+Security
+All data transmissions shall use HTTPS. Passwords shall be stored using a secure hashing algorithm (e.g., bcrypt).
+Authentication
+Token-based or session-based authentication with automatic expiry after inactivity.
+Role-Based Access
+Each user role shall have clearly defined access permissions. Access to unauthorized screens shall return an appropriate error, not an empty page.
+Data Validation
+All user input shall be validated on both client and server. Invalid data shall return clear error messages.
+Audit Logging
+All create, update, and delete operations on critical entities shall be logged with the user ID, timestamp, and change summary.
+Database Backup
+The database shall be backed up at minimum daily. Backup and restore procedures shall be documented.
+Error Handling
+The application shall display user-friendly error messages. Internal errors shall be logged server-side without exposing stack traces to the user.
+Performance
+Core pages (dashboard, patient list, follow-up list) shall load within 3 seconds under normal usage conditions.
+Scalability
+The architecture shall support adding more doctors, patients, and therapies without structural changes.
+File Upload Security
+Uploaded files (social media proofs) shall be validated for type and size. Files shall be stored securely and not served from a public-facing URL without authorization.
+Privacy
+Patient data shall be accessible only to authorized users. Data shall not be exposed to third parties without explicit need.
+Maintainability
+Code shall follow consistent conventions and include documentation sufficient for a new developer to understand the system.
+
+12. Technology Strategy
+The final technology stack will be confirmed after evaluating the existing GitHub repository that will serve as the starting foundation. The selections below represent the likely direction.
+
+Layer
+Likely Technology
+Notes
+Frontend
+React / Next.js with TypeScript
+Component-based UI; SSR capability with Next.js
+Backend
+Node.js with Express or Next.js API routes
+RESTful API design; may be adjusted to the base repository architecture
+Database
+PostgreSQL or MongoDB
+Selection depends on the base repository and data model complexity
+Authentication
+JWT or session-based with RBAC middleware
+Role-gated API routes and protected frontend pages
+File Storage
+Local storage (development) / Cloud object storage (production)
+For social media proof uploads
+Deployment
+To be determined based on hosting environment
+Options include VPS, cloud hosting, or on-premise server
+
+Note: Technology selection is not final until the base repository is reviewed and the architecture is understood. This document does not endorse any specific library or framework beyond what is listed above.
+
+13. Development Strategy
+The development approach is to select an existing open-source hospital ERP or HMS repository as a UI and application foundation, rather than building from scratch. This accelerates development while allowing full customization for AIM Nature Cure's specific requirements.
+
+Development Steps
+1.  Select a suitable open-source hospital ERP / HMS repository with a compatible UI structure and technology stack.
+2.  Clone and run the repository locally to understand the existing architecture and module structure.
+3.  Identify and remove modules that are not relevant to AIM Nature Cure's workflow.
+4.  Rebrand the UI to AIM Nature Cure including name, logo, and color scheme.
+5.  Modify the UI/UX to match the screens and workflows defined in this document.
+6.  Design the AIM-specific database schema for patients, therapies, packages, billing, incentives, and follow-ups.
+7.  Create or replace backend APIs to match the new data model.
+8.  Implement therapy and package management workflows.
+9.  Implement the incentive calculation engine with configurable rules.
+10.  Implement follow-up scheduling, tracking, and reminder logic.
+11.  Implement lead source tracking and social media proof submission.
+12.  Implement daily, weekly, and monthly reporting.
+13.  Implement RBAC, audit logging, and data security.
+14.  Test all modules against acceptance criteria.
+15.  Deploy to the production environment.
+
+Note: The selected repository should be treated as a starting point, not a finished product. Significant modification will be required to match AIM Nature Cure's workflows.
+
+14. MVP Scope
+The following modules are included in the Minimum Viable Product (Version 1). All other features are Phase 2 or later.
+
+Module
+Included in MVP
+Notes
+Authentication & RBAC
+Yes
+Admin and Doctor roles
+Admin Dashboard
+Yes
+Core KPIs
+Doctor Dashboard
+Yes
+Daily workspace view
+Patient Management
+Yes
+Full CRUD with timeline
+Consultation & Medical Records
+Yes
+Core clinical fields only
+Therapy Management
+Yes
+Therapy master and session tracking
+Therapy Packages
+Yes
+Package creation and consumption tracking
+Billing & Payments
+Yes
+Invoice and payment recording
+Doctor Revenue Tracking
+Yes
+Daily, weekly, monthly view
+Incentive Calculation
+Yes
+Single-tier; configurable by Admin
+Follow-Up Management
+Yes
+Schedule, track, and complete
+Reminders
+Yes
+In-app only
+WhatsApp Communication
+Yes
+WhatsApp redirect; manual logging
+Lead Management
+Yes
+Source tracking at registration
+Social Media Proof
+Yes
+Manual upload and Admin review
+Doctor Personal Workspace
+Yes
+Notes and tasks
+Daily Closing Report
+Yes
+Doctor submission; Admin review
+Daily / Weekly / Monthly Reports
+Yes
+Core metrics
+Audit Logs
+Yes
+Critical entity changes
+Tiered Incentives
+Phase 2
+Data model prepared in MVP
+Expense Tracking
+Phase 2
+-
+Refund Handling
+Phase 2
+-
+HR / Payroll
+Phase 3
+-
+Inventory
+Phase 3
+-
+Patient Portal
+Future
+-
+Mobile Application
+Future
+-
+WhatsApp API Integration
+Future
+-
+
+15. Development Phases
+Phase
+Focus
+Key Deliverables
+Phase 1
+Foundation & Authentication
+Project setup, database setup, user model, login, RBAC, basic admin/doctor routing
+Phase 2
+Patients & Doctor Workflow
+Patient registration, search, detail view, consultation records, medical history
+Phase 3
+Therapies & Packages
+Therapy master, package master, therapy assignment, session tracking, package consumption
+Phase 4
+Billing & Payments
+Invoice generation, payment recording, payment modes, receipt, payment status
+Phase 5
+Revenue & Incentives
+Doctor revenue calculation, monthly target tracking, incentive rule configuration, incentive calculation
+Phase 6
+Follow-Ups & Reminders
+Follow-up scheduling, reminder engine, overdue tracking, outcome recording, next follow-up
+Phase 7
+Leads & Social Media
+Lead source tracking at registration, social media proof upload, Admin review
+Phase 8
+Reports & Analytics
+Daily report, weekly report, monthly report, doctor daily closing, Admin review of reports
+Phase 9
+Security, Testing & Deployment
+Audit logs, data validation, security hardening, user acceptance testing, production deployment
+
+Note: Time estimates are not included as they depend on team size, the selected base repository, and clarifications arising during development. Phases may run in parallel where dependencies allow.
+
+16. Acceptance Criteria
+Module
+Acceptance Criteria
+Authentication
+Admin and Doctor can log in with their credentials. Each role sees only their permitted screens. Logout terminates the session. Password reset works.
+Patient Management
+A patient can be registered, searched by name or phone, edited, and viewed with their complete visit timeline including consultations, therapies, payments, and follow-ups.
+Consultation
+Doctor can create a consultation record for a patient. All required fields save correctly. Past consultations appear in the patient timeline.
+Therapy Management
+Admin can create, edit, and deactivate therapies. Doctor can assign therapies to patients and mark sessions as complete. Remaining sessions are tracked accurately.
+Therapy Packages
+Admin can create a package with multiple therapies and session counts. Package can be assigned to a patient. Session consumption is tracked. Remaining sessions update correctly after each session.
+Billing
+An invoice is generated with correct line items and total. Payment is recorded against the invoice. Payment status updates correctly (Paid / Partial / Pending). A receipt can be viewed.
+Revenue Tracking
+Doctor's daily and monthly revenue figures reflect actual paid amounts. Admin can view revenue per doctor.
+Incentive Calculation
+Admin configures a target and percentage for a doctor. When the doctor's eligible revenue reaches the target, the system calculates the correct incentive amount. Doctor can view their projected incentive.
+Follow-Up Management
+Doctor can schedule a follow-up for a patient. The follow-up appears on today's list when due. Doctor can record the outcome and schedule the next follow-up. Overdue follow-ups are flagged automatically.
+Lead Management
+Patient source is captured at registration. Admin can view a report showing patient counts and revenue by source.
+Social Media
+Doctor can submit a social media activity entry with screenshot. Admin can view all submissions and mark them reviewed.
+Daily Closing Report
+Doctor can submit an end-of-day report. Admin can view all submitted reports.
+Reports
+Admin can view daily, weekly, and monthly reports with accurate data for revenue, patients, therapies, follow-ups, and doctor performance.
+RBAC
+Doctor cannot access Admin-only screens. Admin can access all screens. Unauthorized URL access returns an appropriate access-denied response.
+Audit Logs
+All create, update, and delete actions on critical records are logged with the user, timestamp, and a description of the change.
+
+17. Business Rules
+Rule ID
+Business Rule
+BR-01
+Only authenticated users can access any part of the system.
+BR-02
+A Doctor can only view and manage patients assigned to them. Admin can view all patients.
+BR-03
+Doctor personal notes are private. Admin cannot access them under any circumstance.
+BR-04
+Incentive rules are configured per doctor by Admin. No doctor shares another doctor's incentive rule automatically.
+BR-05
+Incentive target amounts and percentages are configurable and must never be hard-coded in the application.
+BR-06
+The required number of follow-up sessions per patient is a configurable system setting, not a hard-coded value.
+BR-07
+Therapy prices and package prices are configurable by Admin. No prices are hard-coded.
+BR-08
+An invoice must exist before a payment can be recorded. Payments are always linked to an invoice.
+BR-09
+Revenue calculations for incentive purposes shall use paid amounts only, not invoiced amounts.
+BR-10
+All financial changes (payments, invoice edits) must be auditable. No untracked financial modifications are permitted.
+BR-11
+Social media activity proof is manually submitted by the Doctor. The system does not claim to verify third-party platform activity.
+BR-12
+Lead source must be captured at patient registration and cannot be changed retroactively without Admin authorization.
+BR-13
+Consultation records are immutable after submission. Corrections are recorded as addendum notes.
+BR-14
+A deactivated therapy cannot be assigned to new patients but existing assigned sessions remain valid.
+BR-15
+Partial payments are permitted. Outstanding balances are tracked and visible on both the invoice and the Admin payment dashboard.
+
+18. Future Scalability
+The architecture of AIM Nature Cure ERP shall be designed to support the following expansions without requiring a structural rebuild. These capabilities are outside the initial MVP scope.
+
+Expansion
+Description
+Additional Doctors
+The doctor module is designed for multiple users from day one.
+Multiple Branches
+Branch-level data segmentation can be added as a future layer.
+Additional Therapies & Packages
+No structural limit; Admin can add therapies without developer involvement.
+Additional User Roles
+Receptionist, Accounts, Therapist, Super Admin roles can be added in Phase 2 and 3.
+Pharmacy & Inventory
+Separate module can be integrated without disrupting the core ERP.
+HR & Payroll
+Doctor salary and incentive data already exists; a payroll module can consume it.
+Mobile Application
+If the backend is API-based, a mobile frontend can be added without backend changes.
+Patient Portal
+Patients can be given read-only access to their own records in a future version.
+Online Appointment Booking
+Public-facing booking page connected to the internal appointment module.
+WhatsApp Business API
+Automated messaging can replace the manual WhatsApp redirect in Version 1.
+Advanced Analytics
+Reporting module can be extended with trend analysis and forecasting.
+
+19. Final Summary
+19.1 What the Client Explicitly Requested
+•  Doctor management with incentive tracking based on configurable monthly revenue targets
+•  Patient registration and management with assigned doctors
+•  Therapy management including steam bath, hip bath, and other nature cure therapies
+•  Therapy packages with multiple therapies and session counts
+•  Billing and payment tracking for consultations and therapies
+•  Doctor revenue calculation and monthly target progress
+•  Patient follow-up management with a configurable number of sessions
+•  WhatsApp-based patient communication with manual outcome logging
+•  Social media activity submission with screenshot/proof upload
+•  Doctor personal notes and task management
+•  Lead/source tracking for patient acquisition
+•  Daily, weekly, and monthly reports
+•  Admin panel with daily monitoring of doctor activity and hospital revenue
+
+19.2 Recommended Enhancements (Not Originally Requested)
+•  Owner / management read-only dashboard
+•  Patient timeline view
+•  Daily payment reconciliation and cash closing
+•  Expense tracking
+•  Discount and refund approval workflows
+•  Doctor leave management
+•  Audit logs
+•  Data export to PDF and CSV
+•  Patient feedback collection
+•  Membership plans, referral programs, and campaign tracking (Phase 3)
+
+19.3 MVP — What Will Be Built First
+Authentication, Admin Dashboard, Doctor Dashboard, Patient Management, Consultation Records, Therapy Management, Therapy Packages, Billing and Payments, Doctor Revenue Tracking, Incentive Calculation, Follow-Up Management, Reminders, WhatsApp Communication, Lead Source Tracking, Social Media Proof, Doctor Notes and Tasks, Daily Closing Report, Daily/Weekly/Monthly Reports, RBAC, and Audit Logs.
+
+19.4 Future Scope
+Patient portal, online appointment booking, WhatsApp Business API, mobile application, multi-branch support, inventory, pharmacy, HR, payroll, advanced analytics, and AI-assisted features.
+
+19.5 Final Product Vision
+AIM Nature Cure ERP will become the operational backbone of AIM Nature Cure hospital — a system that gives every doctor a structured, accountable daily workspace and gives the management team complete visibility into patient flow, clinical activity, therapy performance, revenue, and doctor productivity. By centralizing what is currently fragmented across notebooks, messaging apps, and informal processes, the ERP will enable the hospital to scale its clinical team, improve patient retention through disciplined follow-up management, track the return on every marketing channel, and maintain the financial discipline that a growing wellness practice requires.
