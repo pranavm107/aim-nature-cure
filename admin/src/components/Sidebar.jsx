@@ -67,7 +67,7 @@ const Sidebar = () => {
           </SidebarSection>
           
           <SidebarSection title="Operations">
-            <SidebarLink to='/all-appointments' icon={assets.appointment_icon} label='Appointments (Legacy)' />
+            <SidebarLink to='/all-appointments' icon={assets.appointment_icon} label='Appointments' />
             <SidebarLink to='/admin/therapies' icon={assets.appointment_icon} label='Therapy Master' />
             <SidebarLink to='/admin/packages' icon={assets.appointment_icon} label='Package Master' />
             <SidebarLink to='/admin/follow-ups' icon={assets.appointment_icon} label='Follow-Up Overview' />
@@ -104,7 +104,7 @@ const Sidebar = () => {
             <SidebarLink to='/doctor/history' icon={assets.appointment_icon} label='Consultation History' />
             <SidebarLink to='/doctor/therapy-assignment' icon={assets.appointment_icon} label='Therapy Assignment' />
             <SidebarLink to='/doctor/therapy-sessions' icon={assets.appointment_icon} label='Therapy Sessions' />
-            <SidebarLink to='/doctor-appointments' icon={assets.appointment_icon} label='Appointments (Legacy)' />
+            <SidebarLink to='/doctor-appointments' icon={assets.appointment_icon} label='Appointments' />
           </SidebarSection>
           
           <SidebarSection title="Follow-Ups">

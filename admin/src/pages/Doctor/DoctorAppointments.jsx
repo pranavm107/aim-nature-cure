@@ -1,63 +1,126 @@
-import React, { useContext, useEffect } from 'react';
-import { DoctorContext } from '../../context/DoctorContext';
+import React, { useEffect, useState, useContext } from 'react';
 import { AppContext } from '../../context/AppContext';
-import { assets } from '../../assets/assets';
+import { DoctorContext } from '../../context/DoctorContext';
+import { appointmentService } from '../../services/appointmentService';
+import DataTable from '../../components/common/DataTable';
 import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const DoctorAppointments = () => {
+  const { slotDateFormat, currency, calculateAge } = useContext(AppContext);
+  const { dToken } = useContext(DoctorContext);
+  const navigate = useNavigate();
+  
+  const [appointments, setAppointments] = useState(null);
 
-  const { dToken, appointments, getAppointments, cancelAppointment, completeAppointment } = useContext(DoctorContext)
-  const { slotDateFormat, calculateAge, currency } = useContext(AppContext)
+  const loadData = async () => {
+    try {
+      const data = await appointmentService.getDoctorAppointments();
+      if (data.success) {
+        setAppointments(data.appointments.reverse());
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     if (dToken) {
-      getAppointments()
+      loadData();
     }
-  }, [dToken])
+  }, [dToken]);
+
+  const handleStatusChange = async (item, status) => {
+    try {
+      await appointmentService.updateAppointmentStatus(item._id, status);
+      toast.success(`Appointment marked as ${status}`);
+      loadData();
+      if (status === 'Completed') {
+        if (window.confirm("Do you want to create a new consultation for this visit now?")) {
+          // the mock uses userId to refer to patient
+          navigate(`/patient/${item.userId}/new-consultation`);
+        }
+      }
+    } catch (err) {
+      toast.error('Failed to update status');
+    }
+  };
+
+  const columns = [
+    { label: '#', className: '' },
+    { label: 'Patient', className: '' },
+    { label: 'Date & Time', className: '' },
+    { label: 'Fees', className: '' },
+    { label: 'Action', className: '' },
+  ];
+
+  const renderRow = (item, index) => (
+    <div className='flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_3fr_3fr_1fr_2fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50' key={index}>
+      <p className='max-sm:hidden'>{index+1}</p>
+      <div className='flex items-center gap-2'>
+        <p className="font-medium text-gray-800">{item.userData?.name}</p>
+      </div>
+      <p>{item.slotDate?.replace(/_/g, '-')}, {item.slotTime}</p>
+      <p>{currency}{item.amount}</p>
+      <div className="flex gap-2">
+        {item.cancelled ? (
+          <span className="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-700">Cancelled</span>
+        ) : item.isCompleted ? (
+          <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-700">Completed</span>
+        ) : (
+          <>
+            <button onClick={() => handleStatusChange(item, 'Completed')} className="px-3 py-1 bg-green-500 text-white rounded text-xs font-medium hover:bg-green-600 transition-colors">Complete</button>
+            <button onClick={() => handleStatusChange(item, 'Cancelled')} className="px-3 py-1 bg-red-500 text-white rounded text-xs font-medium hover:bg-red-600 transition-colors">Cancel</button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+  
+  const renderMobileCard = (item, index) => (
+    <div key={item._id || index} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-3">
+       <div className="flex justify-between items-start">
+         <p className="font-semibold text-gray-800 text-lg">{item.userData?.name}</p>
+         {item.cancelled ? (
+          <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-red-100 text-red-700">Cancelled</span>
+        ) : item.isCompleted ? (
+          <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-green-100 text-green-700">Completed</span>
+        ) : (
+          <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-blue-100 text-blue-700">Upcoming</span>
+        )}
+       </div>
+       <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+          <div>
+            <p className="text-xs text-gray-400">Date & Time</p>
+            <p className="font-medium">{item.slotDate?.replace(/_/g, '-')}, {item.slotTime}</p>
+          </div>
+       </div>
+       {!item.cancelled && !item.isCompleted && (
+          <div className="flex gap-2 justify-end mt-2">
+            <button onClick={() => handleStatusChange(item, 'Completed')} className="px-3 py-1 bg-green-500 text-white rounded text-xs font-medium">Complete</button>
+            <button onClick={() => handleStatusChange(item, 'Cancelled')} className="px-3 py-1 bg-red-500 text-white rounded text-xs font-medium">Cancel</button>
+          </div>
+        )}
+    </div>
+  );
 
   return (
     <PageContainer>
-      <PageHeader title="Legacy Appointments" subtitle="View all appointments" />
+      <PageHeader title="Today's Appointments" subtitle="Manage your appointments for the day" />
 
-      <div className='bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll'>
-        <div className='max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 py-3 px-6 border-b'>
-          <p>#</p>
-          <p>Patient</p>
-          <p>Payment</p>
-          <p>Age</p>
-          <p>Date & Time</p>
-          <p>Fees</p>
-          <p>Action</p>
-        </div>
-        {appointments.map((item, index) => (
-          <div className='flex flex-wrap justify-between max-sm:gap-5 max-sm:text-base sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50' key={index}>
-            <p className='max-sm:hidden'>{index}</p>
-            <div className='flex items-center gap-2'>
-              <img src={item.userData.image} className='w-8 rounded-full' alt="" /> <p>{item.userData.name}</p>
-            </div>
-            <div>
-              <p className='text-xs inline border border-primary px-2 rounded-full'>
-                {item.payment?'Online':'CASH'}
-              </p>
-            </div>
-            <p className='max-sm:hidden'>{calculateAge(item.userData.dob)}</p>
-            <p>{slotDateFormat(item.slotDate)}, {item.slotTime}</p>
-            <p>{currency}{item.amount}</p>
-            {item.cancelled
-              ? <p className='text-red-400 text-xs font-medium'>Cancelled</p>
-              : item.isCompleted
-                ? <p className='text-green-500 text-xs font-medium'>Completed</p>
-                : <div className='flex'>
-                  <img onClick={() => cancelAppointment(item._id)} className='w-10 cursor-pointer' src={assets.cancel_icon} alt="" />
-                  <img onClick={() => completeAppointment(item._id)} className='w-10 cursor-pointer' src={assets.tick_icon} alt="" />
-                </div>
-            }
-          </div>
-        ))}
-      </div>
+      <DataTable 
+        columns={columns}
+        data={appointments}
+        renderRow={renderRow}
+        renderMobileCard={renderMobileCard}
+        loading={appointments === null}
+        emptyMessage="No appointments found today"
+        gridColsClass="grid-cols-[0.5fr_3fr_3fr_1fr_2fr]"
+      />
     </PageContainer>
-  )
-}
+  );
+};
 
-export default DoctorAppointments
+export default DoctorAppointments;

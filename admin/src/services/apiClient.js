@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-import { mockDoctors, mockAppointments, mockPatients, mockConsultations } from '../mocks/mockData';
+import { mockDoctors, mockAppointments, mockPatients, mockConsultations, mockPatientDocuments } from '../mocks/mockData';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
@@ -20,7 +20,21 @@ if (USE_MOCK) {
 
     const url = config.url || '';
     const method = config.method ? config.method.toUpperCase() : 'GET';
-    const parsedData = config.data ? JSON.parse(config.data) : null;
+    let parsedData = null;
+    try {
+      if (config.data && typeof config.data === 'string') {
+        parsedData = JSON.parse(config.data);
+      } else if (config.data instanceof FormData) {
+        parsedData = {};
+        for (let [key, value] of config.data.entries()) {
+          parsedData[key] = value;
+        }
+      } else if (typeof config.data === 'object') {
+        parsedData = config.data;
+      }
+    } catch (e) {
+      console.warn("Could not parse mock request data", e);
+    }
     const aToken = config.headers?.aToken;
     const dToken = config.headers?.dToken;
     const isDoctor = !!dToken; // Simple check for mock routing
@@ -107,7 +121,56 @@ if (USE_MOCK) {
       }
       data.consultation = mockConsultations[idx];
     }
-
+    // Appointments
+    else if (url.match(/\/appointments$/) && method === 'GET') {
+      data.appointments = mockAppointments;
+    }
+    else if (url.match(/\/appointments\/doctor$/) && method === 'GET') {
+      data.appointments = mockAppointments.filter(a => a.docId === 'doc1'); // mock doctor 1
+    }
+    else if (url.match(/\/patients\/([^\/]+)\/appointments$/) && method === 'GET') {
+      const patientId = url.split('/')[2];
+      data.appointments = mockAppointments.filter(a => a.userId === patientId);
+    }
+    else if (url.match(/\/appointments$/) && method === 'POST') {
+      const newAppt = { _id: "app" + Date.now(), ...parsedData, date: Date.now(), isCompleted: false, cancelled: false };
+      mockAppointments.push(newAppt);
+      data.appointment = newAppt;
+    }
+    else if (url.match(/\/appointments\/([^\/]+)\/status$/) && method === 'PATCH') {
+      const id = url.split('/')[2];
+      const idx = mockAppointments.findIndex(a => a._id === id);
+      if(idx > -1) {
+        if (parsedData.status === 'Completed') mockAppointments[idx].isCompleted = true;
+        else if (parsedData.status === 'Cancelled') mockAppointments[idx].cancelled = true;
+      }
+      data.appointment = mockAppointments[idx];
+    }
+    // Documents
+    else if (url.match(/\/patients\/([^\/]+)\/documents$/) && method === 'GET') {
+      const patientId = url.split('/')[2];
+      data.documents = mockPatientDocuments.filter(d => d.patientId === patientId);
+    }
+    else if (url.match(/\/patients\/([^\/]+)\/documents$/) && method === 'POST') {
+      const patientId = url.split('/')[2];
+      const fileName = (parsedData?.file && parsedData.file.name) ? parsedData.file.name : "Uploaded Document";
+      const newDoc = { 
+        _id: "docm" + Date.now(), 
+        patientId, 
+        name: fileName, 
+        type: "application/pdf", 
+        url: "mock-url.pdf", 
+        date: Date.now() 
+      };
+      mockPatientDocuments.push(newDoc);
+      data.document = newDoc;
+    }
+    else if (url.match(/\/patients\/([^\/]+)\/documents\/([^\/]+)$/) && method === 'DELETE') {
+      const docId = url.split('/')[4];
+      const idx = mockPatientDocuments.findIndex(d => d._id === docId);
+      if(idx > -1) mockPatientDocuments.splice(idx, 1);
+      data.success = true;
+    }
     return {
       data,
       status: 200,

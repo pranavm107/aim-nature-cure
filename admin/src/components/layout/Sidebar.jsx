@@ -113,7 +113,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       </SidebarSection>
       
       <SidebarSection title="Operations" isCollapsed={isCollapsed}>
-        <SidebarLink to='/all-appointments' icon={assets.appointment_icon} label='Legacy Appointments' isCollapsed={isCollapsed} onClick={onClose} />
+        <SidebarLink to='/all-appointments' icon={assets.appointment_icon} label='Appointments' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/admin/therapies' icon={assets.appointment_icon} label='Therapies' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/admin/packages' icon={assets.appointment_icon} label='Packages' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/admin/follow-ups' icon={assets.appointment_icon} label='Follow-Ups' isCollapsed={isCollapsed} onClick={onClose} />
@@ -150,7 +150,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <SidebarLink to='/doctor/history' icon={assets.appointment_icon} label='Consultation History' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/doctor/therapy-assignment' icon={assets.appointment_icon} label='Therapy Assignment' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/doctor/therapy-sessions' icon={assets.appointment_icon} label='Therapy Sessions' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/doctor-appointments' icon={assets.appointment_icon} label='Legacy Appointments' isCollapsed={isCollapsed} onClick={onClose} />
+        <SidebarLink to='/doctor-appointments' icon={assets.appointment_icon} label='Appointments' isCollapsed={isCollapsed} onClick={onClose} />
       </SidebarSection>
       
       <SidebarSection title="Follow-Ups" isCollapsed={isCollapsed}>

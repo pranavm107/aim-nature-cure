@@ -12,7 +12,9 @@
 - **Notifications UI**: Built the Notifications panel as a dropdown originating from a bell icon in the Navbar, rather than a full page or side drawer.
 - **Forgot Password**: The Forgot Password flow will remain a mock-success-only screen for V1. We will not build a real email reset flow yet.
 - **Stage 1 Complete**: Stage 1 frontend foundation complete and pushed, mock-adapter implemented via custom Axios adapter override (no new dependency), old `prescripto` MongoDB database still present in Atlas alongside `aimnaturecure` and flagged for cleanup at Stage 9.
+
 ## 2026-08-18
 - **Patient Contact Info Fields**: Defaulted to standard reasonable defaults (e.g., standard text/contact fields for registration) as the open-question pause was skipped.
 - **Consultation Field Types**: Defaulted to reasonable field types (text areas, dropdowns, etc.) as the open-question pause was skipped.
 - **PROCESS CORRECTION**: The pause-before-defaulting instruction was missed this stage. This must be followed strictly starting Stage 3 — no more retroactive reporting of skipped pauses.
+- **Appointments & Documents Retrofit**: Un-deprecated Appointments as they represent the scheduling entity (separate from Consultation clinical record). Added Patient Documents section for uploading labs/scans. Added deferred ReviewRequest to data model.

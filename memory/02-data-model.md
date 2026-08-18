@@ -1,4 +1,4 @@
-# Data Model (26 Entities)
+# Data Model (29 Entities)
 
 | Entity | Purpose | Status in Prescripto |
 |---|---|---|
@@ -6,7 +6,7 @@
 | **Role** | RBAC roles and permissions | Missing |
 | **Doctor** | Extended profile for Doctor users | Exists (needs target/incentive links) |
 | **LeadSource** | Reference list of acquisition sources | Missing |
-| **Appointment** | Seed for TherapySession | Exists (repurpose) |
+| **Appointment** | Scheduled visit: patient, doctor, date/time, status | Was mismodeled as legacy — un-deprecate |
 | **Consultation** | Clinical consultation record | Missing |
 | **TreatmentPlan**| Overall treatment strategy | Missing |
 | **Therapy** | Therapy master record | Missing |
@@ -30,3 +30,5 @@
 | **DailyReport** | Doctor's daily closing report | Missing |
 | **AuditLog** | Record of all data changes | Missing |
 | **Notification** | In-app notifications | Missing |
+| **PatientDocument** | Uploaded document attached to a patient (labs, scans, etc.) | Net new |
+| **ReviewRequest** | Tracks a Google review request sent to a patient and its outcome | Net new |

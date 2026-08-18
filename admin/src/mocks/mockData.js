@@ -232,3 +232,22 @@ export const mockConsultations = [
     addendums: []
   }
 ];
+
+export const mockPatientDocuments = [
+  {
+    _id: "docm1",
+    patientId: "pat1",
+    name: "Blood Test Report",
+    type: "application/pdf",
+    url: "mock-url-blood-test.pdf",
+    date: 1712124536000
+  },
+  {
+    _id: "docm2",
+    patientId: "pat1",
+    name: "X-Ray Scan",
+    type: "image/jpeg",
+    url: "mock-url-xray.jpg",
+    date: 1712124546000
+  }
+];
