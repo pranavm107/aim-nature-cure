@@ -1,8 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { DoctorContext } from '../../context/DoctorContext'
-import { AppContext } from '../../context/AppContext'
-import { toast } from 'react-toastify'
-import apiClient from '../../services/apiClient'
+import React, { useContext, useEffect, useState } from 'react';
+import { DoctorContext } from '../../context/DoctorContext';
+import { AppContext } from '../../context/AppContext';
+import { toast } from 'react-toastify';
+import apiClient from '../../services/apiClient';
+import PageContainer from '../../components/layout/PageContainer';
+import PageHeader from '../../components/layout/PageHeader';
 
 const DoctorProfile = () => {
 
@@ -47,8 +49,9 @@ const DoctorProfile = () => {
     }, [dToken])
 
     return profileData && (
-        <div>
-            <div className='flex flex-col gap-4 m-5'>
+        <PageContainer>
+            <PageHeader title="Doctor Profile" subtitle="Manage your clinical profile" />
+            <div className='flex flex-col sm:flex-row gap-6 max-w-5xl'>
                 <div>
                     <img className='bg-primary/80 w-full sm:max-w-64 rounded-lg' src={profileData.image} alt="" />
                 </div>
@@ -101,7 +104,7 @@ const DoctorProfile = () => {
 
                 </div>
             </div>
-        </div>
+        </PageContainer>
     )
 }
 

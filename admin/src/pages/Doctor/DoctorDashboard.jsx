@@ -1,9 +1,9 @@
-import React from 'react'
-import { useContext } from 'react'
-import { useEffect } from 'react'
-import { DoctorContext } from '../../context/DoctorContext'
-import { assets } from '../../assets/assets'
-import { AppContext } from '../../context/AppContext'
+import React, { useContext, useEffect } from 'react';
+import { DoctorContext } from '../../context/DoctorContext';
+import { assets } from '../../assets/assets';
+import { AppContext } from '../../context/AppContext';
+import PageContainer from '../../components/layout/PageContainer';
+import PageHeader from '../../components/layout/PageHeader';
 
 const DoctorDashboard = () => {
 
@@ -20,35 +20,37 @@ const DoctorDashboard = () => {
   }, [dToken])
 
   return dashData && (
-    <div className='m-5'>
+    <PageContainer>
+      <PageHeader title="Doctor Dashboard" subtitle="Overview of your clinical activities" />
 
-      <div className='flex flex-wrap gap-3'>
-        <div className='flex items-center gap-2 bg-white p-4 min-w-52 rounded border-2 border-gray-100 cursor-pointer hover:scale-105 transition-all'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6'>
+        <div className='flex items-center gap-4 bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow'>
           <img className='w-14' src={assets.earning_icon} alt="" />
           <div>
             <p className='text-xl font-semibold text-gray-600'>{currency} {dashData.earnings}</p>
             <p className='text-gray-400'>Earnings</p>
           </div>
         </div>
-        <div className='flex items-center gap-2 bg-white p-4 min-w-52 rounded border-2 border-gray-100 cursor-pointer hover:scale-105 transition-all'>
+        <div className='flex items-center gap-4 bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow'>
           <img className='w-14' src={assets.appointments_icon} alt="" />
           <div>
             <p className='text-xl font-semibold text-gray-600'>{dashData.appointments}</p>
             <p className='text-gray-400'>Appointments</p>
           </div>
         </div>
-        <div className='flex items-center gap-2 bg-white p-4 min-w-52 rounded border-2 border-gray-100 cursor-pointer hover:scale-105 transition-all'>
+        <div className='flex items-center gap-4 bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow'>
           <img className='w-14' src={assets.patients_icon} alt="" />
           <div>
             <p className='text-xl font-semibold text-gray-600'>{dashData.patients}</p>
-            <p className='text-gray-400'>Patients</p></div>
+            <p className='text-gray-400'>Patients</p>
+          </div>
         </div>
       </div>
 
-      <div className='bg-white'>
-        <div className='flex items-center gap-2.5 px-4 py-4 mt-10 rounded-t border'>
-          <img src={assets.list_icon} alt="" />
-          <p className='font-semibold'>Latest Bookings</p>
+      <div className='bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden'>
+        <div className='flex items-center gap-2.5 px-6 py-4 border-b bg-gray-50/50'>
+          <img src={assets.list_icon} alt="" className="w-5 h-5 opacity-70" />
+          <p className='font-semibold text-gray-800'>Latest Bookings</p>
         </div>
 
         <div className='pt-4 border border-t-0'>
@@ -72,8 +74,7 @@ const DoctorDashboard = () => {
           ))}
         </div>
       </div>
-
-    </div>
+    </PageContainer>
   )
 }
 

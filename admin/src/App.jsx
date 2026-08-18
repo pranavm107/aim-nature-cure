@@ -4,8 +4,7 @@ import { AdminContext } from './context/AdminContext';
 import { Route, Routes, Navigate, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Navbar from './components/Navbar'
-import Sidebar from './components/Sidebar'
+import AppShell from './components/layout/AppShell';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Admin/Dashboard';
 import AllAppointments from './pages/Admin/AllAppointments';
@@ -18,6 +17,10 @@ import DoctorProfile from './pages/Doctor/DoctorProfile';
 import Placeholder from './pages/Placeholder';
 import ForgotPassword from './pages/Shared/ForgotPassword';
 import MyProfile from './pages/Shared/MyProfile';
+import PatientList from './pages/Shared/PatientList';
+import PatientRegistration from './pages/Shared/PatientRegistration';
+import PatientDetail from './pages/Shared/PatientDetail';
+import NewConsultation from './pages/Doctor/NewConsultation';
 
 const App = () => {
   const { dToken } = useContext(DoctorContext)
@@ -29,18 +32,11 @@ const App = () => {
   const isAuthenticated = aToken || dToken;
 
   return (
-    <div className='bg-[#F8F9FD] min-h-screen'>
+    <AppShell isAuthRoute={isAuthRoute} isAuthenticated={isAuthenticated}>
       <ToastContainer />
-      
-      {!isAuthRoute && isAuthenticated && <Navbar />}
-      
-      <div className={!isAuthRoute && isAuthenticated ? 'flex items-start' : ''}>
-        {!isAuthRoute && isAuthenticated && <Sidebar />}
-        
-        <div className={!isAuthRoute && isAuthenticated ? 'w-full flex-1' : 'w-full'}>
-          <Routes>
-            {/* Public Routes */}
-            <Route path='/login' element={!isAuthenticated ? <Login /> : <Navigate to={aToken ? '/admin-dashboard' : '/doctor-dashboard'} />} />
+      <Routes>
+        {/* Public Routes */}
+        <Route path='/login' element={!isAuthenticated ? <Login /> : <Navigate to={aToken ? '/admin-dashboard' : '/doctor-dashboard'} />} />
             <Route path='/forgot-password' element={<ForgotPassword />} />
             
             {/* Root Redirect */}
@@ -51,7 +47,6 @@ const App = () => {
             <Route path='/admin/users' element={<ProtectedRoute role="admin"><Placeholder /></ProtectedRoute>} />
             <Route path='/add-doctor' element={<ProtectedRoute role="admin"><AddDoctor /></ProtectedRoute>} />
             <Route path='/doctor-list' element={<ProtectedRoute role="admin"><DoctorsList /></ProtectedRoute>} />
-            <Route path='/admin/patients' element={<ProtectedRoute role="admin"><Placeholder /></ProtectedRoute>} />
             <Route path='/admin/therapies' element={<ProtectedRoute role="admin"><Placeholder /></ProtectedRoute>} />
             <Route path='/admin/packages' element={<ProtectedRoute role="admin"><Placeholder /></ProtectedRoute>} />
             <Route path='/all-appointments' element={<ProtectedRoute role="admin"><AllAppointments /></ProtectedRoute>} />
@@ -69,7 +64,6 @@ const App = () => {
 
             {/* Doctor Routes */}
             <Route path='/doctor-dashboard' element={<ProtectedRoute role="doctor"><DoctorDashboard /></ProtectedRoute>} />
-            <Route path='/doctor/patients' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />
             <Route path='/doctor/consultation' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />
             <Route path='/doctor/history' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />
             <Route path='/doctor/therapy-assignment' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />
@@ -88,13 +82,15 @@ const App = () => {
 
             {/* Shared Authenticated Routes */}
             <Route path='/profile' element={<MyProfile />} />
+            <Route path='/patients' element={<PatientList />} />
+            <Route path='/add-patient' element={<PatientRegistration />} />
+            <Route path='/patient/:id' element={<PatientDetail />} />
+            <Route path='/patient/:id/new-consultation' element={<NewConsultation />} />
 
-            {/* Catch All */}
-            <Route path='*' element={<Navigate to="/" />} />
-          </Routes>
-        </div>
-      </div>
-    </div>
+        {/* Catch All */}
+        <Route path='*' element={<Navigate to="/" />} />
+      </Routes>
+    </AppShell>
   )
 }
 

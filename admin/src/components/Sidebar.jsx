@@ -62,7 +62,7 @@ const Sidebar = () => {
           <SidebarSection title="People">
             <SidebarLink to='/doctor-list' icon={assets.people_icon} label='Doctors List' />
             <SidebarLink to='/add-doctor' icon={assets.add_icon} label='Add Doctor' />
-            <SidebarLink to='/admin/patients' icon={assets.people_icon} label='Patient List' />
+            <SidebarLink to='/patients' icon={assets.people_icon} label='Patient List' />
             <SidebarLink to='/admin/users' icon={assets.people_icon} label='User Management' />
           </SidebarSection>
           
@@ -99,7 +99,7 @@ const Sidebar = () => {
           </SidebarSection>
           
           <SidebarSection title="Clinical">
-            <SidebarLink to='/doctor/patients' icon={assets.people_icon} label='My Patients' />
+            <SidebarLink to='/patients' icon={assets.people_icon} label='My Patients' />
             <SidebarLink to='/doctor/consultation' icon={assets.appointment_icon} label='New Consultation' />
             <SidebarLink to='/doctor/history' icon={assets.appointment_icon} label='Consultation History' />
             <SidebarLink to='/doctor/therapy-assignment' icon={assets.appointment_icon} label='Therapy Assignment' />

@@ -1,9 +1,10 @@
 import React from 'react';
 
-export const InputField = ({ label, type = "text", value, onChange, placeholder, required = false, className = "" }) => (
+export const InputField = ({ label, type = "text", name, value, onChange, placeholder, required = false, className = "" }) => (
   <div className={`flex-1 flex flex-col gap-1 ${className}`}>
     <p>{label} {required && <span className="text-red-500">*</span>}</p>
     <input 
+      name={name}
       onChange={onChange} 
       value={value} 
       className='border rounded px-3 py-2 outline-none focus:border-primary transition-colors' 
@@ -14,10 +15,11 @@ export const InputField = ({ label, type = "text", value, onChange, placeholder,
   </div>
 );
 
-export const SelectField = ({ label, value, onChange, options, required = false, className = "" }) => (
+export const SelectField = ({ label, name, value, onChange, options, required = false, className = "" }) => (
   <div className={`flex-1 flex flex-col gap-1 ${className}`}>
     <p>{label} {required && <span className="text-red-500">*</span>}</p>
     <select 
+      name={name}
       onChange={onChange} 
       value={value} 
       className='border rounded px-3 py-2 outline-none focus:border-primary transition-colors bg-white'
@@ -30,10 +32,11 @@ export const SelectField = ({ label, value, onChange, options, required = false,
   </div>
 );
 
-export const TextareaField = ({ label, value, onChange, placeholder, rows = 5, required = false, className = "" }) => (
+export const TextareaField = ({ label, name, value, onChange, placeholder, rows = 5, required = false, className = "" }) => (
   <div className={`w-full flex flex-col gap-1 ${className}`}>
     <p>{label} {required && <span className="text-red-500">*</span>}</p>
     <textarea 
+      name={name}
       onChange={onChange} 
       value={value} 
       className='w-full px-4 pt-2 border rounded outline-none focus:border-primary transition-colors' 

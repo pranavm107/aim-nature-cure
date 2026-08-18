@@ -1,8 +1,9 @@
-import React from 'react'
-import { useContext, useEffect } from 'react'
-import { DoctorContext } from '../../context/DoctorContext'
-import { AppContext } from '../../context/AppContext'
-import { assets } from '../../assets/assets'
+import React, { useContext, useEffect } from 'react';
+import { DoctorContext } from '../../context/DoctorContext';
+import { AppContext } from '../../context/AppContext';
+import { assets } from '../../assets/assets';
+import PageContainer from '../../components/layout/PageContainer';
+import PageHeader from '../../components/layout/PageHeader';
 
 const DoctorAppointments = () => {
 
@@ -16,9 +17,8 @@ const DoctorAppointments = () => {
   }, [dToken])
 
   return (
-    <div className='w-full max-w-6xl m-5 '>
-
-      <p className='mb-3 text-lg font-medium'>All Appointments</p>
+    <PageContainer>
+      <PageHeader title="Legacy Appointments" subtitle="View all appointments" />
 
       <div className='bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll'>
         <div className='max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 py-3 px-6 border-b'>
@@ -56,8 +56,7 @@ const DoctorAppointments = () => {
           </div>
         ))}
       </div>
-
-    </div>
+    </PageContainer>
   )
 }
 

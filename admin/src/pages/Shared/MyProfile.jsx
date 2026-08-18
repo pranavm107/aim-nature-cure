@@ -4,6 +4,8 @@ import { DoctorContext } from '../../context/DoctorContext';
 import { authService } from '../../services/authService';
 import { toast } from 'react-toastify';
 import { assets } from '../../assets/assets';
+import PageContainer from '../../components/layout/PageContainer';
+import PageHeader from '../../components/layout/PageHeader';
 
 const MyProfile = () => {
   const { aToken } = useContext(AdminContext);
@@ -49,34 +51,36 @@ const MyProfile = () => {
   }
 
   return (
-    <div className='m-5 w-full max-w-lg'>
-      <h1 className='text-lg font-medium mb-4'>My Profile</h1>
-      <div className='bg-white p-6 rounded-lg border flex flex-col gap-4'>
-        <div className='flex items-center gap-4'>
+    <PageContainer>
+      <PageHeader title="My Profile" subtitle="Manage your personal information" />
+      <div className='bg-white p-6 sm:p-8 rounded-xl border border-gray-100 shadow-sm max-w-2xl flex flex-col gap-6'>
+        <div className='flex flex-col sm:flex-row items-center gap-6'>
           <img 
             src={profile.image || assets.upload_area} 
             alt="Profile" 
-            className='w-24 h-24 rounded-full bg-gray-100 object-cover'
+            className='w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gray-50 object-cover border-4 border-gray-100 shadow-sm'
           />
-          <div>
-            <h2 className='text-2xl font-semibold text-gray-800'>{profile.name}</h2>
-            <p className='text-gray-500 capitalize'>{profile.role}</p>
+          <div className='text-center sm:text-left'>
+            <h2 className='text-2xl font-bold text-gray-800'>{profile.name}</h2>
+            <p className='text-primary bg-primary/10 inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 capitalize'>{profile.role}</p>
           </div>
         </div>
         
-        <div className='mt-4'>
-          <p className='text-gray-500 text-sm'>Email</p>
-          <p className='text-gray-800 font-medium'>{profile.email}</p>
-        </div>
-
-        {profile.speciality && (
-          <div className='mt-2'>
-            <p className='text-gray-500 text-sm'>Speciality</p>
-            <p className='text-gray-800 font-medium'>{profile.speciality}</p>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4 pt-6 border-t border-gray-100'>
+          <div>
+            <p className='text-gray-400 text-sm mb-1'>Email Address</p>
+            <p className='text-gray-800 font-medium'>{profile.email}</p>
           </div>
-        )}
+
+          {profile.speciality && (
+            <div>
+              <p className='text-gray-400 text-sm mb-1'>Speciality</p>
+              <p className='text-gray-800 font-medium'>{profile.speciality}</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 
