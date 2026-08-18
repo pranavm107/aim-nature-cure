@@ -1,13 +1,20 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-import { mockDoctors, mockAppointments, mockPatients, mockConsultations, mockPatientDocuments } from '../mocks/mockData';
+import { mockDoctors, mockAppointments, mockPatients, mockConsultations, mockPatientDocuments, mockTherapies, mockPackages, mockTherapySessions } from '../mocks/mockData';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 const apiClient = axios.create({
   baseURL: backendUrl + '/api/v1', // Also updating to include /v1 as per API spec
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export const realApiClient = axios.create({
+  baseURL: backendUrl + '/api', // Backend routes are actually under /api, not /api/v1 currently
   headers: {
     'Content-Type': 'application/json',
   },
@@ -96,7 +103,30 @@ if (USE_MOCK) {
     else if (url.includes('/timeline') && url.includes('/patients/')) {
       const id = url.split('/')[2];
       const patientConsultations = mockConsultations.filter(c => c.patientId === id);
-      data.timeline = patientConsultations.map(c => ({ type: 'consultation', date: c.date, data: c }));
+      
+      let realSessions = [];
+      try {
+        const res = await realApiClient.get(`/patients/${id}/therapy-sessions`);
+        realSessions = res.data.sessions.filter(s => s.status === 'Completed').map(s => {
+          return {
+            ...s,
+            date: new Date(s.completionDate).getTime(),
+            therapyId: s.therapy?._id || s.therapy,
+            _id: s._id,
+            status: s.status,
+            notes: s.notes
+          };
+        });
+      } catch (err) {
+        console.error("Failed to fetch real sessions for timeline:", err);
+      }
+      
+      const timeline = [
+        ...patientConsultations.map(c => ({ type: 'consultation', date: c.date, data: c })),
+        ...realSessions.map(s => ({ type: 'therapy_session', date: s.date, data: s }))
+      ].sort((a, b) => b.date - a.date); // Descending
+      
+      data.timeline = timeline;
     }
     // Consultations
     else if (url.match(/\/patients\/([^\/]+)\/consultations$/) && method === 'GET') {
@@ -171,6 +201,96 @@ if (USE_MOCK) {
       if(idx > -1) mockPatientDocuments.splice(idx, 1);
       data.success = true;
     }
+    // Therapies & Packages
+    else if (url.match(/\/therapies$/) && method === 'GET') {
+      data.therapies = mockTherapies;
+    }
+    else if (url.match(/\/therapies$/) && method === 'POST') {
+      const newTherapy = { _id: "ther" + Date.now(), ...parsedData, date: Date.now() };
+      mockTherapies.push(newTherapy);
+      data.therapy = newTherapy;
+    }
+    else if (url.match(/\/therapies\/([^\/]+)$/) && method === 'PUT') {
+      const id = url.split('/').pop();
+      const idx = mockTherapies.findIndex(t => t._id === id);
+      if(idx > -1) mockTherapies[idx] = { ...mockTherapies[idx], ...parsedData };
+      data.therapy = mockTherapies[idx];
+    }
+    else if (url.match(/\/therapies\/([^\/]+)\/status$/) && method === 'PATCH') {
+      const id = url.split('/')[2];
+      const idx = mockTherapies.findIndex(t => t._id === id);
+      if(idx > -1) mockTherapies[idx].status = parsedData.status;
+      data.therapy = mockTherapies[idx];
+    }
+    else if (url.match(/\/packages$/) && method === 'GET') {
+      data.packages = mockPackages;
+    }
+    else if (url.match(/\/packages$/) && method === 'POST') {
+      const newPackage = { _id: "pkg" + Date.now(), ...parsedData, date: Date.now() };
+      mockPackages.push(newPackage);
+      data.package = newPackage;
+    }
+    else if (url.match(/\/packages\/([^\/]+)$/) && method === 'PUT') {
+      const id = url.split('/').pop();
+      const idx = mockPackages.findIndex(p => p._id === id);
+      if(idx > -1) mockPackages[idx] = { ...mockPackages[idx], ...parsedData };
+      data.package = mockPackages[idx];
+    }
+    else if (url.match(/\/packages\/([^\/]+)\/status$/) && method === 'PATCH') {
+      const id = url.split('/')[2];
+      const idx = mockPackages.findIndex(p => p._id === id);
+      if(idx > -1) mockPackages[idx].status = parsedData.status;
+      data.package = mockPackages[idx];
+    }
+    // Therapy Assignments & Sessions
+    else if (url.match(/\/patients\/([^\/]+)\/therapy-assignments$/) && method === 'POST') {
+      const patientId = url.split('/')[2];
+      const { type, itemId, assignedDocId } = parsedData; // type can be 'therapy' or 'package'
+      
+      let generatedSessions = [];
+      const sessionBase = { patientId, docId: assignedDocId || 'doc1', scheduledDate: new Date().toISOString().split('T')[0], status: 'Pending', notes: '', date: Date.now() };
+      
+      if (type === 'package') {
+        const pkg = mockPackages.find(p => p._id === itemId);
+        if (pkg) {
+          pkg.therapies.forEach(tItem => {
+            for(let i=0; i<tItem.count; i++) {
+              generatedSessions.push({ _id: "sess" + Date.now() + Math.random(), therapyId: tItem.therapyId, ...sessionBase });
+            }
+          });
+        }
+      } else if (type === 'therapy') {
+        generatedSessions.push({ _id: "sess" + Date.now(), therapyId: itemId, ...sessionBase });
+      }
+      mockTherapySessions.push(...generatedSessions);
+      data.sessions = generatedSessions;
+      data.message = `Assigned successfully. Generated ${generatedSessions.length} sessions.`;
+    }
+    else if (url.match(/\/patients\/([^\/]+)\/therapy-sessions$/) && method === 'GET') {
+      const patientId = url.split('/')[2];
+      data.sessions = mockTherapySessions.filter(s => s.patientId === patientId);
+    }
+    else if (url.match(/\/therapy-sessions$/) && method === 'GET') {
+      // For doctor sessions view (mock logic ignores actual doctor id for simplicity)
+      data.sessions = mockTherapySessions;
+    }
+    else if (url.match(/\/therapy-sessions\/([^\/]+)\/complete$/) && method === 'PATCH') {
+      const id = url.split('/')[2];
+      const idx = mockTherapySessions.findIndex(s => s._id === id);
+      if(idx > -1) {
+        mockTherapySessions[idx].status = 'Completed';
+        mockTherapySessions[idx].notes = parsedData.notes || '';
+      }
+      data.session = mockTherapySessions[idx];
+    }
+    else if (url.match(/\/therapy-sessions\/([^\/]+)\/reschedule$/) && method === 'PATCH') {
+      const id = url.split('/')[2];
+      const idx = mockTherapySessions.findIndex(s => s._id === id);
+      if(idx > -1) {
+        mockTherapySessions[idx].scheduledDate = parsedData.date;
+      }
+      data.session = mockTherapySessions[idx];
+    }
     return {
       data,
       status: 200,
@@ -197,17 +317,48 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+realApiClient.interceptors.request.use(
+  (config) => {
+    const aToken = localStorage.getItem('aToken');
+    const dToken = localStorage.getItem('dToken');
+    if (aToken) {
+      config.headers.aToken = aToken;
+    } else if (dToken) {
+      config.headers.dToken = dToken;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // Interceptor to handle errors globally
 apiClient.interceptors.response.use(
   (response) => {
-    // If the server returns success: false with a message, throw an error to be caught by the service
     if (response.data && response.data.success === false) {
       return Promise.reject(new Error(response.data.message || 'Operation failed'));
     }
     return response;
   },
   (error) => {
-    // Handle 401 Unauthorized
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('aToken');
+      localStorage.removeItem('dToken');
+      window.location.href = '/login';
+    }
+    const message = error.response?.data?.message || error.message || 'Network Error';
+    toast.error(message);
+    return Promise.reject(new Error(message));
+  }
+);
+
+realApiClient.interceptors.response.use(
+  (response) => {
+    if (response.data && response.data.success === false) {
+      return Promise.reject(new Error(response.data.message || 'Operation failed'));
+    }
+    return response;
+  },
+  (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('aToken');
       localStorage.removeItem('dToken');

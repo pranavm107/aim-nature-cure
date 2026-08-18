@@ -21,6 +21,10 @@ import PatientList from './pages/Shared/PatientList';
 import PatientRegistration from './pages/Shared/PatientRegistration';
 import PatientDetail from './pages/Shared/PatientDetail';
 import NewConsultation from './pages/Doctor/NewConsultation';
+import Therapies from './pages/Admin/Therapies';
+import Packages from './pages/Admin/Packages';
+import TherapyAssignment from './pages/Doctor/TherapyAssignment';
+import TherapySessions from './pages/Doctor/TherapySessions';
 
 const App = () => {
   const { dToken } = useContext(DoctorContext)
@@ -47,8 +51,8 @@ const App = () => {
             <Route path='/admin/users' element={<ProtectedRoute role="admin"><Placeholder /></ProtectedRoute>} />
             <Route path='/add-doctor' element={<ProtectedRoute role="admin"><AddDoctor /></ProtectedRoute>} />
             <Route path='/doctor-list' element={<ProtectedRoute role="admin"><DoctorsList /></ProtectedRoute>} />
-            <Route path='/admin/therapies' element={<ProtectedRoute role="admin"><Placeholder /></ProtectedRoute>} />
-            <Route path='/admin/packages' element={<ProtectedRoute role="admin"><Placeholder /></ProtectedRoute>} />
+            <Route path='/admin/therapies' element={<ProtectedRoute role="admin"><Therapies /></ProtectedRoute>} />
+            <Route path='/admin/packages' element={<ProtectedRoute role="admin"><Packages /></ProtectedRoute>} />
             <Route path='/all-appointments' element={<ProtectedRoute role="admin"><AllAppointments /></ProtectedRoute>} />
             <Route path='/admin/invoices' element={<ProtectedRoute role="admin"><Placeholder /></ProtectedRoute>} />
             <Route path='/admin/record-payment' element={<ProtectedRoute role="admin"><Placeholder /></ProtectedRoute>} />
@@ -66,8 +70,8 @@ const App = () => {
             <Route path='/doctor-dashboard' element={<ProtectedRoute role="doctor"><DoctorDashboard /></ProtectedRoute>} />
             <Route path='/doctor/consultation' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />
             <Route path='/doctor/history' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />
-            <Route path='/doctor/therapy-assignment' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />
-            <Route path='/doctor/therapy-sessions' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />
+            <Route path='/doctor/therapy-assignment' element={<ProtectedRoute role="doctor"><TherapyAssignment /></ProtectedRoute>} />
+            <Route path='/doctor/therapy-sessions' element={<ProtectedRoute role="doctor"><TherapySessions /></ProtectedRoute>} />
             <Route path='/doctor/revenue' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />
             <Route path='/doctor/incentive' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />
             <Route path='/doctor/follow-ups' element={<ProtectedRoute role="doctor"><Placeholder /></ProtectedRoute>} />

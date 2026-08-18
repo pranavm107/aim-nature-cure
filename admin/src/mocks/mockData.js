@@ -241,13 +241,79 @@ export const mockPatientDocuments = [
     type: "application/pdf",
     url: "mock-url-blood-test.pdf",
     date: 1712124536000
+  }
+];
+
+export const mockTherapies = [
+  {
+    _id: "ther1",
+    name: "Acupuncture",
+    duration: 45, // in minutes
+    price: 30,
+    status: true,
+    date: 1712124536000
   },
   {
-    _id: "docm2",
+    _id: "ther2",
+    name: "Massage Therapy",
+    duration: 60,
+    price: 50,
+    status: true,
+    date: 1712124536100
+  },
+  {
+    _id: "ther3",
+    name: "Herbal Detox",
+    duration: 30,
+    price: 20,
+    status: false, // inactive
+    date: 1712124536200
+  }
+];
+
+export const mockPackages = [
+  {
+    _id: "pkg1",
+    name: "Full Recovery Package",
+    therapies: [
+      { therapyId: "ther1", count: 5 },
+      { therapyId: "ther2", count: 3 }
+    ],
+    price: 250,
+    status: true,
+    date: 1712124536000
+  },
+  {
+    _id: "pkg2",
+    name: "Quick Detox",
+    therapies: [
+      { therapyId: "ther3", count: 3 }
+    ],
+    price: 50,
+    status: true,
+    date: 1712124536100
+  }
+];
+
+export const mockTherapySessions = [
+  {
+    _id: "sess1",
     patientId: "pat1",
-    name: "X-Ray Scan",
-    type: "image/jpeg",
-    url: "mock-url-xray.jpg",
-    date: 1712124546000
+    docId: "doc1",
+    therapyId: "ther1",
+    scheduledDate: "2024-10-15",
+    status: "Pending", // Pending, Completed, Cancelled
+    notes: "",
+    date: 1712124536000
+  },
+  {
+    _id: "sess2",
+    patientId: "pat1",
+    docId: "doc1",
+    therapyId: "ther2",
+    scheduledDate: "2024-10-12",
+    status: "Completed",
+    notes: "Patient felt much better after session.",
+    date: 1712124536100
   }
 ];

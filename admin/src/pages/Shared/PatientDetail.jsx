@@ -136,7 +136,7 @@ const PatientDetail = () => {
   if (loading) return <div className="flex h-screen items-center justify-center"><p className="text-gray-500 font-medium">Loading patient details...</p></div>;
   if (!patient) return null;
 
-  const consultations = timeline.filter(item => item.type === 'consultation').map(item => item.data);
+  const timelineItems = timeline; // Contains mixed types now
 
   return (
     <PageContainer>
@@ -190,7 +190,7 @@ const PatientDetail = () => {
               </div>
             ) : (
               <ConsultationHistory 
-                consultations={consultations} 
+                timelineItems={timelineItems} 
                 onAddAddendum={handleAddAddendum} 
               />
             )}
