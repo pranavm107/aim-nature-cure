@@ -45,7 +45,7 @@ const Login = () => {
         }
       }
     } catch (error) {
-      // Error is handled by apiClient interceptor and toast
+      // Error is handled by toast
       console.error(error);
     } finally {
       setLoading(false);
