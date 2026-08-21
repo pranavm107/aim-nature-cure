@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../services/apiClient';
+import { patientService } from '../../services/patientService';
 import therapyService from '../../services/therapyService';
 import packageService from '../../services/packageService';
 import therapySessionService from '../../services/therapySessionService';
@@ -23,11 +23,11 @@ const TherapyAssignment = () => {
     const fetchData = async () => {
       try {
         const [patRes, thers, pkgs] = await Promise.all([
-          apiClient.get('/patients'),
+          patientService.getPatients(),
           therapyService.getAllTherapies(),
           packageService.getAllPackages()
         ]);
-        setPatients(patRes.data.patients);
+        setPatients(patRes.patients);
         setTherapies(thers.filter(t => t.status === true));
         setPackages(pkgs.filter(p => p.status === true));
       } catch (error) {

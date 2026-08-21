@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { assets } from '../../assets/assets'
 import { toast } from 'react-toastify'
-import apiClient from '../../services/apiClient'
+import { adminService } from '../../services/adminService';
 import { AdminContext } from '../../context/AdminContext'
 import { AppContext } from '../../context/AppContext'
 import { InputField, SelectField, TextareaField, ImageUploadField, PrimaryButton } from '../../components/common/FormFields'
@@ -21,7 +21,7 @@ const AddDoctor = () => {
     const [address2, setAddress2] = useState('')
     const [loading, setLoading] = useState(false)
 
-    const { backendUrl } = useContext(AppContext)
+    const { } = useContext(AppContext)
     const { aToken } = useContext(AdminContext)
 
     const onSubmitHandler = async (event) => {
@@ -47,7 +47,7 @@ const AddDoctor = () => {
             formData.append('degree', degree)
             formData.append('address', JSON.stringify({ line1: address1, line2: address2 }))
 
-            const { data } = await apiClient.post('/admin/add-doctor', formData)
+            const data = await adminService.addDoctor(formData);
             if (data.success) {
                 toast.success(data.message)
                 setDocImg(false)

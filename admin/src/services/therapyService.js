@@ -1,26 +1,37 @@
-import { realApiClient as apiClient } from './apiClient';
+import { mockTherapies } from '../mocks/mockData';
+
+const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 const therapyService = {
   getAllTherapies: async () => {
-    const response = await apiClient.get('/therapies');
-    return response.data.therapies;
+    await delay();
+    return mockTherapies;
   },
 
   createTherapy: async (data) => {
-    const response = await apiClient.post('/therapies', data);
-    return response.data.therapy;
+    await delay();
+    const newTherapy = { _id: "ther" + Date.now(), ...data, date: Date.now() };
+    mockTherapies.push(newTherapy);
+    return newTherapy;
   },
 
   updateTherapy: async (id, data) => {
-    const response = await apiClient.put(`/therapies/${id}`, data);
-    return response.data.therapy;
+    await delay();
+    const idx = mockTherapies.findIndex(t => t._id === id);
+    if (idx === -1) throw new Error("Therapy not found");
+    
+    mockTherapies[idx] = { ...mockTherapies[idx], ...data };
+    return mockTherapies[idx];
   },
 
   updateStatus: async (id, status) => {
-    const response = await apiClient.patch(`/therapies/${id}/status`, { status });
-    return response.data.therapy;
+    await delay();
+    const idx = mockTherapies.findIndex(t => t._id === id);
+    if (idx === -1) throw new Error("Therapy not found");
+    
+    mockTherapies[idx].status = status;
+    return mockTherapies[idx];
   }
 };
 
 export default therapyService;
-

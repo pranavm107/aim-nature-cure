@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import therapySessionService from '../../services/therapySessionService';
 import therapyService from '../../services/therapyService';
-import apiClient from '../../services/apiClient';
+import { patientService } from '../../services/patientService';
 import { toast } from 'react-toastify';
 
 const TherapySessions = () => {
@@ -24,11 +24,11 @@ const TherapySessions = () => {
       const [sessRes, therRes, patRes] = await Promise.all([
         therapySessionService.getAllSessions(),
         therapyService.getAllTherapies(),
-        apiClient.get('/patients')
+        patientService.getPatients()
       ]);
       setSessions(sessRes);
       setTherapies(therRes);
-      setPatients(patRes.data.patients);
+      setPatients(patRes.patients);
     } catch (err) {
       toast.error('Failed to load sessions');
     } finally {

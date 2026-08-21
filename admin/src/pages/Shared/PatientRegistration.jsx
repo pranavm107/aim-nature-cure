@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import apiClient from '../../services/apiClient';
+import { adminService } from '../../services/adminService';
 import { patientService } from '../../services/patientService';
 import { InputField, SelectField, PrimaryButton } from '../../components/common/FormFields';
 import PageContainer from '../../components/layout/PageContainer';
@@ -34,11 +34,11 @@ const PatientRegistration = () => {
     if (aToken) {
       const fetchDoctors = async () => {
         try {
-          const res = await apiClient.get('/admin/all-doctors');
-          if (res.data.success) {
-            setDoctors(res.data.doctors);
-            if (res.data.doctors.length > 0) {
-              setFormData(prev => ({ ...prev, assignedDoctor: res.data.doctors[0]._id }));
+          const res = await adminService.getAllDoctors();
+          if (res.success) {
+            setDoctors(res.doctors);
+            if (res.doctors.length > 0) {
+              setFormData(prev => ({...prev, assignedDoctor: res.doctors[0]._id}));
             }
           }
         } catch (error) {

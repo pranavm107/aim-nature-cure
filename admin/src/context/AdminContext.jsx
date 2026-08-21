@@ -1,115 +1,86 @@
-import apiClient from "../services/apiClient";
+import { adminService } from "../services/adminService";
+import { appointmentService } from "../services/appointmentService";
 import { createContext, useState } from "react";
 import { toast } from "react-toastify";
 
-
-export const AdminContext = createContext()
+export const AdminContext = createContext();
 
 const AdminContextProvider = (props) => {
+    const [aToken, setAToken] = useState(localStorage.getItem('aToken') ? localStorage.getItem('aToken') : '');
+    const [appointments, setAppointments] = useState([]);
+    const [doctors, setDoctors] = useState([]);
+    const [dashData, setDashData] = useState(false);
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL
-
-    const [aToken, setAToken] = useState(localStorage.getItem('aToken') ? localStorage.getItem('aToken') : '')
-
-    const [appointments, setAppointments] = useState([])
-    const [doctors, setDoctors] = useState([])
-    const [dashData, setDashData] = useState(false)
-
-    // Getting all Doctors data from Database using API
     const getAllDoctors = async () => {
-
         try {
-
-            const { data } = await apiClient.get('/admin/all-doctors')
+            const data = await adminService.getAllDoctors();
             if (data.success) {
-                setDoctors(data.doctors)
+                setDoctors(data.doctors);
             } else {
-                toast.error(data.message)
+                toast.error(data.message);
             }
-
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.message);
         }
+    };
 
-    }
-
-    // Function to change doctor availablity using API
     const changeAvailability = async (docId) => {
         try {
-
-            const { data } = await apiClient.post('/admin/change-availability', { docId })
+            const data = await adminService.changeAvailability(docId);
             if (data.success) {
-                toast.success(data.message)
-                getAllDoctors()
+                toast.success(data.message);
+                getAllDoctors();
             } else {
-                toast.error(data.message)
+                toast.error(data.message);
             }
-
         } catch (error) {
-            console.log(error)
-            toast.error(error.message)
+            console.log(error);
+            toast.error(error.message);
         }
-    }
+    };
 
-
-    // Getting all appointment data from Database using API
     const getAllAppointments = async () => {
-
         try {
-
-            const { data } = await apiClient.get('/admin/appointments')
+            const data = await appointmentService.getAllAppointments();
             if (data.success) {
-                setAppointments(data.appointments.reverse())
+                setAppointments(data.appointments.reverse());
             } else {
-                toast.error(data.message)
+                toast.error(data.message);
             }
-
         } catch (error) {
-            toast.error(error.message)
-            console.log(error)
+            toast.error(error.message);
+            console.log(error);
         }
+    };
 
-    }
-
-    // Function to cancel appointment using API
     const cancelAppointment = async (appointmentId) => {
-
         try {
-
-            const { data } = await apiClient.post('/admin/cancel-appointment', { appointmentId })
-
+            const data = await appointmentService.updateAppointmentStatus(appointmentId, 'Cancelled');
             if (data.success) {
-                toast.success(data.message)
-                getAllAppointments()
+                toast.success("Appointment Cancelled");
+                getAllAppointments();
             } else {
-                toast.error(data.message)
+                toast.error(data.message);
             }
-
         } catch (error) {
-            toast.error(error.message)
-            console.log(error)
+            toast.error(error.message);
+            console.log(error);
         }
+    };
 
-    }
-
-    // Getting Admin Dashboard data from Database using API
     const getDashData = async () => {
         try {
-
-            const { data } = await apiClient.get('/admin/dashboard')
-
+            const data = await adminService.getDashData();
             if (data.success) {
-                setDashData(data.dashData)
+                setDashData(data.dashData);
             } else {
-                toast.error(data.message)
+                toast.error(data.message);
             }
-
         } catch (error) {
-            console.log(error)
-            toast.error(error.message)
+            console.log(error);
+            toast.error(error.message);
         }
-
-    }
+    };
 
     const value = {
         aToken, setAToken,
@@ -121,14 +92,13 @@ const AdminContextProvider = (props) => {
         getDashData,
         cancelAppointment,
         dashData
-    }
+    };
 
     return (
         <AdminContext.Provider value={value}>
             {props.children}
         </AdminContext.Provider>
-    )
+    );
+};
 
-}
-
-export default AdminContextProvider
+export default AdminContextProvider;

@@ -2,14 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { DoctorContext } from '../../context/DoctorContext';
 import { AppContext } from '../../context/AppContext';
 import { toast } from 'react-toastify';
-import apiClient from '../../services/apiClient';
+import { doctorService } from '../../services/doctorService';
 import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 
 const DoctorProfile = () => {
 
     const { dToken, profileData, setProfileData, getProfileData } = useContext(DoctorContext)
-    const { currency, backendUrl } = useContext(AppContext)
+    const { currency } = useContext(AppContext)
     const [isEdit, setIsEdit] = useState(false)
 
     const updateProfile = async () => {
@@ -23,7 +23,7 @@ const DoctorProfile = () => {
                 available: profileData.available
             }
 
-            const { data } = await apiClient.post('/doctor/update-profile', updateData)
+            const data = await doctorService.updateProfileData(updateData);
 
             if (data.success) {
                 toast.success(data.message)

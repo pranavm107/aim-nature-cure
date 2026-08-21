@@ -1,17 +1,38 @@
-import apiClient from './apiClient';
+import { mockPatientDocuments } from '../mocks/mockData';
+
+const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const documentService = {
   getPatientDocuments: async (patientId) => {
-    const response = await apiClient.get(`/patients/${patientId}/documents`);
-    return response.data;
+    await delay();
+    const documents = mockPatientDocuments.filter(d => d.patientId === patientId);
+    return { success: true, documents };
   },
+  
   uploadDocument: async (patientId, formData) => {
-    // In a real app this uses multipart/form-data. For mock we just pass the object
-    const response = await apiClient.post(`/patients/${patientId}/documents`, formData);
-    return response.data;
+    await delay();
+    const file = formData.get('file');
+    const fileName = file && file.name ? file.name : "Uploaded Document";
+    
+    const newDoc = { 
+      _id: "docm" + Date.now(), 
+      patientId, 
+      name: fileName, 
+      type: file ? file.type : "application/pdf", 
+      url: "mock-url.pdf", 
+      date: Date.now() 
+    };
+    
+    mockPatientDocuments.push(newDoc);
+    return { success: true, document: newDoc };
   },
-  deleteDocument: async (patientId, documentId) => {
-    const response = await apiClient.delete(`/patients/${patientId}/documents/${documentId}`);
-    return response.data;
+  
+  deleteDocument: async (patientId, docId) => {
+    await delay();
+    const idx = mockPatientDocuments.findIndex(d => d._id === docId);
+    if (idx !== -1) {
+      mockPatientDocuments.splice(idx, 1);
+    }
+    return { success: true };
   }
 };

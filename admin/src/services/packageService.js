@@ -1,26 +1,37 @@
-import { realApiClient as apiClient } from './apiClient';
+import { mockPackages } from '../mocks/mockData';
+
+const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 const packageService = {
   getAllPackages: async () => {
-    const response = await apiClient.get('/packages');
-    return response.data.packages;
+    await delay();
+    return mockPackages;
   },
 
   createPackage: async (data) => {
-    const response = await apiClient.post('/packages', data);
-    return response.data.package;
+    await delay();
+    const newPackage = { _id: "pkg" + Date.now(), ...data, date: Date.now() };
+    mockPackages.push(newPackage);
+    return newPackage;
   },
 
   updatePackage: async (id, data) => {
-    const response = await apiClient.put(`/packages/${id}`, data);
-    return response.data.package;
+    await delay();
+    const idx = mockPackages.findIndex(p => p._id === id);
+    if (idx === -1) throw new Error("Package not found");
+    
+    mockPackages[idx] = { ...mockPackages[idx], ...data };
+    return mockPackages[idx];
   },
 
   updateStatus: async (id, status) => {
-    const response = await apiClient.patch(`/packages/${id}/status`, { status });
-    return response.data.package;
+    await delay();
+    const idx = mockPackages.findIndex(p => p._id === id);
+    if (idx === -1) throw new Error("Package not found");
+    
+    mockPackages[idx].status = status;
+    return mockPackages[idx];
   }
 };
 
 export default packageService;
-
