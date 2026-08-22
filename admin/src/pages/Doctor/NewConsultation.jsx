@@ -1,8 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { consultationService } from '../../services/consultationService';
+import { followUpService } from '../../services/followUpService';
 import { toast } from 'react-toastify';
-import { InputField, TextareaField, PrimaryButton } from '../../components/common/FormFields';
+import { InputField, TextareaField, SelectField, PrimaryButton } from '../../components/common/FormFields';
 import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import { DoctorContext } from '../../context/DoctorContext';
@@ -19,7 +20,13 @@ const NewConsultation = () => {
     observations: '',
     diagnosis: '',
     treatmentPlan: '',
-    notes: ''
+    notes: '',
+    // Follow-up Section
+    followUpRequired: 'No',
+    followUpDate: '',
+    followUpType: 'Treatment Follow-up',
+    followUpNotes: '',
+    followUpPriority: 'Normal'
   });
 
   const handleChange = (e) => {
@@ -33,14 +40,41 @@ const NewConsultation = () => {
       return;
     }
 
+    if (formData.followUpRequired === 'Yes' && !formData.followUpDate) {
+      toast.warn("Please provide a date for the follow-up.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const dataToSubmit = {
-        ...formData,
-        doctorId: profileData._id
+      // 1. Save Consultation
+      const consData = {
+        doctorId: profileData._id,
+        chiefComplaint: formData.chiefComplaint,
+        history: formData.history,
+        observations: formData.observations,
+        diagnosis: formData.diagnosis,
+        treatmentPlan: formData.treatmentPlan,
+        notes: formData.notes
       };
       
-      const res = await consultationService.createConsultation(id, dataToSubmit);
+      const res = await consultationService.createConsultation(id, consData);
+      
+      // 2. Save Follow-up if required
+      if (res.success && formData.followUpRequired === 'Yes') {
+        const fuData = {
+          patientId: id,
+          doctorId: profileData._id,
+          consultationId: res.consultation._id, // Link to the newly created consultation
+          date: new Date(formData.followUpDate).getTime(),
+          type: formData.followUpType,
+          notes: formData.followUpNotes,
+          priority: formData.followUpPriority,
+          source: 'Created from Consultation'
+        };
+        await followUpService.createFollowUp(fuData);
+      }
+
       if (res.success) {
         toast.success("Consultation saved successfully");
         navigate(`/patient/${id}`);
@@ -57,14 +91,14 @@ const NewConsultation = () => {
 
   return (
     <PageContainer>
-      <PageHeader title="New Consultation" subtitle="Record clinical findings and treatment plan" />
+      <PageHeader title="New Consultation" subtitle="Record clinical findings and treatment plan" backLink={`/patient/${id}`} />
       <form onSubmit={handleSubmit} className="w-full max-w-4xl">
       
       <div className="bg-white p-8 border rounded flex flex-col gap-6 shadow-sm">
         
         <div className="flex flex-col gap-6">
           <TextareaField 
-            label="Chief Complaint"
+            label="Chief Complaint *"
             name="chiefComplaint"
             value={formData.chiefComplaint}
             onChange={handleChange}
@@ -83,7 +117,7 @@ const NewConsultation = () => {
           />
           
           <TextareaField 
-            label="Observations / Examination"
+            label="Observations / Examination *"
             name="observations"
             value={formData.observations}
             onChange={handleChange}
@@ -95,7 +129,7 @@ const NewConsultation = () => {
 
         <div className="flex flex-col gap-6 border-t pt-6">
           <InputField 
-            label="Diagnosis"
+            label="Diagnosis *"
             name="diagnosis"
             value={formData.diagnosis}
             onChange={handleChange}
@@ -104,7 +138,7 @@ const NewConsultation = () => {
           />
           
           <TextareaField 
-            label="Treatment Plan"
+            label="Treatment Plan *"
             name="treatmentPlan"
             value={formData.treatmentPlan}
             onChange={handleChange}
@@ -123,17 +157,78 @@ const NewConsultation = () => {
           />
         </div>
 
-        <div className="mt-4 border-t pt-4 flex gap-4">
-          <PrimaryButton type="submit" disabled={loading}>
-            {loading ? 'Saving...' : 'Submit Consultation'}
-          </PrimaryButton>
+        {/* Follow-up Section */}
+        <div className="flex flex-col gap-6 border-t pt-6 bg-teal-50/50 p-6 rounded-lg -mx-4 mt-2">
+          <h3 className="font-semibold text-teal-900 border-b border-teal-100 pb-2">Follow-up Required?</h3>
+          <SelectField 
+            label="Follow-up Needed"
+            name="followUpRequired"
+            value={formData.followUpRequired}
+            onChange={handleChange}
+            options={[{label: 'No', value: 'No'}, {label: 'Yes', value: 'Yes'}]}
+          />
+
+          {formData.followUpRequired === 'Yes' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              <div className="md:col-span-2">
+                <InputField 
+                  label="Follow-up Date *"
+                  name="followUpDate"
+                  type="date"
+                  value={formData.followUpDate}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <SelectField 
+                label="Follow-up Type"
+                name="followUpType"
+                value={formData.followUpType}
+                onChange={handleChange}
+                options={[
+                  {label: 'Consultation', value: 'Consultation'},
+                  {label: 'Therapy Session', value: 'Therapy Session'},
+                  {label: 'Review', value: 'Review'},
+                  {label: 'Treatment Follow-up', value: 'Treatment Follow-up'},
+                  {label: 'General Follow-up', value: 'General Follow-up'}
+                ]}
+              />
+              <SelectField 
+                label="Priority"
+                name="followUpPriority"
+                value={formData.followUpPriority}
+                onChange={handleChange}
+                options={[
+                  {label: 'Normal', value: 'Normal'},
+                  {label: 'Important', value: 'Important'},
+                  {label: 'Urgent', value: 'Urgent'}
+                ]}
+              />
+              <div className="md:col-span-2">
+                <TextareaField 
+                  label="Follow-up Notes"
+                  name="followUpNotes"
+                  value={formData.followUpNotes}
+                  onChange={handleChange}
+                  placeholder="What needs to be reviewed or done?"
+                  rows={2}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 border-t pt-4 flex justify-end gap-3">
           <button 
             type="button" 
             onClick={() => navigate(`/patient/${id}`)}
-            className="px-8 py-3 rounded-full text-gray-600 hover:bg-gray-100 border transition-colors"
+            className="px-6 py-2 rounded-lg text-gray-600 hover:bg-gray-100 border transition-colors font-medium"
           >
             Cancel
           </button>
+          <PrimaryButton type="submit" disabled={loading}>
+            {loading ? 'Saving...' : 'Lock & Save Consultation'}
+          </PrimaryButton>
         </div>
       </div>
       </form>

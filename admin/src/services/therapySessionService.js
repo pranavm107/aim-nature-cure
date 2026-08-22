@@ -1,4 +1,4 @@
-import { mockTherapySessions, mockPackages } from '../mocks/mockData';
+import { mockTherapySessions, mockPackages, mockTherapies, mockDoctors } from '../mocks/mockData';
 
 const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -70,6 +70,33 @@ const therapySessionService = {
     await delay();
     const sessions = mockTherapySessions.filter(s => s.patientId === patientId);
     return sessions;
+  },
+
+  getPatientTherapyHistory: async (patientId) => {
+    await delay();
+    const rawSessions = mockTherapySessions.filter(s => s.patientId === patientId);
+    
+    // Enrich with therapy and doctor details
+    const enrichedSessions = rawSessions.map(s => {
+      const therapy = mockTherapies.find(t => t._id === s.therapyId);
+      const doc = mockDoctors.find(d => d._id === s.docId);
+      return {
+        ...s,
+        therapyName: therapy ? therapy.name : 'Unknown Therapy',
+        duration: therapy ? therapy.duration : 0,
+        doctorName: doc ? doc.name : 'Unknown Doctor'
+      };
+    }).sort((a, b) => b.date - a.date);
+
+    // Compute stats
+    const stats = {
+      total: enrichedSessions.length,
+      completed: enrichedSessions.filter(s => s.status === 'Completed').length,
+      upcoming: enrichedSessions.filter(s => s.status === 'Pending').length,
+      cancelled: enrichedSessions.filter(s => s.status === 'Cancelled' || s.status === 'No Show').length
+    };
+
+    return { success: true, sessions: enrichedSessions, stats };
   },
 
   getAllSessions: async () => {

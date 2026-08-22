@@ -150,7 +150,6 @@ const Sidebar = ({ isOpen, onClose }) => {
         <SidebarLink to='/doctor/history' icon={assets.appointment_icon} label='Consultation History' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/doctor/therapy-assignment' icon={assets.appointment_icon} label='Therapy Assignment' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/doctor/therapy-sessions' icon={assets.appointment_icon} label='Therapy Sessions' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/doctor-appointments' icon={assets.appointment_icon} label='Appointments' isCollapsed={isCollapsed} onClick={onClose} />
       </SidebarSection>
       
       <SidebarSection title="Follow-Ups" isCollapsed={isCollapsed}>

@@ -317,3 +317,147 @@ export const mockTherapySessions = [
     date: 1712124536100
   }
 ];
+
+export const mockInvoices = [
+  {
+    _id: "inv1",
+    patientId: "pat1",
+    docId: "doc1",
+    date: 1712124536000,
+    items: [
+      { type: "Consultation", description: "Initial Consultation", amount: 50 },
+      { type: "Therapy", description: "Massage Therapy", amount: 50 }
+    ],
+    totalAmount: 100,
+    paidAmount: 50,
+    status: "Partial",
+    dueDate: "2024-10-30"
+  },
+  {
+    _id: "inv2",
+    patientId: "pat2",
+    docId: "doc1",
+    date: 1712124536100,
+    items: [
+      { type: "Package", description: "Quick Detox", amount: 50 }
+    ],
+    totalAmount: 50,
+    paidAmount: 50,
+    status: "Paid",
+    dueDate: "2024-10-15"
+  }
+];
+
+export const mockPayments = [
+  {
+    _id: "pay1",
+    invoiceId: "inv1",
+    patientId: "pat1",
+    amount: 50,
+    mode: "UPI",
+    date: 1712124536000,
+    transactionId: "TXN12345678"
+  },
+  {
+    _id: "pay2",
+    invoiceId: "inv2",
+    patientId: "pat2",
+    amount: 50,
+    mode: "Cash",
+    date: 1712124536100,
+    transactionId: "CASH_001"
+  }
+];
+
+export const mockIncentiveRules = [
+  {
+    _id: "rule1",
+    docId: "doc1",
+    targetAmount: 5000,
+    percentage: 10,
+    effectiveDate: "2024-01-01",
+    date: 1712124536000
+  },
+  {
+    _id: "rule2",
+    docId: "doc2",
+    targetAmount: 6000,
+    percentage: 12,
+    effectiveDate: "2024-01-01",
+    date: 1712124536100
+  }
+];
+
+export const mockIncentives = [
+  {
+    _id: "inc1",
+    docId: "doc1",
+    period: "2024-09",
+    totalRevenue: 6000, // BR-09: paid revenue
+    target: 5000,
+    percentage: 10,
+    calculatedAmount: 100, // (6000 - 5000) * 10%
+    status: "Approved",
+    date: 1712124536000
+  },
+  {
+    _id: "inc2",
+    docId: "doc1",
+    period: "2024-10",
+    totalRevenue: 5500,
+    target: 5000,
+    percentage: 10,
+    calculatedAmount: 50,
+    status: "Pending",
+    date: 1712124536100
+  }
+];
+
+export const mockFollowUps = [
+  {
+    _id: "fu1",
+    patientId: "pat1",
+    docId: "doc1",
+    dueDate: "2024-10-25",
+    type: "Post-Therapy Check",
+    notes: "Check if neck pain reduced after acupuncture.",
+    status: "Pending", // Pending, Completed, Cancelled
+    priority: "High",
+    date: 1712124536000
+  },
+  {
+    _id: "fu2",
+    patientId: "pat2",
+    docId: "doc1",
+    dueDate: "2024-10-10",
+    type: "General Follow-up",
+    notes: "Review diet chart adherence.",
+    status: "Completed",
+    priority: "Medium",
+    date: 1712124536100
+  }
+];
+
+export const mockLeads = [
+  {
+    _id: "lead1",
+    name: "Alex Hunter",
+    phone: "1112223333",
+    source: "Instagram",
+    status: "New", // New, Contacted, Converted, Lost
+    notes: "Interested in detox package.",
+    date: 1712124536000
+  }
+];
+
+export const mockSocialSubmissions = [
+  {
+    _id: "soc1",
+    docId: "doc1",
+    type: "Article", // Video, Article, Testimonial
+    title: "Benefits of Naturopathy",
+    content: "A short article discussing the holistic approach...",
+    status: "Pending", // Pending, Approved, Rejected
+    date: 1712124536000
+  }
+];
