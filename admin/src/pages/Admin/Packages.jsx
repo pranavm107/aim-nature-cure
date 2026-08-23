@@ -117,23 +117,23 @@ const Packages = () => {
         <button onClick={() => openModal()} className="bg-primary text-white px-4 py-2 rounded">Add New Package</button>
       </div>
 
-      <div className="bg-white border rounded shadow-sm overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mt-6">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-50 border-b">
-              <th className="p-4 font-semibold text-gray-700">Name</th>
-              <th className="p-4 font-semibold text-gray-700">Included Therapies</th>
-              <th className="p-4 font-semibold text-gray-700">Price ($)</th>
-              <th className="p-4 font-semibold text-gray-700">Status</th>
-              <th className="p-4 font-semibold text-gray-700">Actions</th>
+            <tr className="bg-slate-50 border-b border-slate-200">
+              <th className="p-4 font-semibold text-slate-700 text-sm">Name</th>
+              <th className="p-4 font-semibold text-slate-700 text-sm">Included Therapies</th>
+              <th className="p-4 font-semibold text-slate-700 text-sm">Price ($)</th>
+              <th className="p-4 font-semibold text-slate-700 text-sm">Status</th>
+              <th className="p-4 font-semibold text-slate-700 text-sm">Actions</th>
             </tr>
           </thead>
           <tbody>
             {packages.map((item) => (
-              <tr key={item._id} className="border-b hover:bg-gray-50 transition-colors">
-                <td className="p-4">{item.name}</td>
+              <tr key={item._id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors text-sm text-slate-600">
+                <td className="p-4 font-medium text-slate-800">{item.name}</td>
                 <td className="p-4">
-                  <ul className="text-sm text-gray-600 list-disc list-inside">
+                  <ul className="text-sm text-slate-600 list-disc list-inside">
                     {item.therapies.map((t, idx) => (
                       <li key={idx}>{getTherapyName(t.therapyId)} (x{t.count})</li>
                     ))}
@@ -155,7 +155,7 @@ const Packages = () => {
             ))}
             {packages.length === 0 && (
               <tr>
-                <td colSpan="5" className="p-4 text-center text-gray-500">No packages found</td>
+                <td colSpan="5" className="p-8 text-center text-slate-500">No packages found</td>
               </tr>
             )}
           </tbody>
@@ -163,27 +163,27 @@ const Packages = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto pt-20 pb-10">
-          <div className="bg-white rounded-lg p-6 w-full max-w-xl my-auto">
-            <h2 className="text-xl font-bold mb-4">{editingPackage ? 'Edit Package' : 'Add New Package'}</h2>
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 overflow-y-auto pt-20 pb-10">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-xl my-auto">
+            <h2 className="text-xl font-bold mb-4 text-slate-800">{editingPackage ? 'Edit Package' : 'Add New Package'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4 flex gap-4">
                 <div className="flex-[2]">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">Package Name</label>
+                  <label className="block text-slate-700 text-sm font-bold mb-2">Package Name</label>
                   <input 
                     type="text" 
                     required
-                    className="w-full border rounded px-3 py-2"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">Price</label>
+                  <label className="block text-slate-700 text-sm font-bold mb-2">Price</label>
                   <input 
                     type="number" 
                     required min="0" step="0.01"
-                    className="w-full border rounded px-3 py-2"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                     value={formData.price}
                     onChange={e => setFormData({...formData, price: Number(e.target.value)})}
                   />
@@ -192,16 +192,16 @@ const Packages = () => {
 
               <div className="mb-4">
                 <div className="flex justify-between items-center mb-2">
-                  <label className="block text-gray-700 text-sm font-bold">Included Therapies</label>
-                  <button type="button" onClick={addTherapyToPackage} className="text-xs text-primary font-bold">+ Add Therapy</button>
+                  <label className="block text-slate-700 text-sm font-bold">Included Therapies</label>
+                  <button type="button" onClick={addTherapyToPackage} className="text-xs text-primary font-bold hover:text-primary/80">+ Add Therapy</button>
                 </div>
                 {formData.therapies.length === 0 && (
-                  <p className="text-sm text-gray-400 italic">No therapies added yet.</p>
+                  <p className="text-sm text-slate-400 italic">No therapies added yet.</p>
                 )}
                 {formData.therapies.map((tItem, index) => (
-                  <div key={index} className="flex gap-2 items-center mb-2 p-2 bg-gray-50 rounded border">
+                  <div key={index} className="flex gap-2 items-center mb-2 p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <select 
-                      className="flex-[2] border rounded px-2 py-1"
+                      className="flex-[2] border border-slate-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                       required
                       value={tItem.therapyId}
                       onChange={(e) => updateTherapyItem(index, 'therapyId', e.target.value)}
@@ -212,23 +212,23 @@ const Packages = () => {
                       ))}
                     </select>
                     <div className="flex items-center gap-1 flex-1">
-                      <span className="text-sm text-gray-500">Qty:</span>
+                      <span className="text-sm text-slate-500">Qty:</span>
                       <input 
                         type="number" 
                         min="1" required
-                        className="w-full border rounded px-2 py-1"
+                        className="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         value={tItem.count}
                         onChange={(e) => updateTherapyItem(index, 'count', Number(e.target.value))}
                       />
                     </div>
-                    <button type="button" onClick={() => removeTherapyFromPackage(index)} className="text-red-500 font-bold px-2">X</button>
+                    <button type="button" onClick={() => removeTherapyFromPackage(index)} className="text-red-500 font-bold px-2 hover:text-red-700">X</button>
                   </div>
                 ))}
               </div>
 
-              <div className="flex justify-end gap-3 mt-6">
-                <button type="button" onClick={closeModal} className="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">Save Package</button>
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
+                <button type="button" onClick={closeModal} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">Save Package</button>
               </div>
             </form>
           </div>

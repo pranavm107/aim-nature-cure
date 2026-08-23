@@ -93,9 +93,9 @@ const AddDoctor = () => {
 
     return (
         <form onSubmit={onSubmitHandler} className='m-5 w-full'>
-            <p className='mb-3 text-lg font-medium'>Add Doctor</p>
+            <p className='mb-3 text-lg font-medium text-slate-800'>Add Doctor</p>
 
-            <div className='bg-white px-8 py-8 border rounded w-full max-w-4xl max-h-[80vh] overflow-y-scroll'>
+            <div className='bg-white px-8 py-8 border border-slate-200 shadow-sm rounded-xl w-full max-w-4xl max-h-[80vh] overflow-y-auto custom-scrollbar'>
                 
                 <ImageUploadField 
                     label={<span>Upload doctor <br /> picture</span>}
@@ -104,7 +104,7 @@ const AddDoctor = () => {
                     placeholderImg={assets.upload_area}
                 />
 
-                <div className='flex flex-col lg:flex-row items-start gap-10 text-gray-600'>
+                <div className='flex flex-col lg:flex-row items-start gap-10 text-slate-600'>
                     <div className='w-full lg:flex-1 flex flex-col gap-4'>
                         <InputField label="Your name" value={name} onChange={e => setName(e.target.value)} placeholder="Name" required />
                         <InputField label="Doctor Email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
@@ -118,9 +118,9 @@ const AddDoctor = () => {
                         <InputField label="Degree" value={degree} onChange={e => setDegree(e.target.value)} placeholder="Degree" required />
                         
                         <div className='flex-1 flex flex-col gap-1'>
-                            <p>Address <span className="text-red-500">*</span></p>
-                            <input onChange={e => setAddress1(e.target.value)} value={address1} className='border rounded px-3 py-2 outline-none focus:border-primary mb-2' type="text" placeholder='Address 1' required />
-                            <input onChange={e => setAddress2(e.target.value)} value={address2} className='border rounded px-3 py-2 outline-none focus:border-primary' type="text" placeholder='Address 2' required />
+                            <p className="text-sm font-medium text-slate-700">Address <span className="text-red-500">*</span></p>
+                            <input onChange={e => setAddress1(e.target.value)} value={address1} className='border border-slate-200 rounded-md px-3 py-2 outline-none focus:border-primary focus:ring-1 focus:ring-primary mb-2 text-sm' type="text" placeholder='Address 1' required />
+                            <input onChange={e => setAddress2(e.target.value)} value={address2} className='border border-slate-200 rounded-md px-3 py-2 outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm' type="text" placeholder='Address 2' required />
                         </div>
                     </div>
                 </div>

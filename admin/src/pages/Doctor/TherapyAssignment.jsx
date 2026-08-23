@@ -66,12 +66,12 @@ const TherapyAssignment = () => {
     <div className="m-5 max-w-2xl mx-auto">
       <h1 className="text-2xl font-medium mb-5">Assign Therapy / Package</h1>
       
-      <div className="bg-white p-6 rounded border shadow-sm">
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mt-6">
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Select Patient</label>
+            <label className="block text-slate-700 text-sm font-bold mb-2">Select Patient</label>
             <select 
-              className="w-full border rounded px-3 py-2"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               value={formData.patientId}
               onChange={(e) => setFormData({...formData, patientId: e.target.value})}
               required
@@ -84,9 +84,9 @@ const TherapyAssignment = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Assignment Type</label>
+            <label className="block text-slate-700 text-sm font-bold mb-2">Assignment Type</label>
             <div className="flex gap-4">
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-slate-700 text-sm">
                 <input 
                   type="radio" 
                   name="type" 
@@ -96,7 +96,7 @@ const TherapyAssignment = () => {
                 /> 
                 Standalone Therapy
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 text-slate-700 text-sm">
                 <input 
                   type="radio" 
                   name="type" 
@@ -110,11 +110,11 @@ const TherapyAssignment = () => {
           </div>
 
           <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
+            <label className="block text-slate-700 text-sm font-bold mb-2">
               Select {formData.assignmentType === 'therapy' ? 'Therapy' : 'Package'}
             </label>
             <select 
-              className="w-full border rounded px-3 py-2"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               value={formData.itemId}
               onChange={(e) => setFormData({...formData, itemId: e.target.value})}
               required
@@ -129,7 +129,7 @@ const TherapyAssignment = () => {
             </select>
           </div>
 
-          <button type="submit" className="w-full bg-primary text-white py-2 rounded hover:bg-primary/90 font-medium">
+          <button type="submit" className="w-full bg-primary text-white py-2.5 rounded-lg hover:bg-primary/90 font-medium transition-colors shadow-sm mt-4">
             Assign and Generate Sessions
           </button>
         </form>

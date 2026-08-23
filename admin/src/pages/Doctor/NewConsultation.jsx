@@ -94,7 +94,7 @@ const NewConsultation = () => {
       <PageHeader title="New Consultation" subtitle="Record clinical findings and treatment plan" backLink={`/patient/${id}`} />
       <form onSubmit={handleSubmit} className="w-full max-w-4xl">
       
-      <div className="bg-white p-8 border rounded flex flex-col gap-6 shadow-sm">
+      <div className="bg-white p-8 border border-slate-200 rounded-xl flex flex-col gap-6 shadow-sm">
         
         <div className="flex flex-col gap-6">
           <TextareaField 
@@ -127,7 +127,7 @@ const NewConsultation = () => {
           />
         </div>
 
-        <div className="flex flex-col gap-6 border-t pt-6">
+        <div className="flex flex-col gap-6 border-t border-slate-100 pt-6">
           <InputField 
             label="Diagnosis *"
             name="diagnosis"
@@ -158,8 +158,8 @@ const NewConsultation = () => {
         </div>
 
         {/* Follow-up Section */}
-        <div className="flex flex-col gap-6 border-t pt-6 bg-teal-50/50 p-6 rounded-lg -mx-4 mt-2">
-          <h3 className="font-semibold text-teal-900 border-b border-teal-100 pb-2">Follow-up Required?</h3>
+        <div className="flex flex-col gap-6 border-t border-slate-100 pt-6 bg-primary/5 p-6 rounded-xl -mx-4 mt-2">
+          <h3 className="font-semibold text-primary border-b border-primary/20 pb-2">Follow-up Required?</h3>
           <SelectField 
             label="Follow-up Needed"
             name="followUpRequired"
@@ -218,11 +218,11 @@ const NewConsultation = () => {
           )}
         </div>
 
-        <div className="mt-4 border-t pt-4 flex justify-end gap-3">
+        <div className="mt-4 border-t border-slate-100 pt-6 flex justify-end gap-3">
           <button 
             type="button" 
             onClick={() => navigate(`/patient/${id}`)}
-            className="px-6 py-2 rounded-lg text-gray-600 hover:bg-gray-100 border transition-colors font-medium"
+            className="px-6 py-2 rounded-lg text-slate-600 hover:bg-slate-50 border border-slate-200 transition-colors font-medium"
           >
             Cancel
           </button>

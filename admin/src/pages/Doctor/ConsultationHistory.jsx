@@ -50,15 +50,15 @@ const ConsultationHistory = () => {
   ];
 
   const renderRow = (item) => (
-    <div key={item._id} className="grid grid-cols-[1fr_1.5fr_2fr_1.5fr_1fr] py-3 px-6 border-b items-center text-sm hover:bg-gray-50">
-      <p>{new Date(item.date).toLocaleDateString()}</p>
-      <p className="font-medium text-gray-800 cursor-pointer hover:text-primary" onClick={() => navigate(`/patient/${item.patientId}`)}>{item.patientName}</p>
-      <p className="text-gray-600 truncate pr-4">{item.chiefComplaint}</p>
-      <p className="text-gray-600 truncate pr-4">{item.diagnosis}</p>
+    <div key={item._id} className="grid grid-cols-[1fr_1.5fr_2fr_1.5fr_1fr] py-3 px-6 border-b border-slate-100 items-center text-sm hover:bg-slate-50 transition-colors">
+      <p className="text-slate-600">{new Date(item.date).toLocaleDateString()}</p>
+      <p className="font-semibold text-slate-800 cursor-pointer hover:text-primary transition-colors" onClick={() => navigate(`/patient/${item.patientId}`)}>{item.patientName}</p>
+      <p className="text-slate-600 truncate pr-4">{item.chiefComplaint}</p>
+      <p className="text-slate-600 truncate pr-4">{item.diagnosis}</p>
       <div className="text-right">
         <button 
           onClick={() => navigate(`/patient/${item.patientId}`)}
-          className="text-xs bg-gray-50 text-gray-600 border px-3 py-1 rounded hover:bg-gray-100 transition-colors"
+          className="text-xs font-medium bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-primary transition-colors"
         >
           View Patient
         </button>

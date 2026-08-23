@@ -1,13 +1,17 @@
 import React from 'react';
+import { Upload } from 'lucide-react';
 
-export const InputField = ({ label, type = "text", name, value, onChange, placeholder, required = false, className = "" }) => (
-  <div className={`flex-1 flex flex-col gap-1 ${className}`}>
-    <p>{label} {required && <span className="text-red-500">*</span>}</p>
+export const InputField = ({ label, type = "text", name, value, onChange, placeholder, required = false, className = "", disabled = false }) => (
+  <div className={`flex-1 flex flex-col gap-1.5 ${className}`}>
+    <label className="text-sm font-medium text-slate-700">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
     <input 
       name={name}
       onChange={onChange} 
       value={value} 
-      className='border rounded px-3 py-2 outline-none focus:border-primary transition-colors' 
+      disabled={disabled}
+      className='bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-md px-3 py-2 shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all disabled:opacity-50 disabled:bg-slate-50' 
       type={type} 
       placeholder={placeholder} 
       required={required} 
@@ -15,16 +19,20 @@ export const InputField = ({ label, type = "text", name, value, onChange, placeh
   </div>
 );
 
-export const SelectField = ({ label, name, value, onChange, options, required = false, className = "" }) => (
-  <div className={`flex-1 flex flex-col gap-1 ${className}`}>
-    <p>{label} {required && <span className="text-red-500">*</span>}</p>
+export const SelectField = ({ label, name, value, onChange, options, required = false, className = "", disabled = false }) => (
+  <div className={`flex-1 flex flex-col gap-1.5 ${className}`}>
+    <label className="text-sm font-medium text-slate-700">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
     <select 
       name={name}
       onChange={onChange} 
-      value={value} 
-      className='border rounded px-3 py-2 outline-none focus:border-primary transition-colors bg-white'
+      value={value}
+      disabled={disabled} 
+      className='bg-white border border-slate-300 text-slate-900 rounded-md px-3 py-2 shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all disabled:opacity-50 disabled:bg-slate-50'
       required={required}
     >
+      <option value="" disabled>Select {label}</option>
       {options.map((opt, i) => (
         <option key={i} value={opt.value}>{opt.label}</option>
       ))}
@@ -32,14 +40,17 @@ export const SelectField = ({ label, name, value, onChange, options, required = 
   </div>
 );
 
-export const TextareaField = ({ label, name, value, onChange, placeholder, rows = 5, required = false, className = "" }) => (
-  <div className={`w-full flex flex-col gap-1 ${className}`}>
-    <p>{label} {required && <span className="text-red-500">*</span>}</p>
+export const TextareaField = ({ label, name, value, onChange, placeholder, rows = 5, required = false, className = "", disabled = false }) => (
+  <div className={`w-full flex flex-col gap-1.5 ${className}`}>
+    <label className="text-sm font-medium text-slate-700">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
     <textarea 
       name={name}
       onChange={onChange} 
-      value={value} 
-      className='w-full px-4 pt-2 border rounded outline-none focus:border-primary transition-colors' 
+      value={value}
+      disabled={disabled} 
+      className='bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-md px-3 py-2 shadow-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all disabled:opacity-50 disabled:bg-slate-50' 
       rows={rows} 
       placeholder={placeholder}
       required={required}
@@ -48,22 +59,19 @@ export const TextareaField = ({ label, name, value, onChange, placeholder, rows 
 );
 
 export const ImageUploadField = ({ label, image, onChange, placeholderImg }) => (
-  <div className='flex items-center gap-4 text-gray-500 mb-8'>
+  <div className='flex items-center gap-4 text-slate-600 mb-8'>
     <label htmlFor="image-upload" className="cursor-pointer group relative">
       <img 
-        className='w-16 h-16 bg-gray-100 rounded-full object-cover border-2 border-transparent group-hover:border-primary transition-colors' 
+        className='w-16 h-16 bg-slate-100 rounded-full object-cover border-2 border-slate-200 group-hover:border-primary transition-colors' 
         src={image ? URL.createObjectURL(image) : placeholderImg} 
         alt="Upload" 
       />
-      <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-white">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
-        </svg>
+      <div className="absolute inset-0 bg-slate-900/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <Upload className="w-5 h-5 text-white" />
       </div>
     </label>
     <input onChange={(e) => onChange(e.target.files[0])} type="file" id="image-upload" hidden accept="image/*" />
-    <p>{label}</p>
+    <span className="text-sm font-medium">{label}</span>
   </div>
 );
 
@@ -72,7 +80,29 @@ export const PrimaryButton = ({ type = "button", children, onClick, className = 
     type={type} 
     onClick={onClick}
     disabled={disabled}
-    className={`bg-primary px-10 py-3 text-white rounded-full hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+    className={`bg-primary text-white hover:bg-primary/90 shadow-sm rounded-md px-4 py-2 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+  >
+    {children}
+  </button>
+);
+
+export const SecondaryButton = ({ type = "button", children, onClick, className = "", disabled = false }) => (
+  <button 
+    type={type} 
+    onClick={onClick}
+    disabled={disabled}
+    className={`bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 shadow-sm rounded-md px-4 py-2 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+  >
+    {children}
+  </button>
+);
+
+export const DangerButton = ({ type = "button", children, onClick, className = "", disabled = false }) => (
+  <button 
+    type={type} 
+    onClick={onClick}
+    disabled={disabled}
+    className={`bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 shadow-sm rounded-md px-4 py-2 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
   >
     {children}
   </button>

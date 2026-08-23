@@ -49,11 +49,11 @@ const UserManagement = () => {
   ];
 
   const renderRow = (item) => (
-    <div key={item._id} className="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr] py-3 px-6 border-b items-center text-sm hover:bg-gray-50">
-      <p className="font-medium text-gray-800">{item.name}</p>
-      <p className="text-gray-600">{item.email}</p>
-      <p>{item.role}</p>
-      <p className="text-gray-500">{new Date(item.lastActive).toLocaleDateString()}</p>
+    <div key={item._id} className="grid grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr_1fr] py-3 px-6 border-b border-slate-100 items-center text-sm hover:bg-slate-50 transition-colors">
+      <p className="font-medium text-slate-800">{item.name}</p>
+      <p className="text-slate-600">{item.email}</p>
+      <p className="text-slate-700 capitalize">{item.role}</p>
+      <p className="text-slate-500">{new Date(item.lastActive).toLocaleDateString()}</p>
       <div>
         {item.status === 'Active' ? <Badge variant="success">Active</Badge> : <Badge variant="neutral">Inactive</Badge>}
       </div>

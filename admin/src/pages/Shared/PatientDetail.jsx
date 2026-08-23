@@ -15,6 +15,7 @@ import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import { toast } from 'react-toastify';
 import { AdminContext } from '../../context/AdminContext';
+import { Plus, FileText } from 'lucide-react';
 
 const PatientDetail = () => {
   const { id } = useParams();
@@ -140,7 +141,7 @@ const PatientDetail = () => {
     }
   };
 
-  if (loading) return <div className="flex h-screen items-center justify-center"><p className="text-gray-500 font-medium">Loading patient details...</p></div>;
+  if (loading) return <div className="flex h-screen items-center justify-center"><p className="text-slate-500 font-medium">Loading patient details...</p></div>;
   if (!patient) return null;
 
   const timelineItems = timeline;
@@ -155,9 +156,7 @@ const PatientDetail = () => {
             onClick={() => navigate(`/patient/${id}/new-consultation`)}
             className="bg-primary text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-primary/90 transition-colors flex items-center gap-2 text-sm font-medium w-full sm:w-auto justify-center"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-              <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-            </svg>
+            <Plus className="w-5 h-5" />
             New Consultation
           </button>
         }
@@ -166,18 +165,18 @@ const PatientDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Patient Info */}
         <div className="lg:col-span-1 flex flex-col gap-6">
-          <div className="bg-white border rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Profile Information</h2>
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 pb-2">Profile Information</h2>
             <div className="flex flex-col gap-3 text-sm">
-              <p><span className="text-gray-500 w-24 inline-block">Phone:</span> <span className="font-medium text-gray-800">{patient.phone}</span></p>
-              <p><span className="text-gray-500 w-24 inline-block">Email:</span> <span className="font-medium text-gray-800">{patient.email || 'N/A'}</span></p>
-              <p><span className="text-gray-500 w-24 inline-block">DOB:</span> <span className="font-medium text-gray-800">{patient.dob}</span></p>
-              <p><span className="text-gray-500 w-24 inline-block">Gender:</span> <span className="font-medium text-gray-800">{patient.gender}</span></p>
-              <p><span className="text-gray-500 w-24 inline-block">Address:</span> <span className="font-medium text-gray-800">{patient.address}</span></p>
-              <p><span className="text-gray-500 w-24 inline-block">Lead Source:</span> <span className="font-medium text-gray-800">{patient.leadSource || 'N/A'}</span></p>
-              <div className="mt-2 pt-2 border-t flex items-center justify-between">
-                <p className="text-gray-500">Status:</p>
-                <span className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${patient.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+              <p><span className="text-slate-500 w-24 inline-block">Phone:</span> <span className="font-medium text-slate-800">{patient.phone}</span></p>
+              <p><span className="text-slate-500 w-24 inline-block">Email:</span> <span className="font-medium text-slate-800">{patient.email || 'N/A'}</span></p>
+              <p><span className="text-slate-500 w-24 inline-block">DOB:</span> <span className="font-medium text-slate-800">{patient.dob}</span></p>
+              <p><span className="text-slate-500 w-24 inline-block">Gender:</span> <span className="font-medium text-slate-800">{patient.gender}</span></p>
+              <p><span className="text-slate-500 w-24 inline-block">Address:</span> <span className="font-medium text-slate-800">{patient.address}</span></p>
+              <p><span className="text-slate-500 w-24 inline-block">Lead Source:</span> <span className="font-medium text-slate-800">{patient.leadSource || 'N/A'}</span></p>
+              <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+                <p className="text-slate-500">Status:</p>
+                <span className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${patient.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
                   {patient.status || 'Active'}
                 </span>
               </div>
@@ -188,55 +187,53 @@ const PatientDetail = () => {
         {/* Right Column: Timeline, Appointments, Documents */}
         <div className="lg:col-span-2 flex flex-col gap-6">
           {/* Clinical Records (Case Sheet) */}
-          <div className="bg-white border rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Clinical Records</h2>
-            <div className="flex flex-col sm:flex-row items-center justify-between bg-teal-50 border border-teal-100 p-4 rounded-lg">
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 pb-2">Clinical Records</h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between bg-primary/5 border border-primary/20 p-4 rounded-lg">
               <div>
-                <h3 className="font-bold text-teal-900 mb-1">Complete Case Sheet</h3>
-                <p className="text-sm text-teal-800 max-w-md">View and manage the patient's complete case sheet including physical examinations, diagnosis, and treatment protocols.</p>
+                <h3 className="font-bold text-slate-800 mb-1">Complete Case Sheet</h3>
+                <p className="text-sm text-slate-600 max-w-md">View and manage the patient's complete case sheet including physical examinations, diagnosis, and treatment protocols.</p>
               </div>
               <button 
                 onClick={() => navigate(`/patient/${id}/case-sheet`)}
-                className="mt-3 sm:mt-0 bg-teal-600 text-white px-5 py-2 rounded shadow-sm hover:bg-teal-700 transition-colors whitespace-nowrap text-sm font-medium flex items-center gap-2"
+                className="mt-3 sm:mt-0 bg-primary text-white px-5 py-2 rounded-lg shadow-sm hover:bg-primary/90 transition-colors whitespace-nowrap text-sm font-medium flex items-center gap-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                </svg>
+                <FileText className="w-5 h-5" />
                 Open Case Sheet
               </button>
             </div>
           </div>
 
           {/* Clinical Timeline (Consultation History) */}
-          <div className="bg-white border rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Clinical Timeline</h2>
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 pb-2">Clinical Timeline</h2>
             {timelineItems.length === 0 ? (
-              <div className="bg-gray-50 rounded border border-dashed border-gray-300 p-8 text-center">
-                <p className="text-gray-500 mb-2">No consultations yet.</p>
-                <p className="text-sm text-gray-400">Start by creating a new consultation above.</p>
+              <div className="bg-slate-50 rounded-lg border border-dashed border-slate-300 p-8 text-center">
+                <p className="text-slate-500 mb-2">No consultations yet.</p>
+                <p className="text-sm text-slate-400">Start by creating a new consultation above.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-4">
                 {timelineItems.map((item, index) => (
                   <div key={index} className="border-l-2 border-primary pl-4 ml-2 pb-4 relative">
                     <div className="absolute w-3 h-3 bg-primary rounded-full -left-[7px] top-1"></div>
-                    <p className="text-sm text-gray-500 font-medium mb-1">{new Date(item.date).toLocaleString()}</p>
-                    <h3 className="text-md font-bold text-gray-800">{item.diagnosis || 'Consultation'}</h3>
-                    <p className="text-gray-600 text-sm mt-1">{item.notes || item.chiefComplaint}</p>
+                    <p className="text-sm text-slate-500 font-medium mb-1">{new Date(item.date).toLocaleString()}</p>
+                    <h3 className="text-md font-bold text-slate-800">{item.diagnosis || 'Consultation'}</h3>
+                    <p className="text-slate-600 text-sm mt-1">{item.notes || item.chiefComplaint}</p>
                     {item.addendums && item.addendums.length > 0 && (
-                      <div className="mt-3 bg-gray-50 p-3 rounded text-sm">
-                        <p className="font-semibold text-gray-700 mb-2">Addendums:</p>
+                      <div className="mt-3 bg-slate-50 p-3 rounded-lg text-sm border border-slate-100">
+                        <p className="font-semibold text-slate-700 mb-2">Addendums:</p>
                         {item.addendums.map((add, i) => (
-                          <div key={i} className="mb-2 last:mb-0 border-l-2 border-gray-300 pl-2">
-                            <p className="text-xs text-gray-500">{new Date(add.date).toLocaleString()}</p>
-                            <p className="text-gray-600">{add.notes}</p>
+                          <div key={i} className="mb-2 last:mb-0 border-l-2 border-slate-300 pl-2">
+                            <p className="text-xs text-slate-500">{new Date(add.date).toLocaleString()}</p>
+                            <p className="text-slate-600">{add.notes}</p>
                           </div>
                         ))}
                       </div>
                     )}
                     <button 
                       onClick={() => handleAddAddendum(item._id)}
-                      className="mt-3 text-xs bg-gray-100 text-gray-700 border px-3 py-1.5 rounded hover:bg-gray-200 transition-colors font-medium"
+                      className="mt-3 text-xs bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1.5 rounded hover:bg-slate-200 transition-colors font-medium"
                     >
                       + Add Addendum
                     </button>
@@ -256,25 +253,25 @@ const PatientDetail = () => {
           <PatientActivityTimeline patientId={id} />
 
           {/* Appointments */}
-          <div className="bg-white border rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Appointments</h2>
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 pb-2">Appointments</h2>
             {appointments.length === 0 ? (
-              <div className="bg-gray-50 rounded border border-dashed border-gray-300 p-8 text-center">
-                <p className="text-gray-500 mb-2">No appointments scheduled.</p>
+              <div className="bg-slate-50 rounded-lg border border-dashed border-slate-300 p-8 text-center">
+                <p className="text-slate-500 mb-2">No appointments scheduled.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
                 {appointments.map(appt => (
-                  <div key={appt._id} className="flex justify-between items-center p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <div key={appt._id} className="flex justify-between items-center p-3 border border-slate-200 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
                     <div>
-                      <p className="font-medium text-gray-800 text-sm">{slotDateFormat(appt.slotDate)}, {appt.slotTime}</p>
-                      <p className="text-xs text-gray-500 mt-1">Doctor: {appt.docData?.name}</p>
+                      <p className="font-medium text-slate-800 text-sm">{slotDateFormat(appt.slotDate)}, {appt.slotTime}</p>
+                      <p className="text-xs text-slate-500 mt-1">Doctor: {appt.docData?.name}</p>
                     </div>
                     <div>
                       {appt.cancelled ? (
                         <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-red-100 text-red-700">Cancelled</span>
                       ) : appt.isCompleted ? (
-                        <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-green-100 text-green-700">Completed</span>
+                        <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-emerald-100 text-emerald-700">Completed</span>
                       ) : (
                         <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-blue-100 text-blue-700">Upcoming</span>
                       )}
@@ -296,20 +293,20 @@ const PatientDetail = () => {
 
       {/* Addendum Modal */}
       {addendumModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Add Addendum</h3>
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">Add Addendum</h3>
             <textarea 
               value={addendumText}
               onChange={(e) => setAddendumText(e.target.value)}
-              className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               rows={4}
               placeholder="Type addendum here..."
             />
             <div className="flex justify-end gap-3 mt-5">
               <button 
                 onClick={() => setAddendumModalOpen(false)}
-                className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50 text-sm font-medium transition-colors"
+                className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors"
               >
                 Cancel
               </button>
