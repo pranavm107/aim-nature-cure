@@ -1,11 +1,18 @@
 import { mockConsultations } from '../mocks/mockData';
+import { getStore, setStore } from '../utils/mockStore';
+
+let state = {
+  consultations: getStore('mockConsultations', mockConsultations)
+};
+
+const saveState = () => setStore('mockConsultations', state.consultations);
 
 const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const consultationService = {
   getConsultations: async (patientId) => {
     await delay();
-    const consultations = mockConsultations.filter(c => c.patientId === patientId);
+    const consultations = state.consultations.filter(c => c.patientId === patientId);
     return { success: true, consultations };
   },
   
@@ -18,13 +25,14 @@ export const consultationService = {
       ...consultationData, 
       addendums: [] 
     };
-    mockConsultations.push(newCons);
+    state.consultations.push(newCons);
+    saveState();
     return { success: true, consultation: newCons };
   },
   
   getConsultationById: async (id) => {
     await delay();
-    const consultation = mockConsultations.find(c => c._id === id);
+    const consultation = state.consultations.find(c => c._id === id);
     if (!consultation) throw new Error("Consultation not found");
     return { success: true, consultation };
   },
@@ -32,10 +40,14 @@ export const consultationService = {
   // Immutability rule BR-13: Can only add addendums, cannot update original fields
   addConsultationAddendum: async (id, text) => {
     await delay();
-    const idx = mockConsultations.findIndex(c => c._id === id);
+    const idx = state.consultations.findIndex(c => c._id === id);
     if (idx === -1) throw new Error("Consultation not found");
     
-    mockConsultations[idx].addendums.push({ date: Date.now(), text });
-    return { success: true, consultation: mockConsultations[idx] };
+    if (!state.consultations[idx].addendums) {
+      state.consultations[idx].addendums = [];
+    }
+    state.consultations[idx].addendums.push({ date: Date.now(), notes: text });
+    saveState();
+    return { success: true, consultation: state.consultations[idx] };
   }
 };

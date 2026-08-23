@@ -14,6 +14,12 @@ export const mockDoctors = [
     degree: 'BNYS', experience: '5 Years', fees: 1200, address: { line1: 'Therapy Block', line2: 'AIM Nature Cure' },
     date: dateBase - (dayMs * 300), available: true, image: assets.doc2 || ''
   }
+, 
+  {
+    _id: 'doc3', name: 'Dr. Vikram Singh', speciality: 'Physiotherapy',
+    degree: 'BPT', experience: '10 Years', fees: 1400, address: { line1: 'Rehab Center', line2: 'AIM Nature Cure' },
+    date: dateBase - (dayMs * 400), available: true, image: ''
+  }
 ];
 
 export const mockProfile = {
@@ -29,27 +35,26 @@ export const mockCredentials = {
 export const mockPatients = [
   { _id: 'PAT001', name: 'Priya Menon', age: 29, gender: 'Female', phone: '9876543210', address: 'Coimbatore', condition: 'Digestive Wellness', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 30) },
   { _id: 'PAT002', name: 'Arun Kumar', age: 42, gender: 'Male', phone: '9876543211', address: 'Pollachi', condition: 'Chronic Back Pain', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Google', date: dateBase - (dayMs * 45) },
-  { _id: 'PAT003', name: 'Kavya Krishnan', age: 35, gender: 'Female', phone: '9876543212', address: 'Coimbatore', condition: 'Stress and Sleep Management', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 60) },
-  { _id: 'PAT004', name: 'Suresh Ravi', age: 51, gender: 'Male', phone: '9876543213', address: 'Tiruppur', condition: 'Diabetes Wellness', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 15) },
-  { _id: 'PAT005', name: 'Meena Raj', age: 38, gender: 'Female', phone: '9876543214', address: 'Coimbatore', condition: 'Weight Management', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Instagram', date: dateBase - (dayMs * 10) },
-  { _id: 'PAT006', name: 'Vignesh Kumar', age: 31, gender: 'Male', phone: '9876543215', address: 'Pollachi', condition: 'Lifestyle Management', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 5) },
-  { _id: 'PAT007', name: 'Neha Sharma', age: 45, gender: 'Female', phone: '9876543216', address: 'Coimbatore', condition: 'Joint Pain', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 25) }
+  { _id: 'PAT003', name: 'Kavya Krishnan', age: 35, gender: 'Female', phone: '9876543212', address: 'Coimbatore', condition: 'Stress and Sleep Management', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 60) },
+  { _id: 'PAT004', name: 'Suresh Ravi', age: 51, gender: 'Male', phone: '9876543213', address: 'Tiruppur', condition: 'Diabetes Wellness', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 15) },
+  { _id: 'PAT005', name: 'Meena Raj', age: 38, gender: 'Female', phone: '9876543214', address: 'Coimbatore', condition: 'Weight Management', assignedDoctor: 'doc3', status: 'Active', leadSource: 'Instagram', date: dateBase - (dayMs * 10) },
+  { _id: 'PAT006', name: 'Vignesh Kumar', age: 31, gender: 'Male', phone: '9876543215', address: 'Pollachi', condition: 'Lifestyle Management', assignedDoctor: 'doc3', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 5) },
+  { _id: 'PAT007', name: 'Neha Sharma', age: 45, gender: 'Female', phone: '9876543216', address: 'Coimbatore', condition: 'Joint Pain', assignedDoctor: 'doc1', status: 'Completed Treatment', leadSource: 'Direct', date: dateBase - (dayMs * 25) },
+  { _id: 'PAT008', name: 'Rahul Das', age: 50, gender: 'Male', phone: '9876543217', address: 'Chennai', condition: 'Post-Op Recovery', assignedDoctor: 'doc2', status: 'Inactive', leadSource: 'Google', date: dateBase - (dayMs * 100) }
 ];
 
 export const mockAppointments = [
-  { _id: 'app1', userId: 'PAT001', docId: 'doc1', slotDate: new Date(dateBase + dayMs).toISOString().split('T')[0], slotTime: '10:00 am', userData: { name: 'Priya Menon', image: '' }, docData: mockDoctors[0], amount: 1500, date: dateBase - dayMs, cancelled: false, isCompleted: false },
-  { _id: 'app2', userId: 'PAT002', docId: 'doc1', slotDate: new Date(dateBase + dayMs*2).toISOString().split('T')[0], slotTime: '11:00 am', userData: { name: 'Arun Kumar', image: '' }, docData: mockDoctors[0], amount: 1500, date: dateBase - dayMs, cancelled: false, isCompleted: false },
-  { _id: 'app3', userId: 'PAT005', docId: 'doc1', slotDate: new Date(dateBase + dayMs).toISOString().split('T')[0], slotTime: '02:00 pm', userData: { name: 'Meena Raj', image: '' }, docData: mockDoctors[0], amount: 1500, date: dateBase - dayMs, cancelled: false, isCompleted: false }
+  { _id: 'app1', userId: 'PAT001', docId: 'doc1', slotDate: new Date(dateBase + dayMs).toISOString().split('T')[0], slotTime: '10:00 am', userData: { name: 'Priya Menon', image: '' }, docData: { name: 'Dr. Ananya Sharma', _id: 'doc1' }, amount: 1500, date: dateBase - dayMs, cancelled: false, isCompleted: false },
+  { _id: 'app2', userId: 'PAT005', docId: 'doc3', slotDate: new Date(dateBase - dayMs*2).toISOString().split('T')[0], slotTime: '10:00 am', userData: { name: 'Meena Raj', image: '' }, docData: { name: 'Dr. Vikram Singh', _id: 'doc3' }, amount: 1400, date: dateBase - dayMs*5, cancelled: false, isCompleted: true },
+  { _id: 'app3', userId: 'PAT005', docId: 'doc3', slotDate: new Date(dateBase - dayMs).toISOString().split('T')[0], slotTime: '11:00 am', userData: { name: 'Meena Raj', image: '' }, docData: { name: 'Dr. Vikram Singh', _id: 'doc3' }, amount: 1400, date: dateBase - dayMs*5, cancelled: true, isCompleted: false },
+  { _id: 'app4', userId: 'PAT005', docId: 'doc3', slotDate: new Date(dateBase + dayMs*3).toISOString().split('T')[0], slotTime: '02:00 pm', userData: { name: 'Meena Raj', image: '' }, docData: { name: 'Dr. Vikram Singh', _id: 'doc3' }, amount: 1400, date: dateBase - dayMs*1, cancelled: false, isCompleted: false }
 ];
 
 export const mockConsultations = [
-  { _id: 'CONS001', patientId: 'PAT001', doctorId: 'doc1', date: dateBase - (dayMs * 25), chiefComplaint: 'Severe bloating and indigestion after meals', history: 'Irregular eating habits, desk job', observations: 'Abdominal distension, low energy', diagnosis: 'Indigestion & Gastric Imbalance', treatmentPlan: 'Sattvic diet, regular fasting', dietAdvice: 'Avoid spicy and oily food', followUpDate: new Date(dateBase - (dayMs * 15)).toISOString().split('T')[0] },
-  { _id: 'CONS002', patientId: 'PAT001', doctorId: 'doc1', date: dateBase - (dayMs * 15), chiefComplaint: 'Follow-up for digestion', history: 'Followed diet for 10 days', observations: 'Reduced bloating, better energy levels', diagnosis: 'Improving Gastric Health', treatmentPlan: 'Continue diet, start Naturopathy detox', dietAdvice: 'Include more raw vegetables', followUpDate: new Date(dateBase + (dayMs * 5)).toISOString().split('T')[0] },
-  { _id: 'CONS003', patientId: 'PAT002', doctorId: 'doc1', date: dateBase - (dayMs * 40), chiefComplaint: 'Chronic lower back pain', history: 'Sedentary job, 5 years of mild pain', observations: 'Muscle stiffness in lumbar region', diagnosis: 'Lumbar Spondylosis', treatmentPlan: 'Spine care therapy, hot fomentation', dietAdvice: 'Anti-inflammatory diet', followUpDate: new Date(dateBase - (dayMs * 20)).toISOString().split('T')[0] },
-  { _id: 'CONS004', patientId: 'PAT003', doctorId: 'doc1', date: dateBase - (dayMs * 55), chiefComplaint: 'Insomnia, high stress', history: 'Work stress, irregular sleep for 6 months', observations: 'Fatigue, elevated heart rate', diagnosis: 'Stress-induced Insomnia', treatmentPlan: 'Stress management program, Shirodhara', lifestyleAdvice: 'Yoga nidra before sleep', followUpDate: new Date(dateBase - (dayMs * 30)).toISOString().split('T')[0] },
-  { _id: 'CONS005', patientId: 'PAT004', doctorId: 'doc1', date: dateBase - (dayMs * 12), chiefComplaint: 'Uncontrolled sugar levels', history: 'Type 2 Diabetes for 3 years', observations: 'Weight gain, lethargy', diagnosis: 'Metabolic Syndrome', treatmentPlan: 'Diabetes wellness program, daily yoga', dietAdvice: 'Low GI diet, bitter gourd juice', followUpDate: new Date(dateBase + (dayMs * 3)).toISOString().split('T')[0] },
-  { _id: 'CONS006', patientId: 'PAT005', doctorId: 'doc1', date: dateBase - (dayMs * 8), chiefComplaint: 'Weight gain, lethargy', history: 'Post-pregnancy weight gain', observations: 'High BMI', diagnosis: 'Obesity', treatmentPlan: 'Weight management program, hydrotherapy', dietAdvice: 'Intermittent fasting 14/10', followUpDate: new Date(dateBase + (dayMs * 7)).toISOString().split('T')[0] },
-  { _id: 'CONS007', patientId: 'PAT006', doctorId: 'doc1', date: dateBase - (dayMs * 2), chiefComplaint: 'General fatigue and poor immunity', history: 'Frequent colds', observations: 'Pale skin, low stamina', diagnosis: 'Lifestyle Disorder', treatmentPlan: 'Detox program, sun bath', dietAdvice: 'Vitamin C rich foods', followUpDate: new Date(dateBase + (dayMs * 12)).toISOString().split('T')[0] }
+  { _id: 'CONS001', patientId: 'PAT001', doctorId: 'doc1', date: dateBase - (dayMs * 25), chiefComplaint: 'Severe bloating and indigestion after meals', history: 'Irregular eating habits, desk job', observations: 'Abdominal distension', diagnosis: 'Indigestion', treatmentPlan: 'Sattvic diet', dietAdvice: 'Avoid spicy food', followUpDate: new Date(dateBase - (dayMs * 15)).toISOString().split('T')[0] },
+  { _id: 'CONS002', patientId: 'PAT003', doctorId: 'doc2', date: dateBase - (dayMs * 50), chiefComplaint: 'Severe insomnia', history: '6 months stress', observations: 'Anxious', diagnosis: 'Stress Insomnia', treatmentPlan: 'Yoga Nidra', dietAdvice: 'Warm milk at night', followUpDate: new Date(dateBase - (dayMs * 40)).toISOString().split('T')[0], addendums: [{ date: dateBase - (dayMs * 48), notes: 'Patient called, prescribed ashwagandha.' }] },
+  { _id: 'CONS003', patientId: 'PAT003', doctorId: 'doc2', date: dateBase - (dayMs * 40), chiefComplaint: 'Follow up', history: 'Sleeping 4 hours now', observations: 'Calmer', diagnosis: 'Improving Insomnia', treatmentPlan: 'Continue Yoga', dietAdvice: 'Same', followUpDate: new Date(dateBase - (dayMs * 20)).toISOString().split('T')[0] },
+  { _id: 'CONS004', patientId: 'PAT007', doctorId: 'doc1', date: dateBase - (dayMs * 25), chiefComplaint: 'Knee pain', history: 'Osteoarthritis', observations: 'Crepitus', diagnosis: 'OA Knee', treatmentPlan: 'Mud therapy', dietAdvice: 'Calcium rich', followUpDate: '' }
 ];
 
 export const mockTherapies = [
@@ -179,9 +184,9 @@ export const mockDoctorNotes = [
 ];
 
 export const mockPatientDocuments = [
-  { _id: 'DOCM001', patientId: 'PAT001', name: 'Blood Test Report', type: 'application/pdf', url: 'mock-url-blood-test.pdf', date: dateBase - dayMs*25 },
-  { _id: 'DOCM002', patientId: 'PAT002', name: 'MRI Scan Spine', type: 'application/pdf', url: 'mock-url-mri.pdf', date: dateBase - dayMs*40 },
-  { _id: 'DOCM003', patientId: 'PAT004', name: 'HbA1c Report', type: 'application/pdf', url: 'mock-url-hba1c.pdf', date: dateBase - dayMs*12 }
+  { _id: 'DOCM001', patientId: 'PAT007', name: 'Knee X-Ray', type: 'application/pdf', uploadedBy: 'Admin', url: 'mock-url-xray.pdf', date: dateBase - dayMs*24, description: 'Shows reduced joint space', fileSize: '1.2 MB' },
+  { _id: 'DOCM002', patientId: 'PAT007', name: 'Physio Prescription', type: 'image/jpeg', uploadedBy: 'doc1', url: 'mock-url-rx.jpg', date: dateBase - dayMs*20, description: 'External doc prescription', fileSize: '500 KB' },
+  { _id: 'DOCM003', patientId: 'PAT008', name: 'Post-Op Report', type: 'application/pdf', uploadedBy: 'Admin', url: 'mock-url-report.pdf', date: dateBase - dayMs*90, description: 'Discharge summary', fileSize: '3.4 MB' }
 ];
 
 export const mockLeads = [
@@ -190,4 +195,24 @@ export const mockLeads = [
 
 export const mockIncentiveRules = [
   { _id: 'rule1', docId: 'doc1', targetAmount: 75000, percentage: 5, effectiveDate: '2026-01-01', date: dateBase - dayMs*200 }
+];
+
+
+export const mockCaseSheets = [
+  {
+    _id: 'cs_101', patientId: 'PAT001', date: new Date(dateBase - (dayMs * 28)).toISOString(),
+    headerSnapshot: { patientName: 'Priya Menon', age: 29, gender: 'Female', doctorName: 'Dr. Ananya Sharma' },
+    presentComplaints: 'Severe bloating after meals, acidic reflux.',
+    vitals: { bp: '120/80', pulse: '72', weight: '65', height: '160', bmi: '25.4' },
+    obgHistory: 'Regular cycles', personalHistory: 'Vegetarian, sedentary lifestyle', gpe: 'Normal appearance',
+    systemicExamination: 'Abdomen slightly distended, tender in epigastric region.',
+    pulseDiagnosis: { Vata: { l1: 'High', l2: 'Normal' } }, finalDiagnosis: 'Acid Peptic Disease (Pitta imbalance)',
+    doctorSignature: { doctorId: 'doc1', timestamp: new Date(dateBase - (dayMs * 28)).toISOString() },
+    isFinalized: true,
+    treatmentProtocols: [
+      { _id: 'tpe_1', date: new Date(dateBase - (dayMs * 27)).toISOString(), notes: 'Started on Sattvic diet.', doctorId: 'doc1' },
+      { _id: 'tpe_2', date: new Date(dateBase - (dayMs * 15)).toISOString(), notes: 'Bloating reduced. Continue same diet.', doctorId: 'doc1' },
+      { _id: 'tpe_3', date: new Date(dateBase - (dayMs * 5)).toISOString(), notes: 'Patient reports 80% improvement.', doctorId: 'doc1' }
+    ]
+  }
 ];

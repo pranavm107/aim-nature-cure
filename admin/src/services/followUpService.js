@@ -1,12 +1,20 @@
 import { mockFollowUps, mockPatients } from '../mocks/mockData';
+import { getStore, setStore } from '../utils/mockStore';
+
+let state = {
+  followUps: getStore('mockFollowUps', mockFollowUps),
+  patients: getStore('mockPatients', mockPatients)
+};
+
+const saveState = () => setStore('mockFollowUps', state.followUps);
 
 const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const followUpService = {
   getAllFollowUps: async () => {
     await delay();
-    const mapped = mockFollowUps.map(f => {
-      const patient = mockPatients.find(p => p._id === f.patientId);
+    const mapped = state.followUps.map(f => {
+      const patient = state.patients.find(p => p._id === f.patientId);
       return { ...f, patientName: patient ? patient.name : 'Unknown' };
     });
     return { success: true, followUps: mapped };
@@ -14,9 +22,9 @@ export const followUpService = {
 
   getDoctorFollowUps: async (docId) => {
     await delay();
-    const followUps = mockFollowUps.filter(f => f.docId === docId || f.doctorId === docId);
+    const followUps = state.followUps.filter(f => f.docId === docId || f.doctorId === docId);
     const mapped = followUps.map(f => {
-      const patient = mockPatients.find(p => p._id === f.patientId);
+      const patient = state.patients.find(p => p._id === f.patientId);
       return { ...f, patientName: patient ? patient.name : 'Unknown' };
     });
     return { success: true, followUps: mapped };
@@ -24,7 +32,7 @@ export const followUpService = {
 
   getPatientFollowUps: async (patientId) => {
     await delay();
-    const followUps = mockFollowUps.filter(f => f.patientId === patientId);
+    const followUps = state.followUps.filter(f => f.patientId === patientId);
     // Mark overdue if date is past and status is Pending
     const mapped = followUps.map(f => {
       if (f.status === 'Pending' && new Date(f.dueDate).getTime() < Date.now()) {
@@ -44,40 +52,44 @@ export const followUpService = {
       ...data,
       dueDate: data.dueDate || new Date().toISOString().split('T')[0]
     };
-    mockFollowUps.push(newFollowUp);
+    state.followUps.push(newFollowUp);
+    saveState();
     return { success: true, followUp: newFollowUp };
   },
 
   rescheduleFollowUp: async (id, newDate, reason) => {
     await delay();
-    const idx = mockFollowUps.findIndex(f => f._id === id);
+    const idx = state.followUps.findIndex(f => f._id === id);
     if (idx !== -1) {
-      mockFollowUps[idx].dueDate = newDate;
-      mockFollowUps[idx].status = "Pending";
-      mockFollowUps[idx].rescheduleReason = reason;
-      return { success: true, followUp: mockFollowUps[idx] };
+      state.followUps[idx].dueDate = newDate;
+      state.followUps[idx].status = "Pending";
+      state.followUps[idx].rescheduleReason = reason;
+      saveState();
+      return { success: true, followUp: state.followUps[idx] };
     }
     throw new Error("Follow-up not found");
   },
 
   completeFollowUp: async (id, completionNotes) => {
     await delay();
-    const idx = mockFollowUps.findIndex(f => f._id === id);
+    const idx = state.followUps.findIndex(f => f._id === id);
     if (idx !== -1) {
-      mockFollowUps[idx].status = "Completed";
-      mockFollowUps[idx].completionNotes = completionNotes;
-      return { success: true, followUp: mockFollowUps[idx] };
+      state.followUps[idx].status = "Completed";
+      state.followUps[idx].completionNotes = completionNotes;
+      saveState();
+      return { success: true, followUp: state.followUps[idx] };
     }
     throw new Error("Follow-up not found");
   },
 
   cancelFollowUp: async (id, reason) => {
     await delay();
-    const idx = mockFollowUps.findIndex(f => f._id === id);
+    const idx = state.followUps.findIndex(f => f._id === id);
     if (idx !== -1) {
-      mockFollowUps[idx].status = "Cancelled";
-      mockFollowUps[idx].cancelReason = reason;
-      return { success: true, followUp: mockFollowUps[idx] };
+      state.followUps[idx].status = "Cancelled";
+      state.followUps[idx].cancelReason = reason;
+      saveState();
+      return { success: true, followUp: state.followUps[idx] };
     }
     throw new Error("Follow-up not found");
   }

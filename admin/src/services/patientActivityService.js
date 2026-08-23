@@ -1,7 +1,7 @@
 import { mockConsultations, mockTherapies, mockAppointments, mockPatientDocuments, mockInvoices } from '../mocks/mockData';
 import { documentService } from './documentService';
 import { followUpService } from './followUpService';
-
+import { caseSheetService } from './caseSheetService';
 
 const delay = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -103,6 +103,41 @@ export const patientActivityService = {
         rawDate: i.date
       });
     });
+
+    // 6. Case Sheet
+    const { caseSheet } = await caseSheetService.getCaseSheetByPatientId(patientId);
+    if (caseSheet) {
+      activities.push({
+        _id: 'act_cs_' + caseSheet._id,
+        type: 'CASE SHEET',
+        title: 'Case Sheet Created',
+        description: `Final Diagnosis: ${caseSheet.finalDiagnosis || 'Pending'}`,
+        date: caseSheet.date,
+        performedBy: caseSheet.doctorSignature?.doctorId || 'System',
+        details: {
+          Complaints: caseSheet.presentComplaints
+        },
+        rawDate: caseSheet.date
+      });
+
+      // 7. Treatment Protocols
+      if (caseSheet.treatmentProtocols && caseSheet.treatmentProtocols.length > 0) {
+        caseSheet.treatmentProtocols.forEach(p => {
+          activities.push({
+            _id: 'act_tp_' + p._id,
+            type: 'PROTOCOL',
+            title: 'Treatment Protocol Entry',
+            description: p.notes,
+            date: p.date,
+            performedBy: p.doctorId || 'System',
+            details: {
+              'Added To': 'Case Sheet'
+            },
+            rawDate: p.date
+          });
+        });
+      }
+    }
 
     // Sort by Date descending (Newest first)
     activities.sort((a, b) => b.rawDate - a.rawDate);
