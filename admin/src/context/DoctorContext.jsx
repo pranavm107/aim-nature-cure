@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import { doctorService } from "../services/doctorService";
 import { appointmentService } from "../services/appointmentService";
 import { toast } from 'react-toastify';
@@ -34,6 +34,16 @@ const DoctorContextProvider = (props) => {
             toast.error(error.message);
         }
     };
+
+    useEffect(() => {
+        if (dToken) {
+            getProfileData();
+        } else {
+            setProfileData(false);
+            setDashData(false);
+            setAppointments([]);
+        }
+    }, [dToken]);
 
     const cancelAppointment = async (appointmentId) => {
         try {

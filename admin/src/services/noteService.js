@@ -1,9 +1,6 @@
 const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
-const mockNotes = [
-  { _id: 'n1', docId: 'doc1', title: 'Hydrotherapy Research', content: 'Look into new temperatures for standard sessions.', date: Date.now() - 86400000 },
-  { _id: 'n2', docId: 'doc1', title: 'Personal Todo', content: 'Call clinic admin regarding schedule.', date: Date.now() }
-];
+import { mockDoctorNotes as mockNotes } from '../mocks/mockData';
 
 export const noteService = {
   getNotes: async (docId) => {

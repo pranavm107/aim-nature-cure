@@ -17,7 +17,7 @@ import MyProfile from './pages/Shared/MyProfile';
 import PatientList from './pages/Shared/PatientList';
 import PatientRegistration from './pages/Shared/PatientRegistration';
 import PatientDetail from './pages/Shared/PatientDetail';
-import CaseSheet from './pages/Shared/CaseSheet';
+
 import NewConsultation from './pages/Doctor/NewConsultation';
 import ConsultationHistory from './pages/Doctor/ConsultationHistory';
 import Therapies from './pages/Admin/Therapies';
@@ -103,8 +103,6 @@ const App = () => {
             <Route path='/profile' element={<MyProfile />} />
             <Route path='/patients' element={<PatientList />} />
             <Route path='/add-patient' element={<PatientRegistration />} />
-            <Route path='/patient/:id' element={<PatientDetail />} />
-            <Route path='/patient/:id/case-sheet' element={<CaseSheet />} />
             <Route path='/patient/:id/new-consultation' element={<NewConsultation />} />
 
         {/* Catch All */}

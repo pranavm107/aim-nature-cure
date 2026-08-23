@@ -21,7 +21,7 @@ const ConsultationHistory = () => {
       try {
         // Fetch all assigned patients
         const pRes = await patientService.getPatients();
-        const patients = pRes.success ? pRes.patients.filter(p => p.docId === profileData._id) : [];
+        const patients = pRes.success ? pRes.patients.filter(p => p.assignedDoctor === profileData._id) : [];
         
         // Fetch consultations for each patient
         let allCons = [];

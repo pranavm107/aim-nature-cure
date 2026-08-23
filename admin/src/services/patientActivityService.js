@@ -1,7 +1,7 @@
 import { mockConsultations, mockTherapies, mockAppointments, mockPatientDocuments, mockInvoices } from '../mocks/mockData';
 import { documentService } from './documentService';
 import { followUpService } from './followUpService';
-import { caseSheetService } from './caseSheetService';
+
 
 const delay = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -103,23 +103,6 @@ export const patientActivityService = {
         rawDate: i.date
       });
     });
-
-    // 6. Case Sheet
-    const { caseSheet } = await caseSheetService.getCaseSheetByPatientId(patientId);
-    if (caseSheet) {
-      activities.push({
-        _id: 'act_cs_' + patientId,
-        type: 'CASE SHEET',
-        title: 'Case Sheet Updated',
-        description: `Final Diagnosis: ${caseSheet.finalDiagnosis || 'Pending'}`,
-        date: caseSheet.date,
-        performedBy: 'System',
-        details: {
-          Complaints: caseSheet.presentComplaints
-        },
-        rawDate: caseSheet.date
-      });
-    }
 
     // Sort by Date descending (Newest first)
     activities.sort((a, b) => b.rawDate - a.rawDate);

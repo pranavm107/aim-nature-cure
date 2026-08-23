@@ -14,7 +14,7 @@ export const followUpService = {
 
   getDoctorFollowUps: async (docId) => {
     await delay();
-    const followUps = mockFollowUps.filter(f => f.docId === docId);
+    const followUps = mockFollowUps.filter(f => f.docId === docId || f.doctorId === docId);
     const mapped = followUps.map(f => {
       const patient = mockPatients.find(p => p._id === f.patientId);
       return { ...f, patientName: patient ? patient.name : 'Unknown' };

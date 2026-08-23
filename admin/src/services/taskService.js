@@ -1,10 +1,6 @@
-const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
+import { mockTasks } from '../mocks/mockData';
 
-const mockTasks = [
-  { _id: 't1', docId: 'doc1', title: 'Review Patient Files', status: 'Pending', priority: 'High', date: Date.now() },
-  { _id: 't2', docId: 'doc1', title: 'Submit Daily Report', status: 'In Progress', priority: 'Medium', date: Date.now() },
-  { _id: 't3', docId: 'doc1', title: 'Call Patient', status: 'Completed', priority: 'Low', date: Date.now() - 86400000 }
-];
+const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const taskService = {
   getTasks: async (docId) => {

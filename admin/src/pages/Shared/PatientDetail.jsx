@@ -187,26 +187,6 @@ const PatientDetail = () => {
 
         {/* Right Column: Timeline, Appointments, Documents */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-          {/* Clinical Records (Case Sheet) */}
-          <div className="bg-white border rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Clinical Records</h2>
-            <div className="flex flex-col sm:flex-row items-center justify-between bg-teal-50 border border-teal-100 p-4 rounded-lg">
-              <div>
-                <h3 className="font-bold text-teal-900 mb-1">Complete Case Sheet</h3>
-                <p className="text-sm text-teal-800 max-w-md">View and manage the patient's complete case sheet including physical examinations, diagnosis, and treatment protocols.</p>
-              </div>
-              <button 
-                onClick={() => navigate(`/patient/${id}/case-sheet`)}
-                className="mt-3 sm:mt-0 bg-teal-600 text-white px-5 py-2 rounded shadow-sm hover:bg-teal-700 transition-colors whitespace-nowrap text-sm font-medium flex items-center gap-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                </svg>
-                Open Case Sheet
-              </button>
-            </div>
-          </div>
-
           {/* Clinical Timeline (Consultation History) */}
           <div className="bg-white border rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Clinical Timeline</h2>
