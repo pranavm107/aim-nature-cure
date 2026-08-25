@@ -11,6 +11,11 @@ Doctor:
 - **Email**: `doctor@aimnaturecure.dev`
 - **Password**: `mock-doc-pass`
 
+Forced Password Reset User (New Doctor):
+- **Email**: `newdoc@aimnaturecure.dev`
+- **Password**: `temp-password`
+*(Logging in with this user will force navigation to the password reset screen)*
+
 *Note:
 These exist purely to drive the mock auth service during Stage 1-8 development and are intentionally fake.
 They do not correlate to any real backend credentials and should be removed before Stage 9.*

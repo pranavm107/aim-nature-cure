@@ -32,6 +32,12 @@ export const mockCredentials = {
   doctor: { email: 'doctor@aimnaturecure.dev', password: 'mock-doc-pass' }
 };
 
+export const mockUsers = [
+  { _id: 'u1', name: 'Admin', email: 'admin@aimnaturecure.dev', password: 'mock-admin-pass', role: 'admin', mustChangePassword: false, status: 'Active' },
+  { _id: 'u2', name: 'Dr. Ananya Sharma', email: 'doctor@aimnaturecure.dev', password: 'mock-doc-pass', role: 'doctor', doctorId: 'doc1', mustChangePassword: false, status: 'Active' },
+  { _id: 'u3', name: 'New Doc', email: 'newdoc@aimnaturecure.dev', password: 'temp-password', role: 'doctor', doctorId: 'doc3', mustChangePassword: true, status: 'Active' }
+];
+
 export const mockPatients = [
   { _id: 'PAT001', name: 'Priya Menon', age: 29, gender: 'Female', phone: '9876543210', address: 'Coimbatore', condition: 'Digestive Wellness', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 30) },
   { _id: 'PAT002', name: 'Arun Kumar', age: 42, gender: 'Male', phone: '9876543211', address: 'Pollachi', condition: 'Chronic Back Pain', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Google', date: dateBase - (dayMs * 45) },

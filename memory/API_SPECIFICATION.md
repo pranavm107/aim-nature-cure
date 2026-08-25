@@ -22,11 +22,12 @@ Companion to the PRD, Gap Analysis, and Implementation Roadmap. Organized by mod
 | POST | `/auth/logout` | Invalidate session/token (if using a blacklist or refresh-token store) | Both |
 | POST | `/auth/forgot-password` | Send password reset token to registered email | Public |
 | POST | `/auth/reset-password` | Consume reset token, set new password | Public |
+| PUT | `/auth/first-login-password-reset` | Consume auto-generated password, set new password, clear `mustChangePassword` | Both |
 | GET | `/auth/me` | Return current logged-in user's profile + role | Both |
 | PUT | `/auth/me` | Update own profile (name, phone, photo) | Both |
 | PUT | `/auth/change-password` | Change own password (requires current password) | Both |
 | GET | `/users` | List all system users (Admins + Doctors) | Admin |
-| POST | `/users` | Create a new Admin or Doctor account | Admin |
+| POST | `/users` | Create a new Admin or Doctor account (auto-generates credentials) | Admin |
 | GET | `/users/:id` | Get one user's account details | Admin |
 | PUT | `/users/:id` | Update a user's account (role, contact info) | Admin |
 | PATCH | `/users/:id/status` | Activate/deactivate an account `[FR-004]` | Admin |

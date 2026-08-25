@@ -27,8 +27,15 @@ const Login = () => {
           setAToken(data.token);
           localStorage.setItem('aToken', data.token);
           localStorage.setItem('userRole', 'admin');
-          toast.success('Admin logged in successfully');
-          navigate('/admin-dashboard');
+          localStorage.setItem('userEmail', email);
+          if (data.mustChangePassword) {
+            localStorage.setItem('mustChangePassword', 'true');
+            navigate('/force-password-reset');
+          } else {
+            localStorage.removeItem('mustChangePassword');
+            toast.success('Admin logged in successfully');
+            navigate('/admin-dashboard');
+          }
         } else {
           toast.error(data.message);
         }
@@ -38,8 +45,15 @@ const Login = () => {
           setDToken(data.token);
           localStorage.setItem('dToken', data.token);
           localStorage.setItem('userRole', 'doctor');
-          toast.success('Doctor logged in successfully');
-          navigate('/doctor-dashboard');
+          localStorage.setItem('userEmail', email);
+          if (data.mustChangePassword) {
+            localStorage.setItem('mustChangePassword', 'true');
+            navigate('/force-password-reset');
+          } else {
+            localStorage.removeItem('mustChangePassword');
+            toast.success('Doctor logged in successfully');
+            navigate('/doctor-dashboard');
+          }
         } else {
           toast.error(data.message);
         }

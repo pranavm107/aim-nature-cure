@@ -13,6 +13,7 @@ import DoctorsList from './pages/Admin/DoctorsList';
 import Login from './pages/Login';
 import DoctorDashboard from './pages/Doctor/DoctorDashboard';
 import ForgotPassword from './pages/Shared/ForgotPassword';
+import ForcePasswordReset from './pages/ForcePasswordReset';
 import MyProfile from './pages/Shared/MyProfile';
 import PatientList from './pages/Shared/PatientList';
 import PatientRegistration from './pages/Shared/PatientRegistration';
@@ -60,6 +61,7 @@ const App = () => {
         {/* Public Routes */}
         <Route path='/login' element={!isAuthenticated ? <Login /> : <Navigate to={aToken ? '/admin-dashboard' : '/doctor-dashboard'} />} />
             <Route path='/forgot-password' element={<ForgotPassword />} />
+            <Route path='/force-password-reset' element={isAuthenticated ? <ForcePasswordReset /> : <Navigate to="/login" />} />
             
             {/* Root Redirect */}
             <Route path='/' element={<Navigate to={isAuthenticated ? (aToken ? '/admin-dashboard' : '/doctor-dashboard') : '/login'} />} />

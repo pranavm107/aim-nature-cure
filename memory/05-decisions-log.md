@@ -33,3 +33,10 @@
   - **What IS Done**: Frontend Stages 1-3 are complete, plus retrofits and the rebuilt Case Sheet module. The entire frontend operates on a discrete mock-data architecture. A shared persistence layer (`mockStore.js` using `localStorage`) has been retrofitted across all modules (Case Sheet, Patients, Consultations, Appointments, Documents, Follow-ups) to allow cross-role manual QA. Expanded mock data has been seeded covering multiple doctors and varied patient scenarios.
   - **What is NOT Done**: Backend Stage 1 real auth is NOT done (the backend still uses the original Prescripto hardcoded `ADMIN_EMAIL` / `ADMIN_PASSWORD` scheme). Stages 4-9 backend and Stages 4-8 frontend are NOT done. This is strictly a frontend demonstration checkpoint, not a production-ready application.
 - **Design System Definition**: Approved 'Option 1: Healing Forest' for the core UI redesign. Tokens to be centralized in tailwind config and lucide-react standard.
+
+## 2026-08-25
+- **User Management Create Flow & Forced Password Reset**: 
+  - (Team-requested via internal discussion) Decided to implement a user creation flow that auto-generates a temporary password instead of requiring the admin to set one.
+  - Due to lack of real email integration, the system will simulate email delivery via console log/toast, and the generated password will be shown ONCE in the UI.
+  - A forced password reset flow (`mustChangePassword: true`) is implemented to intercept the user on their first login.
+  - *Scope*: Editing existing users is explicitly out of scope for this phase. `AddDoctor` is kept for Doctor creation (without password field), and a lightweight "Create Admin" modal is added to `UserManagement.jsx`.

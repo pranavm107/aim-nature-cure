@@ -11,7 +11,6 @@ const AddDoctor = () => {
     const [docImg, setDocImg] = useState(false)
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
     const [experience, setExperience] = useState('1 Year')
     const [fees, setFees] = useState('')
     const [about, setAbout] = useState('')
@@ -39,7 +38,6 @@ const AddDoctor = () => {
             formData.append('image', docImg)
             formData.append('name', name)
             formData.append('email', email)
-            formData.append('password', password)
             formData.append('experience', experience)
             formData.append('fees', Number(fees))
             formData.append('about', about)
@@ -49,10 +47,16 @@ const AddDoctor = () => {
 
             const data = await adminService.addDoctor(formData);
             if (data.success) {
-                toast.success(data.message)
+                toast.success(
+                  <div>
+                    {data.message} <br/>
+                    <strong>Temp Password: {data.generatedPassword}</strong> <br/>
+                    <span className="text-xs text-yellow-100">Simulated email sent to {email}</span>
+                  </div>, 
+                  { autoClose: false } // Keep open so they can copy it
+                )
                 setDocImg(false)
                 setName('')
-                setPassword('')
                 setEmail('')
                 setAddress1('')
                 setAddress2('')
@@ -108,7 +112,6 @@ const AddDoctor = () => {
                     <div className='w-full lg:flex-1 flex flex-col gap-4'>
                         <InputField label="Your name" value={name} onChange={e => setName(e.target.value)} placeholder="Name" required />
                         <InputField label="Doctor Email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
-                        <InputField label="Set Password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" required />
                         <SelectField label="Experience" value={experience} onChange={e => setExperience(e.target.value)} options={experienceOptions} />
                         <InputField label="Fees" type="number" value={fees} onChange={e => setFees(e.target.value)} placeholder="Doctor fees" required />
                     </div>
