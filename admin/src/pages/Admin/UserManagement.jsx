@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { userService } from '../../services/userService';
 import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
@@ -14,6 +15,7 @@ const UserManagement = () => {
   const [adminName, setAdminName] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [addingAdmin, setAddingAdmin] = useState(false);
+  const navigate = useNavigate();
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -91,6 +93,12 @@ const UserManagement = () => {
         {item.status === 'Active' ? <Badge variant="success">Active</Badge> : <Badge variant="neutral">Inactive</Badge>}
       </div>
       <div className="text-right flex justify-end gap-2">
+        <button 
+          onClick={() => navigate(`/admin/users/${item._id}`)}
+          className="text-xs px-3 py-1 rounded border bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+        >
+          View
+        </button>
         <button 
           onClick={() => handleToggleStatus(item._id, item.status)}
           className={`text-xs px-3 py-1 rounded border ${item.status === 'Active' ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' : 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100'}`}

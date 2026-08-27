@@ -41,6 +41,9 @@ import SocialSubmission from './pages/Doctor/SocialSubmission';
 import AdminDailyReports from './pages/Admin/AdminDailyReports';
 import AdminReports from './pages/Admin/AdminReports';
 import UserManagement from './pages/Admin/UserManagement';
+import UserDetail from './pages/Admin/UserDetail';
+import DoctorDetail from './pages/Admin/DoctorDetail';
+import AppointmentDetail from './pages/Admin/AppointmentDetail';
 import DoctorNotes from './pages/Doctor/DoctorNotes';
 import DoctorTasks from './pages/Doctor/DoctorTasks';
 import DoctorDailyReport from './pages/Doctor/DoctorDailyReport';
@@ -69,11 +72,14 @@ const App = () => {
             {/* Admin Routes */}
             <Route path='/admin-dashboard' element={<ProtectedRoute role="admin"><Dashboard /></ProtectedRoute>} />
             <Route path='/admin/users' element={<ProtectedRoute role="admin"><UserManagement /></ProtectedRoute>} />
+            <Route path='/admin/users/:id' element={<ProtectedRoute role="admin"><UserDetail /></ProtectedRoute>} />
             <Route path='/add-doctor' element={<ProtectedRoute role="admin"><AddDoctor /></ProtectedRoute>} />
             <Route path='/doctor-list' element={<ProtectedRoute role="admin"><DoctorsList /></ProtectedRoute>} />
+            <Route path='/admin/doctors/:id' element={<ProtectedRoute role="admin"><DoctorDetail /></ProtectedRoute>} />
             <Route path='/admin/therapies' element={<ProtectedRoute role="admin"><Therapies /></ProtectedRoute>} />
             <Route path='/admin/packages' element={<ProtectedRoute role="admin"><Packages /></ProtectedRoute>} />
             <Route path='/all-appointments' element={<ProtectedRoute role="admin"><AllAppointments /></ProtectedRoute>} />
+            <Route path='/admin/appointments/:id' element={<ProtectedRoute role="admin"><AppointmentDetail /></ProtectedRoute>} />
             <Route path='/admin/invoices' element={<ProtectedRoute role="admin"><InvoiceList /></ProtectedRoute>} />
             <Route path='/admin/invoices/:id' element={<ProtectedRoute role="admin"><InvoiceDetail /></ProtectedRoute>} />
             {/* Payment is handled via modal inside InvoiceDetail */}

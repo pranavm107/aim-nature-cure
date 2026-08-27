@@ -40,3 +40,14 @@
   - Due to lack of real email integration, the system will simulate email delivery via console log/toast, and the generated password will be shown ONCE in the UI.
   - A forced password reset flow (`mustChangePassword: true`) is implemented to intercept the user on their first login.
   - *Scope*: Editing existing users is explicitly out of scope for this phase. `AddDoctor` is kept for Doctor creation (without password field), and a lightweight "Create Admin" modal is added to `UserManagement.jsx`.
+
+## 2026-08-27
+- **View + Edit Capabilities (Users, Appointments, Doctors, Patient Details)**:
+  - (Origin: Team discussion / chat screenshot, [2026-08-27], legitimate scope, same discipline as prior modules).
+  - **Decisions & Restrictions**:
+    1. **User Edit**: Email edits are completely locked to prevent breaking login credentials. Only Name and Role (Admin-only) can be updated.
+    2. **Appointment Edit**: Locked entirely once status reaches `Completed`, preserving immutability alongside Consultations (`BR-13`).
+    3. **Doctor Edit**: Admin can edit all fields. Doctors can only edit their own contact info/bio via self-edit; financial/specialty fields remain locked.
+    4. **Patient Edit**: Standard contact info editable. Lead Source remains locked (`BR-12`). Doctor edits are restricted to their assigned patients (`BR-02`).
+  - **UI Patterns**: Adopted separate View pages (`/admin/users/:id`, etc.) across all entities using Healing Forest layout tokens for consistency, with a modal overlay for Edits.
+  - **Guarded Actions**: High-stakes changes like "Change Role" and "Reassign Doctor" are separated from the standard edit form into explicit guarded actions.

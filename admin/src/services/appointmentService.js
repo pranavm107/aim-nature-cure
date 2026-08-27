@@ -42,6 +42,27 @@ export const appointmentService = {
     return { success: true, appointment: newAppt };
   },
   
+  getAppointmentById: async (id) => {
+    await delay();
+    const appointment = state.appointments.find(a => a._id === id);
+    if (appointment) return { success: true, appointment };
+    return { success: false, message: 'Appointment not found' };
+  },
+  
+  updateAppointment: async (id, updateData) => {
+    await delay();
+    const idx = state.appointments.findIndex(a => a._id === id);
+    if (idx !== -1) {
+      if (state.appointments[idx].isCompleted) {
+        return { success: false, message: 'Completed appointments cannot be edited' };
+      }
+      state.appointments[idx] = { ...state.appointments[idx], ...updateData };
+      saveState();
+      return { success: true, message: 'Appointment updated', appointment: state.appointments[idx] };
+    }
+    return { success: false, message: 'Appointment not found' };
+  },
+  
   updateAppointmentStatus: async (id, status) => {
     await delay();
     const idx = state.appointments.findIndex(a => a._id === id);

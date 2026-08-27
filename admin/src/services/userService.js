@@ -63,5 +63,48 @@ export const userService = {
       return { success: true, message: 'Status updated' };
     }
     return { success: false, message: 'User not found' };
+  },
+
+  getUserById: async (userId) => {
+    await delay();
+    const users = getStore('mockUsers');
+    const user = users.find(u => u._id === userId);
+    if (user) {
+      const formattedUser = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      };
+      return { success: true, user: formattedUser };
+    }
+    return { success: false, message: 'User not found' };
+  },
+
+  updateUser: async (userId, updateData) => {
+    await delay();
+    const users = getStore('mockUsers');
+    const idx = users.findIndex(u => u._id === userId);
+    if (idx !== -1) {
+      // Email is locked, ignore it if passed
+      const { email, role, ...allowedUpdates } = updateData; 
+      users[idx] = { ...users[idx], ...allowedUpdates };
+      setStore('mockUsers', users);
+      return { success: true, message: 'User updated successfully' };
+    }
+    return { success: false, message: 'User not found' };
+  },
+
+  updateUserRole: async (userId, newRole) => {
+    await delay();
+    const users = getStore('mockUsers');
+    const idx = users.findIndex(u => u._id === userId);
+    if (idx !== -1) {
+      users[idx].role = newRole;
+      setStore('mockUsers', users);
+      return { success: true, message: 'User role updated' };
+    }
+    return { success: false, message: 'User not found' };
   }
 };

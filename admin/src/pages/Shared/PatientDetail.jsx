@@ -15,7 +15,8 @@ import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import { toast } from 'react-toastify';
 import { AdminContext } from '../../context/AdminContext';
-import { Plus, FileText } from 'lucide-react';
+import { Plus, FileText, Edit, UserCheck } from 'lucide-react';
+import { adminService } from '../../services/adminService';
 
 const PatientDetail = () => {
   const { id } = useParams();
@@ -39,6 +40,15 @@ const PatientDetail = () => {
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadName, setUploadName] = useState('');
   const [uploading, setUploading] = useState(false);
+
+  // Edit Patient State
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
+
+  // Reassign Doctor State
+  const [reassignModalOpen, setReassignModalOpen] = useState(false);
+  const [newDocId, setNewDocId] = useState('');
+  const [doctorsList, setDoctorsList] = useState([]);
 
   const fetchPatientData = async () => {
     setLoading(true);
@@ -65,6 +75,11 @@ const PatientDetail = () => {
       const docRes = await documentService.getPatientDocuments(id);
       if (docRes.success) {
         setDocuments(docRes.documents);
+      }
+      
+      if (aToken) {
+        const docsRes = await adminService.getAllDoctors();
+        if (docsRes.success) setDoctorsList(docsRes.doctors);
       }
     } catch (error) {
       console.error(error);
@@ -141,6 +156,47 @@ const PatientDetail = () => {
     }
   };
 
+  const openEditModal = () => {
+    setEditFormData({
+      name: patient.name,
+      phone: patient.phone,
+      address: patient.address,
+      dob: patient.dob,
+      gender: patient.gender,
+      status: patient.status
+    });
+    setEditModalOpen(true);
+  };
+
+  const submitEdit = async () => {
+    try {
+      const res = await patientService.updatePatient(id, editFormData);
+      if (res.success) {
+        toast.success("Patient updated");
+        setEditModalOpen(false);
+        fetchPatientData();
+      } else {
+        toast.error("Failed to update patient");
+      }
+    } catch (err) {
+      toast.error("Error updating patient");
+    }
+  };
+
+  const submitReassign = async () => {
+    if (!newDocId) return toast.warn("Select a doctor");
+    try {
+      const res = await patientService.assignDoctor(id, newDocId);
+      if (res.success) {
+        toast.success("Doctor reassigned successfully");
+        setReassignModalOpen(false);
+        fetchPatientData();
+      }
+    } catch (err) {
+      toast.error("Error reassigning doctor");
+    }
+  };
+
   if (loading) return <div className="flex h-screen items-center justify-center"><p className="text-slate-500 font-medium">Loading patient details...</p></div>;
   if (!patient) return null;
 
@@ -166,7 +222,12 @@ const PatientDetail = () => {
         {/* Left Column: Patient Info */}
         <div className="lg:col-span-1 flex flex-col gap-6">
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 pb-2">Profile Information</h2>
+            <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-2">
+              <h2 className="text-lg font-semibold text-slate-800">Profile Information</h2>
+              <button onClick={openEditModal} className="text-slate-500 hover:text-primary transition-colors">
+                <Edit className="w-4 h-4" />
+              </button>
+            </div>
             <div className="flex flex-col gap-3 text-sm">
               <p><span className="text-slate-500 w-24 inline-block">Phone:</span> <span className="font-medium text-slate-800">{patient.phone}</span></p>
               <p><span className="text-slate-500 w-24 inline-block">Email:</span> <span className="font-medium text-slate-800">{patient.email || 'N/A'}</span></p>
@@ -180,6 +241,17 @@ const PatientDetail = () => {
                   {patient.status || 'Active'}
                 </span>
               </div>
+              {aToken && (
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                   <button 
+                     onClick={() => setReassignModalOpen(true)}
+                     className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 text-slate-600 text-sm rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                   >
+                     <UserCheck className="w-4 h-4" />
+                     Reassign Doctor
+                   </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -316,6 +388,75 @@ const PatientDetail = () => {
               >
                 Save Addendum
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Patient Modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">Edit Patient Profile</h3>
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                <input type="text" value={editFormData.name || ''} onChange={(e) => setEditFormData({...editFormData, name: e.target.value})} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+                <input type="text" value={editFormData.phone || ''} onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Date of Birth</label>
+                <input type="date" value={editFormData.dob || ''} onChange={(e) => setEditFormData({...editFormData, dob: e.target.value})} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Gender</label>
+                <select value={editFormData.gender || ''} onChange={(e) => setEditFormData({...editFormData, gender: e.target.value})} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
+                <textarea value={editFormData.address || ''} onChange={(e) => setEditFormData({...editFormData, address: e.target.value})} rows="2" className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none"></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                <select value={editFormData.status || ''} onChange={(e) => setEditFormData({...editFormData, status: e.target.value})} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none">
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
+              <button onClick={() => setEditModalOpen(false)} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors">Cancel</button>
+              <button onClick={submitEdit} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-sm font-medium transition-colors">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reassign Doctor Modal */}
+      {reassignModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">Reassign Doctor</h3>
+            <p className="text-sm text-slate-600 mb-4">Select a new doctor to assign this patient to.</p>
+            <div className="mb-6">
+              <select value={newDocId} onChange={(e) => setNewDocId(e.target.value)} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none">
+                <option value="">Select Doctor</option>
+                {doctorsList.map(doc => (
+                  <option key={doc._id} value={doc._id}>{doc.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setReassignModalOpen(false)} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors">Cancel</button>
+              <button onClick={submitReassign} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-sm font-medium transition-colors">Reassign</button>
             </div>
           </div>
         </div>

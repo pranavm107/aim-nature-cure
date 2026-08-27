@@ -28,6 +28,23 @@ export const adminService = {
     return { success: false, message: 'Doctor not found' };
   },
 
+  getDoctorById: async (docId) => {
+    await delay();
+    const doc = mockDoctors.find(d => d._id === docId);
+    if (doc) return { success: true, doctor: doc };
+    return { success: false, message: 'Doctor not found' };
+  },
+
+  updateDoctor: async (docId, updateData) => {
+    await delay();
+    const idx = mockDoctors.findIndex(d => d._id === docId);
+    if (idx !== -1) {
+      mockDoctors[idx] = { ...mockDoctors[idx], ...updateData };
+      return { success: true, message: 'Doctor updated successfully', doctor: mockDoctors[idx] };
+    }
+    return { success: false, message: 'Doctor not found' };
+  },
+
   getDashData: async () => {
     await delay();
     const dashData = {

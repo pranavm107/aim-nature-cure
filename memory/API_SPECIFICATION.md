@@ -29,9 +29,12 @@ Companion to the PRD, Gap Analysis, and Implementation Roadmap. Organized by mod
 | GET | `/users` | List all system users (Admins + Doctors) | Admin |
 | POST | `/users` | Create a new Admin or Doctor account (auto-generates credentials) | Admin |
 | GET | `/users/:id` | Get one user's account details | Admin |
-| PUT | `/users/:id` | Update a user's account (role, contact info) | Admin |
+| PUT | `/users/:id` | Update a user's account (name). Email locked. | Admin |
+| PATCH | `/users/:id/role` | Change a user's role (Doctor <-> Admin) - Guarded action | Admin |
 | PATCH | `/users/:id/status` | Activate/deactivate an account `[FR-004]` | Admin |
 | DELETE | `/users/:id` | Hard-delete a user account (rare — prefer deactivate) | Admin |
+| GET | `/doctors/:id` | Get one doctor's profile details (View) | Both |
+| PUT | `/doctors/:id` | Update doctor profile (Admin edits all, Doctor edits bio/contact only) | Both |
 
 **Notes:** Session expiry on inactivity (`FR-005`) is a JWT-expiry/middleware concern, not a separate endpoint. Every write here should also write an `AuditLog` entry (Stage 9, but wire the hook now while the pattern is simple).
 
@@ -39,8 +42,18 @@ Companion to the PRD, Gap Analysis, and Implementation Roadmap. Organized by mod
 
 ## Stage 2 — Patients & Consultations
 
-**Route file:** `patientRoute.js`, `consultationRoute.js`
-**Screens:** Patient Registration, Patient List, Patient Detail, New Consultation, Consultation History
+**Route file:** `patientRoute.js`, `consultationRoute.js`, `appointmentRoute.js`
+**Screens:** Patient Registration, Patient List, Patient Detail, New Consultation, Consultation History, Appointments
+
+### Appointments
+
+| Method | Endpoint | Purpose | Role |
+|---|---|---|---|
+| GET | `/appointments` | List all appointments | Both |
+| POST | `/appointments` | Create a new appointment | Both |
+| GET | `/appointments/:id` | Get one appointment's details (View) | Both |
+| PUT | `/appointments/:id` | Update appointment (locked if status is Completed) | Both |
+| PATCH | `/appointments/:id/status` | Update status (Complete/Cancel) | Both |
 
 ### Patients
 
@@ -50,7 +63,7 @@ Companion to the PRD, Gap Analysis, and Implementation Roadmap. Organized by mod
 | GET | `/patients/search?q=` | Search by name / phone / Patient ID `[FR-029]` | Both |
 | POST | `/patients` | Register a new patient (Admin/Doctor entered, no self-service) `[FR-027]` | Both |
 | GET | `/patients/:id` | Full patient detail incl. timeline summary | Both — `[BR-02]` applies |
-| PUT | `/patients/:id` | Update patient info | Both — `[BR-02]` applies |
+| PUT | `/patients/:id` | Update patient info (Lead Source locked `[BR-12]`) | Both — `[BR-02]` applies |
 | PATCH | `/patients/:id/status` | Set Active / Inactive / Completed Treatment `[FR-031]` | Both |
 | PATCH | `/patients/:id/assign-doctor` | (Re)assign patient to a doctor | Admin |
 | GET | `/patients/:id/timeline` | Combined feed: consultations, sessions, invoices, follow-ups | Both — `[BR-02]` applies |

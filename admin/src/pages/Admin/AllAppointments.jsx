@@ -115,6 +115,12 @@ const AllAppointments = () => {
       </div>
       <p>{currency}{item.amount}</p>
       <div className="flex gap-2">
+        <button 
+          onClick={(e) => { e.stopPropagation(); navigate(`/admin/appointments/${item._id}`); }}
+          className="px-3 py-1 bg-slate-50 text-slate-600 rounded border border-slate-200 text-xs font-medium hover:bg-slate-100 transition-colors"
+        >
+          View
+        </button>
         {item.cancelled ? (
           <span className="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-700">Cancelled</span>
         ) : item.isCompleted ? (
@@ -151,12 +157,15 @@ const AllAppointments = () => {
             <p className="font-medium">{item.docData?.name}</p>
           </div>
        </div>
-       {!item.cancelled && !item.isCompleted && (
-          <div className="flex gap-2 justify-end mt-2">
-            <button onClick={() => handleStatusChange(item, 'Completed')} className="px-3 py-1 bg-green-500 text-white rounded text-xs font-medium">Complete</button>
-            <button onClick={() => handleStatusChange(item, 'Cancelled')} className="px-3 py-1 bg-red-500 text-white rounded text-xs font-medium">Cancel</button>
-          </div>
-        )}
+       <div className="flex gap-2 justify-end mt-2">
+          <button onClick={() => navigate(`/admin/appointments/${item._id}`)} className="px-3 py-1 bg-slate-50 text-slate-600 border border-slate-200 rounded text-xs font-medium mr-auto">View</button>
+          {!item.cancelled && !item.isCompleted && (
+            <>
+              <button onClick={() => handleStatusChange(item, 'Completed')} className="px-3 py-1 bg-green-500 text-white rounded text-xs font-medium">Complete</button>
+              <button onClick={() => handleStatusChange(item, 'Cancelled')} className="px-3 py-1 bg-red-500 text-white rounded text-xs font-medium">Cancel</button>
+            </>
+          )}
+       </div>
     </div>
   );
 
