@@ -13,6 +13,7 @@ const TherapySessions = () => {
   // Modals state
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [missedModalOpen, setMissedModalOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
   
   const [notes, setNotes] = useState('');
@@ -62,6 +63,18 @@ const TherapySessions = () => {
     }
   };
 
+  const handleMissed = async (e) => {
+    e.preventDefault();
+    try {
+      await therapySessionService.markSessionMissed(selectedSession._id, notes);
+      toast.success('Session marked as missed');
+      setMissedModalOpen(false);
+      fetchData();
+    } catch (err) {
+      toast.error('Failed to mark session as missed');
+    }
+  };
+
   const handleReschedule = async (e) => {
     e.preventDefault();
     if (!newDate) return toast.error("Select a date");
@@ -79,6 +92,12 @@ const TherapySessions = () => {
     setSelectedSession(session);
     setNotes('');
     setCompleteModalOpen(true);
+  };
+
+  const openMissedModal = (session) => {
+    setSelectedSession(session);
+    setNotes('');
+    setMissedModalOpen(true);
   };
 
   const openRescheduleModal = (session) => {
@@ -114,7 +133,8 @@ const TherapySessions = () => {
                   <span className={`px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wide border ${
                     item.status === 'Completed' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' :
                     item.status === 'Pending' ? 'bg-amber-100 text-amber-800 border-amber-200' :
-                    'bg-red-100 text-red-800 border-red-200'
+                    item.status === 'Missed' ? 'bg-rose-100 text-rose-800 border-rose-200' :
+                    'bg-slate-100 text-slate-800 border-slate-200'
                   }`}>
                     {item.status}
                   </span>
@@ -123,11 +143,15 @@ const TherapySessions = () => {
                   {item.status === 'Pending' && (
                     <>
                       <button onClick={() => openCompleteModal(item)} className="text-emerald-600 hover:text-emerald-800 font-medium text-sm transition-colors">Complete</button>
+                      <button onClick={() => openMissedModal(item)} className="text-rose-600 hover:text-rose-800 font-medium text-sm transition-colors">Mark Missed</button>
                       <button onClick={() => openRescheduleModal(item)} className="text-primary hover:text-primary/80 font-medium text-sm transition-colors">Reschedule</button>
                     </>
                   )}
                   {item.status === 'Completed' && (
                     <span className="text-slate-400 text-sm font-medium">Done</span>
+                  )}
+                  {item.status === 'Missed' && (
+                    <span className="text-slate-400 text-sm font-medium">Missed</span>
                   )}
                 </td>
               </tr>
@@ -160,6 +184,31 @@ const TherapySessions = () => {
               <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
                 <button type="button" onClick={() => setCompleteModalOpen(false)} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors">Cancel</button>
                 <button type="submit" className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors">Mark Completed</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Missed Modal */}
+      {missedModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4 text-slate-800">Mark Session Missed</h2>
+            <p className="mb-4 text-sm text-slate-600">Marking <span className="font-bold text-slate-800">{getTherapyName(selectedSession?.therapyId)}</span> for {getPatientName(selectedSession?.patientId)} as missed.</p>
+            <form onSubmit={handleMissed}>
+              <div className="mb-4">
+                <label className="block text-slate-700 text-sm font-bold mb-2">Reason / Notes</label>
+                <textarea 
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 h-24 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  placeholder="Reason for missing the session..."
+                />
+              </div>
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
+                <button type="button" onClick={() => setMissedModalOpen(false)} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 text-sm font-medium hover:bg-slate-50 transition-colors">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-rose-600 text-white rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors">Mark Missed</button>
               </div>
             </form>
           </div>

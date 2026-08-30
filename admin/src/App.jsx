@@ -23,6 +23,8 @@ import NewConsultation from './pages/Doctor/NewConsultation';
 import ConsultationHistory from './pages/Doctor/ConsultationHistory';
 import Therapies from './pages/Admin/Therapies';
 import Packages from './pages/Admin/Packages';
+import PackageForm from './pages/Admin/PackageForm';
+import PackageDetail from './pages/Admin/PackageDetail';
 import TherapyAssignment from './pages/Doctor/TherapyAssignment';
 import TherapySessions from './pages/Doctor/TherapySessions';
 import InvoiceList from './pages/Admin/InvoiceList';
@@ -39,9 +41,11 @@ import Leads from './pages/Admin/Leads';
 import SocialReview from './pages/Admin/SocialReview';
 import SocialSubmission from './pages/Doctor/SocialSubmission';
 import AdminDailyReports from './pages/Admin/AdminDailyReports';
+import AdminDailyReportDetail from './pages/Admin/AdminDailyReportDetail';
 import AdminReports from './pages/Admin/AdminReports';
 import UserManagement from './pages/Admin/UserManagement';
 import UserDetail from './pages/Admin/UserDetail';
+import RoleConfig from './pages/Admin/RoleConfig';
 import DoctorDetail from './pages/Admin/DoctorDetail';
 import AppointmentDetail from './pages/Admin/AppointmentDetail';
 import DoctorNotes from './pages/Doctor/DoctorNotes';
@@ -71,13 +75,17 @@ const App = () => {
 
             {/* Admin Routes */}
             <Route path='/admin-dashboard' element={<ProtectedRoute role="admin"><Dashboard /></ProtectedRoute>} />
-            <Route path='/admin/users' element={<ProtectedRoute role="admin"><UserManagement /></ProtectedRoute>} />
-            <Route path='/admin/users/:id' element={<ProtectedRoute role="admin"><UserDetail /></ProtectedRoute>} />
-            <Route path='/add-doctor' element={<ProtectedRoute role="admin"><AddDoctor /></ProtectedRoute>} />
+            <Route path='/admin/users' element={<ProtectedRoute role="admin" requiredPermission="manage_users"><UserManagement /></ProtectedRoute>} />
+            <Route path='/admin/users/:id' element={<ProtectedRoute role="admin" requiredPermission="manage_users"><UserDetail /></ProtectedRoute>} />
+            <Route path='/admin/roles' element={<ProtectedRoute role="admin" requiredPermission="manage_roles"><RoleConfig /></ProtectedRoute>} />
+            <Route path='/add-doctor' element={<ProtectedRoute role="admin" requiredPermission="manage_users"><AddDoctor /></ProtectedRoute>} />
             <Route path='/doctor-list' element={<ProtectedRoute role="admin"><DoctorsList /></ProtectedRoute>} />
             <Route path='/admin/doctors/:id' element={<ProtectedRoute role="admin"><DoctorDetail /></ProtectedRoute>} />
             <Route path='/admin/therapies' element={<ProtectedRoute role="admin"><Therapies /></ProtectedRoute>} />
             <Route path='/admin/packages' element={<ProtectedRoute role="admin"><Packages /></ProtectedRoute>} />
+            <Route path='/admin/packages/add' element={<ProtectedRoute role="admin"><PackageForm /></ProtectedRoute>} />
+            <Route path='/admin/packages/:id' element={<ProtectedRoute role="admin"><PackageDetail /></ProtectedRoute>} />
+            <Route path='/admin/packages/:id/edit' element={<ProtectedRoute role="admin"><PackageForm /></ProtectedRoute>} />
             <Route path='/all-appointments' element={<ProtectedRoute role="admin"><AllAppointments /></ProtectedRoute>} />
             <Route path='/admin/appointments/:id' element={<ProtectedRoute role="admin"><AppointmentDetail /></ProtectedRoute>} />
             <Route path='/admin/invoices' element={<ProtectedRoute role="admin"><InvoiceList /></ProtectedRoute>} />
@@ -91,6 +99,7 @@ const App = () => {
             <Route path='/admin/leads' element={<ProtectedRoute role="admin"><Leads /></ProtectedRoute>} />
             <Route path='/admin/social-review' element={<ProtectedRoute role="admin"><SocialReview /></ProtectedRoute>} />
             <Route path='/admin/daily-reports' element={<ProtectedRoute role="admin"><AdminDailyReports /></ProtectedRoute>} />
+            <Route path='/admin/daily-reports/:date' element={<ProtectedRoute role="admin"><AdminDailyReportDetail /></ProtectedRoute>} />
             <Route path='/admin/reports' element={<ProtectedRoute role="admin"><AdminReports /></ProtectedRoute>} />
 
             {/* Doctor Routes */}

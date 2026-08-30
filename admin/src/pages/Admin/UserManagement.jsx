@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../../services/userService';
+import { rolesService } from '../../services/rolesService';
+import RoleModal from '../../components/admin/RoleModal';
 import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import DataTable from '../../components/common/DataTable';
@@ -14,8 +16,24 @@ const UserManagement = () => {
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [adminName, setAdminName] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
+  const [adminRole, setAdminRole] = useState('');
   const [addingAdmin, setAddingAdmin] = useState(false);
+  const [roles, setRoles] = useState([]);
+  
+  // Role Creation State
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [roleFormData, setRoleFormData] = useState({ name: '', permissions: [] });
+  
   const navigate = useNavigate();
+
+  const fetchRoles = async () => {
+    const res = await rolesService.getAllRoles();
+    if(res.success) setRoles(res.roles);
+  };
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -46,11 +64,38 @@ const UserManagement = () => {
     }
   };
 
+  const handleRoleSelectChange = (e) => {
+    const val = e.target.value;
+    if (val === 'CREATE_NEW') {
+      setRoleFormData({ name: '', permissions: [] });
+      setShowRoleModal(true);
+      // Don't change adminRole to CREATE_NEW, leave it as is or empty
+    } else {
+      setAdminRole(val);
+    }
+  };
+
+  const handleCreateRoleSubmit = async (e) => {
+    e.preventDefault();
+    if (roleFormData.permissions.length === 0) {
+      return toast.error("Please assign at least one permission");
+    }
+    try {
+      const res = await rolesService.createRole(roleFormData);
+      toast.success("Role created successfully");
+      await fetchRoles(); // Refresh roles list
+      setAdminRole(res.role.name.toLowerCase()); // Auto-select new role
+      setShowRoleModal(false);
+    } catch (err) {
+      toast.error(err.message || "Failed to save role");
+    }
+  };
+
   const handleAddAdmin = async (e) => {
     e.preventDefault();
     setAddingAdmin(true);
     try {
-      const res = await userService.addAdmin(adminName, adminEmail);
+      const res = await userService.addUser(adminName, adminEmail, adminRole || 'admin');
       if (res.success) {
         toast.success(
           <div>
@@ -63,6 +108,7 @@ const UserManagement = () => {
         setShowAdminModal(false);
         setAdminName('');
         setAdminEmail('');
+        setAdminRole('');
         fetchUsers();
       } else {
         toast.error(res.message || "Failed to add admin");
@@ -112,8 +158,8 @@ const UserManagement = () => {
   return (
     <PageContainer>
       <div className="flex justify-between items-center mb-6">
-        <PageHeader title="User Management" subtitle="Manage Admin and Doctor accounts" />
-        <PrimaryButton onClick={() => setShowAdminModal(true)}>+ Add Admin</PrimaryButton>
+        <PageHeader title="User Management" subtitle="Manage Admin, Doctor and custom accounts" />
+        <PrimaryButton onClick={() => setShowAdminModal(true)}>+ Add New User</PrimaryButton>
       </div>
       
       <DataTable 
@@ -130,7 +176,7 @@ const UserManagement = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-              <h3 className="font-semibold text-slate-800">Create Admin Account</h3>
+              <h3 className="font-semibold text-slate-800">Create New User</h3>
               <button onClick={() => setShowAdminModal(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
             </div>
             <form onSubmit={handleAddAdmin} className="p-6">
@@ -139,7 +185,7 @@ const UserManagement = () => {
                   label="Name" 
                   value={adminName} 
                   onChange={(e) => setAdminName(e.target.value)} 
-                  placeholder="Admin Name" 
+                  placeholder="User Name" 
                   required 
                 />
                 <InputField 
@@ -147,16 +193,44 @@ const UserManagement = () => {
                   type="email" 
                   value={adminEmail} 
                   onChange={(e) => setAdminEmail(e.target.value)} 
-                  placeholder="admin@example.com" 
+                  placeholder="user@example.com" 
                   required 
                 />
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-slate-700">Role</label>
+                  <select 
+                    className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white"
+                    value={adminRole}
+                    onChange={handleRoleSelectChange}
+                    required
+                  >
+                    <option value="" disabled={adminRole === '' ? false : true}>Select Role</option>
+                    {roles.map(r => (
+                      <option key={r._id} value={r.name.toLowerCase()}>{r.name}</option>
+                    ))}
+                    <option value="CREATE_NEW" className="font-bold text-primary">+ Create New Role</option>
+                  </select>
+                </div>
               </div>
               <div className="flex justify-end gap-3">
                 <button type="button" onClick={() => setShowAdminModal(false)} className="px-4 py-2 text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md">Cancel</button>
-                <PrimaryButton type="submit" disabled={addingAdmin}>{addingAdmin ? 'Creating...' : 'Create Admin'}</PrimaryButton>
+                <PrimaryButton type="submit" disabled={addingAdmin}>{addingAdmin ? 'Creating...' : 'Create User'}</PrimaryButton>
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {showRoleModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+          <RoleModal 
+            isOpen={showRoleModal}
+            onClose={() => setShowRoleModal(false)}
+            onSubmit={handleCreateRoleSubmit}
+            formData={roleFormData}
+            setFormData={setRoleFormData}
+            editingRole={null}
+          />
         </div>
       )}
     </PageContainer>

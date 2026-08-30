@@ -129,6 +129,17 @@ const therapySessionService = {
     mockTherapySessions[idx].scheduledDate = date;
     
     return mockTherapySessions[idx];
+  },
+
+  markSessionMissed: async (id, notes) => {
+    await delay();
+    const idx = mockTherapySessions.findIndex(s => s._id === id);
+    if (idx === -1) throw new Error("Session not found");
+    
+    mockTherapySessions[idx].status = 'Missed';
+    mockTherapySessions[idx].notes = notes || '';
+    
+    return mockTherapySessions[idx];
   }
 };
 

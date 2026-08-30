@@ -26,7 +26,8 @@ const PatientRegistration = () => {
     address: '',
     leadSource: '',
     assignedDoctor: '',
-    status: 'Active'
+    status: 'Active',
+    periodOfDays: 14
   });
 
   useEffect(() => {
@@ -180,6 +181,17 @@ const PatientRegistration = () => {
             value={formData.address} 
             onChange={handleChange} 
             placeholder="Full Address" 
+          />
+        </div>
+
+        <div className='flex flex-col gap-6'>
+          <InputField 
+            label="Period of Days (Treatment cycle duration)" 
+            type="number"
+            name="periodOfDays"
+            value={formData.periodOfDays} 
+            onChange={handleChange} 
+            required 
           />
         </div>
 

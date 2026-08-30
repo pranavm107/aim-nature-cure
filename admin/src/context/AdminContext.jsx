@@ -10,6 +10,11 @@ const AdminContextProvider = (props) => {
     const [appointments, setAppointments] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [dashData, setDashData] = useState(false);
+    const [adminPermissions, setAdminPermissions] = useState([
+        'view_dashboard', 'manage_users', 'manage_roles', 'view_patients', 
+        'edit_patients', 'manage_appointments', 'manage_therapies', 
+        'view_reports', 'manage_billing'
+    ]);
 
     const getAllDoctors = async () => {
         try {
@@ -91,7 +96,9 @@ const AdminContextProvider = (props) => {
         getAllAppointments,
         getDashData,
         cancelAppointment,
-        dashData
+        dashData,
+        adminPermissions,
+        setAdminPermissions
     };
 
     return (

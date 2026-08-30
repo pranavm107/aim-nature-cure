@@ -51,3 +51,14 @@
     4. **Patient Edit**: Standard contact info editable. Lead Source remains locked (`BR-12`). Doctor edits are restricted to their assigned patients (`BR-02`).
   - **UI Patterns**: Adopted separate View pages (`/admin/users/:id`, etc.) across all entities using Healing Forest layout tokens for consistency, with a modal overlay for Edits.
   - **Guarded Actions**: High-stakes changes like "Change Role" and "Reassign Doctor" are separated from the standard edit form into explicit guarded actions.
+
+## 2026-08-30
+- **Scope Change & Review Gates Confirmed**:
+  - **Case Sheet**: Stays visible in Admin exactly as currently built — the WhatsApp request to remove it is explicitly overridden by the user. Noted for the record: request said remove, user decided keep as-is.
+  - **Roles & Permissions**: Option B selected — functionally real enforcement, backed by mock data (not hardcoded role strings).
+  - **Session/Period**: A genuinely separate flat counter on Patient, NOT tied to Stage 3 TherapySession data.
+  - **Registration Vitals**: Pre-fill Case Sheet's Vitals section (one-way: Registration → Case Sheet, not the reverse).
+  - **Age**: Derived from DOB, not manually entered.
+  - **Daily Report**: Per-date review status is required; per-patient-row is optional if straightforward, do not block on it.
+  - **Appointment Edit Lock**: Once Completed, lock Doctor/Patient/Date/Time/Fees; allow notes/addendum only.
+  - **Finite Add/Edit/View List Confirmed**: Users, Doctors, Appointments, Patients, Therapies, Packages, Follow-Ups. Invoices/Leads/Incentives explicitly out of scope for this pass.

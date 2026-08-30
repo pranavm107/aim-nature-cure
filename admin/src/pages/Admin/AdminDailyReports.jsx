@@ -4,69 +4,118 @@ import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import DataTable from '../../components/common/DataTable';
 import Badge from '../../components/common/Badge';
-import Modal from '../../components/common/Modal';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { adminService } from '../../services/adminService';
 
 const AdminDailyReports = () => {
-  const [reports, setReports] = useState([]);
+  const [dateAggregates, setDateAggregates] = useState([]);
+  const [rawReports, setRawReports] = useState([]);
+  const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedReport, setSelectedReport] = useState(null);
+  
+  // Filters
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [selectedDoctor, setSelectedDoctor] = useState('');
 
-  const fetchReports = async () => {
+  const navigate = useNavigate();
+
+  const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const res = await dailyReportService.getAdminReports();
-      if (res.success) setReports(res.reports);
+      const [reportsRes, docsRes] = await Promise.all([
+        dailyReportService.getAdminReports(),
+        adminService.getAllDoctors()
+      ]);
+      
+      if (docsRes.success) setDoctors(docsRes.doctors);
+      if (reportsRes.success) {
+        setRawReports(reportsRes.reports);
+      }
     } catch (err) {
-      toast.error("Failed to load daily reports");
+      toast.error("Failed to load data");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchReports();
+    fetchInitialData();
   }, []);
 
-  const handleUpdateStatus = async (id, status) => {
-    try {
-      const res = await dailyReportService.updateReportStatus(id, status);
-      if (res.success) {
-        toast.success(`Report marked as ${status}`);
-        fetchReports();
-        setSelectedReport(null);
-      }
-    } catch (err) {
-      toast.error("Failed to update status");
+  useEffect(() => {
+    applyFilters();
+  }, [rawReports, startDate, endDate, selectedDoctor]);
+
+  const applyFilters = () => {
+    let filtered = [...rawReports];
+
+    if (startDate) {
+      const start = new Date(startDate).getTime();
+      filtered = filtered.filter(r => r.date >= start);
     }
+    if (endDate) {
+      const end = new Date(endDate).getTime() + 86400000; // include full end date
+      filtered = filtered.filter(r => r.date < end);
+    }
+    if (selectedDoctor) {
+      filtered = filtered.filter(r => r.docId === selectedDoctor);
+    }
+
+    const grouped = filtered.reduce((acc, report) => {
+          const dateStr = new Date(report.date).toISOString().split('T')[0];
+          if (!acc[dateStr]) {
+            acc[dateStr] = {
+              dateStr,
+              dateObj: new Date(report.date),
+              totalDoctors: 0,
+              totalPatients: 0,
+              totalConsultations: 0,
+              totalTherapies: 0,
+              allReviewed: true
+            };
+          }
+          acc[dateStr].totalDoctors += 1;
+          acc[dateStr].totalPatients += (report.patientCount || report.patientsSeen || 0);
+          acc[dateStr].totalConsultations += (report.consultations || report.consultationsCompleted || 0);
+          acc[dateStr].totalTherapies += (report.therapySessions || 0);
+          if (report.status !== 'Reviewed') {
+            acc[dateStr].allReviewed = false;
+          }
+          return acc;
+        }, {});
+
+      const aggregatedList = Object.values(grouped).sort((a, b) => b.dateObj - a.dateObj);
+      setDateAggregates(aggregatedList);
   };
 
   const columns = [
     { label: 'Date' },
-    { label: 'Doctor ID' },
-    { label: 'Patients' },
-    { label: 'Consultations' },
-    { label: 'Therapies' },
+    { label: 'Doctors Submitted' },
+    { label: 'Total Patients' },
+    { label: 'Total Consultations' },
+    { label: 'Total Therapies' },
     { label: 'Status' },
     { label: 'Action', className: 'text-right' }
   ];
 
   const renderRow = (item) => (
-    <div key={item._id} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_1fr] py-3 px-6 border-b items-center text-sm hover:bg-gray-50">
-      <p>{new Date(item.date).toLocaleDateString()}</p>
-      <p className="font-medium text-gray-800">{item.docId}</p>
-      <p>{item.patientCount}</p>
-      <p>{item.consultations}</p>
-      <p>{item.therapySessions}</p>
+    <div key={item.dateStr} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_1fr] py-3 px-6 border-b items-center text-sm hover:bg-slate-50 cursor-pointer" onClick={() => navigate(`/admin/daily-reports/${item.dateStr}`)}>
+      <p className="font-medium text-slate-800">{item.dateObj.toLocaleDateString()}</p>
+      <p>{item.totalDoctors}</p>
+      <p>{item.totalPatients}</p>
+      <p>{item.totalConsultations}</p>
+      <p>{item.totalTherapies}</p>
       <div>
-        {item.status === 'Pending' ? <Badge variant="warning">Pending</Badge> : <Badge variant="success">Reviewed</Badge>}
+        {item.allReviewed ? <Badge variant="success">Reviewed</Badge> : <Badge variant="warning">Pending Review</Badge>}
       </div>
       <div className="text-right">
         <button 
-          onClick={() => setSelectedReport(item)}
-          className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded hover:bg-blue-100 transition-colors"
+          onClick={(e) => { e.stopPropagation(); navigate(`/admin/daily-reports/${item.dateStr}`); }}
+          className="text-xs bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors font-medium"
         >
-          View
+          View Details
         </button>
       </div>
     </div>
@@ -74,78 +123,57 @@ const AdminDailyReports = () => {
 
   return (
     <PageContainer>
-      <PageHeader title="Daily Reports" subtitle="Review end-of-day reports submitted by doctors" />
+      <PageHeader title="Daily Reports" subtitle="Aggregate daily performance and review end-of-day reports" />
+      
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-wrap gap-4 items-end">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-slate-500">From Date</label>
+          <input 
+            type="date" 
+            className="p-2 border border-slate-300 rounded-lg text-sm bg-white"
+            value={startDate}
+            onChange={e => setStartDate(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-slate-500">To Date</label>
+          <input 
+            type="date" 
+            className="p-2 border border-slate-300 rounded-lg text-sm bg-white"
+            value={endDate}
+            onChange={e => setEndDate(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-col gap-1 min-w-[200px]">
+          <label className="text-xs font-medium text-slate-500">Filter by Doctor</label>
+          <select 
+            className="p-2 border border-slate-300 rounded-lg text-sm bg-white"
+            value={selectedDoctor}
+            onChange={e => setSelectedDoctor(e.target.value)}
+          >
+            <option value="">All Doctors</option>
+            {doctors.map(d => (
+              <option key={d._id} value={d._id}>{d.name}</option>
+            ))}
+          </select>
+        </div>
+        <button 
+          onClick={() => { setStartDate(''); setEndDate(''); setSelectedDoctor(''); }}
+          className="text-sm text-slate-500 hover:text-slate-800 font-medium px-2 py-2"
+        >
+          Clear Filters
+        </button>
+      </div>
+
       <DataTable 
         columns={columns} 
-        data={reports.sort((a,b) => b.date - a.date)} 
+        data={dateAggregates} 
         loading={loading} 
         renderRow={renderRow} 
         renderMobileCard={() => <div />} 
         emptyMessage="No reports found."
         gridColsClass="grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_1fr]" 
       />
-
-      <Modal isOpen={!!selectedReport} onClose={() => setSelectedReport(null)} title="Daily Report Details">
-        {selectedReport && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-500">Date</p>
-                <p className="font-medium">{new Date(selectedReport.date).toLocaleDateString()}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Doctor ID</p>
-                <p className="font-medium">{selectedReport.docId}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-4 bg-gray-50 p-4 rounded-lg">
-              <div className="text-center">
-                <p className="text-xl font-bold text-gray-800">{selectedReport.patientCount}</p>
-                <p className="text-xs text-gray-500">Patients</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-gray-800">{selectedReport.consultations}</p>
-                <p className="text-xs text-gray-500">Consultations</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-gray-800">{selectedReport.therapySessions}</p>
-                <p className="text-xs text-gray-500">Therapies</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-gray-800">{selectedReport.followUps}</p>
-                <p className="text-xs text-gray-500">Follow-Ups</p>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-500 font-medium mb-1">Summary</p>
-              <div className="p-3 bg-gray-50 rounded border text-sm text-gray-800 min-h-16">
-                {selectedReport.summary || 'No summary provided.'}
-              </div>
-            </div>
-            
-            <div>
-              <p className="text-sm text-gray-500 font-medium mb-1">Operational Issues</p>
-              <div className="p-3 bg-red-50 text-red-800 rounded border border-red-100 text-sm min-h-16">
-                {selectedReport.issues || 'No issues reported.'}
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-              <button onClick={() => setSelectedReport(null)} className="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50 transition-colors">Close</button>
-              {selectedReport.status === 'Pending' && (
-                <button 
-                  onClick={() => handleUpdateStatus(selectedReport._id, 'Reviewed')} 
-                  className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition-colors"
-                >
-                  Mark Reviewed
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </Modal>
     </PageContainer>
   );
 };
