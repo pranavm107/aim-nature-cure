@@ -3,8 +3,8 @@ import { Navigate } from 'react-router-dom';
 import { AdminContext } from '../context/AdminContext';
 import { DoctorContext } from '../context/DoctorContext';
 
-const ProtectedRoute = ({ role, children }) => {
-  const { aToken } = useContext(AdminContext);
+const ProtectedRoute = ({ role, requiredPermission, children }) => {
+  const { aToken, adminPermissions } = useContext(AdminContext);
   const { dToken } = useContext(DoctorContext);
 
   if (role === 'admin' && !aToken) {
@@ -13,6 +13,13 @@ const ProtectedRoute = ({ role, children }) => {
 
   if (role === 'doctor' && !dToken) {
     return <Navigate to="/" />;
+  }
+
+  if (requiredPermission && role === 'admin') {
+    if (!adminPermissions || !adminPermissions.includes(requiredPermission)) {
+      // User doesn't have permission, redirect to dashboard or show unauthorized
+      return <Navigate to="/admin-dashboard" />;
+    }
   }
 
   const mustChange = localStorage.getItem('mustChangePassword') === 'true';

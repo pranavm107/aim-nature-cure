@@ -8,6 +8,13 @@ const packageService = {
     return mockPackages;
   },
 
+  getPackageById: async (id) => {
+    await delay();
+    const pkg = mockPackages.find(p => p._id === id);
+    if (!pkg) throw new Error("Package not found");
+    return pkg;
+  },
+
   createPackage: async (data) => {
     await delay();
     const newPackage = { _id: "pkg" + Date.now(), ...data, date: Date.now() };

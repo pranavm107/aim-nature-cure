@@ -39,14 +39,14 @@ export const mockUsers = [
 ];
 
 export const mockPatients = [
-  { _id: 'PAT001', name: 'Priya Menon', age: 29, gender: 'Female', phone: '9876543210', address: 'Coimbatore', condition: 'Digestive Wellness', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 30) },
-  { _id: 'PAT002', name: 'Arun Kumar', age: 42, gender: 'Male', phone: '9876543211', address: 'Pollachi', condition: 'Chronic Back Pain', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Google', date: dateBase - (dayMs * 45) },
-  { _id: 'PAT003', name: 'Kavya Krishnan', age: 35, gender: 'Female', phone: '9876543212', address: 'Coimbatore', condition: 'Stress and Sleep Management', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 60) },
-  { _id: 'PAT004', name: 'Suresh Ravi', age: 51, gender: 'Male', phone: '9876543213', address: 'Tiruppur', condition: 'Diabetes Wellness', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 15) },
-  { _id: 'PAT005', name: 'Meena Raj', age: 38, gender: 'Female', phone: '9876543214', address: 'Coimbatore', condition: 'Weight Management', assignedDoctor: 'doc3', status: 'Active', leadSource: 'Instagram', date: dateBase - (dayMs * 10) },
-  { _id: 'PAT006', name: 'Vignesh Kumar', age: 31, gender: 'Male', phone: '9876543215', address: 'Pollachi', condition: 'Lifestyle Management', assignedDoctor: 'doc3', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 5) },
-  { _id: 'PAT007', name: 'Neha Sharma', age: 45, gender: 'Female', phone: '9876543216', address: 'Coimbatore', condition: 'Joint Pain', assignedDoctor: 'doc1', status: 'Completed Treatment', leadSource: 'Direct', date: dateBase - (dayMs * 25) },
-  { _id: 'PAT008', name: 'Rahul Das', age: 50, gender: 'Male', phone: '9876543217', address: 'Chennai', condition: 'Post-Op Recovery', assignedDoctor: 'doc2', status: 'Inactive', leadSource: 'Google', date: dateBase - (dayMs * 100) }
+  { _id: 'PAT001', name: 'Priya Menon', age: 29, gender: 'Female', phone: '9876543210', address: 'Coimbatore', condition: 'Digestive Wellness', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 30), totalSessions: 5, sessionsAttended: 3 },
+  { _id: 'PAT002', name: 'Arun Kumar', age: 42, gender: 'Male', phone: '9876543211', address: 'Pollachi', condition: 'Chronic Back Pain', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Google', date: dateBase - (dayMs * 45), totalSessions: 10, sessionsAttended: 10 },
+  { _id: 'PAT003', name: 'Kavya Krishnan', age: 35, gender: 'Female', phone: '9876543212', address: 'Coimbatore', condition: 'Stress and Sleep Management', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 60), totalSessions: 6, sessionsAttended: 6 },
+  { _id: 'PAT004', name: 'Suresh Ravi', age: 51, gender: 'Male', phone: '9876543213', address: 'Tiruppur', condition: 'Diabetes Wellness', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 15), totalSessions: 7, sessionsAttended: 4 },
+  { _id: 'PAT005', name: 'Meena Raj', age: 38, gender: 'Female', phone: '9876543214', address: 'Coimbatore', condition: 'Weight Management', assignedDoctor: 'doc3', status: 'Active', leadSource: 'Instagram', date: dateBase - (dayMs * 10), totalSessions: 10, sessionsAttended: 2 },
+  { _id: 'PAT006', name: 'Vignesh Kumar', age: 31, gender: 'Male', phone: '9876543215', address: 'Pollachi', condition: 'Lifestyle Management', assignedDoctor: 'doc3', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 5), totalSessions: 0, sessionsAttended: 0 },
+  { _id: 'PAT007', name: 'Neha Sharma', age: 45, gender: 'Female', phone: '9876543216', address: 'Coimbatore', condition: 'Joint Pain', assignedDoctor: 'doc1', status: 'Completed Treatment', leadSource: 'Direct', date: dateBase - (dayMs * 25), totalSessions: 10, sessionsAttended: 10 },
+  { _id: 'PAT008', name: 'Rahul Das', age: 50, gender: 'Male', phone: '9876543217', address: 'Chennai', condition: 'Post-Op Recovery', assignedDoctor: 'doc2', status: 'Inactive', leadSource: 'Google', date: dateBase - (dayMs * 100), totalSessions: 0, sessionsAttended: 0 }
 ];
 
 export const mockAppointments = [
@@ -60,7 +60,10 @@ export const mockConsultations = [
   { _id: 'CONS001', patientId: 'PAT001', doctorId: 'doc1', date: dateBase - (dayMs * 25), chiefComplaint: 'Severe bloating and indigestion after meals', history: 'Irregular eating habits, desk job', observations: 'Abdominal distension', diagnosis: 'Indigestion', treatmentPlan: 'Sattvic diet', dietAdvice: 'Avoid spicy food', followUpDate: new Date(dateBase - (dayMs * 15)).toISOString().split('T')[0] },
   { _id: 'CONS002', patientId: 'PAT003', doctorId: 'doc2', date: dateBase - (dayMs * 50), chiefComplaint: 'Severe insomnia', history: '6 months stress', observations: 'Anxious', diagnosis: 'Stress Insomnia', treatmentPlan: 'Yoga Nidra', dietAdvice: 'Warm milk at night', followUpDate: new Date(dateBase - (dayMs * 40)).toISOString().split('T')[0], addendums: [{ date: dateBase - (dayMs * 48), notes: 'Patient called, prescribed ashwagandha.' }] },
   { _id: 'CONS003', patientId: 'PAT003', doctorId: 'doc2', date: dateBase - (dayMs * 40), chiefComplaint: 'Follow up', history: 'Sleeping 4 hours now', observations: 'Calmer', diagnosis: 'Improving Insomnia', treatmentPlan: 'Continue Yoga', dietAdvice: 'Same', followUpDate: new Date(dateBase - (dayMs * 20)).toISOString().split('T')[0] },
-  { _id: 'CONS004', patientId: 'PAT007', doctorId: 'doc1', date: dateBase - (dayMs * 25), chiefComplaint: 'Knee pain', history: 'Osteoarthritis', observations: 'Crepitus', diagnosis: 'OA Knee', treatmentPlan: 'Mud therapy', dietAdvice: 'Calcium rich', followUpDate: '' }
+  { _id: 'CONS004', patientId: 'PAT007', doctorId: 'doc1', date: dateBase - (dayMs * 25), chiefComplaint: 'Knee pain', history: 'Osteoarthritis', observations: 'Crepitus', diagnosis: 'OA Knee', treatmentPlan: 'Mud therapy', dietAdvice: 'Calcium rich', followUpDate: '' },
+  { _id: 'CONS005', patientId: 'PAT001', doctorId: 'doc1', date: dateBase - (dayMs * 1), chiefComplaint: 'Digestion review', history: '', observations: 'Normal', diagnosis: 'Improving', treatmentPlan: 'Continue', dietAdvice: 'Same', followUpDate: '' },
+  { _id: 'CONS006', patientId: 'PAT002', doctorId: 'doc1', date: dateBase - (dayMs * 1), chiefComplaint: 'Back pain', history: '', observations: 'Stiffness', diagnosis: 'Spasm', treatmentPlan: 'Spine Care', dietAdvice: 'Hydration', followUpDate: '' },
+  { _id: 'CONS007', patientId: 'PAT003', doctorId: 'doc1', date: dateBase - (dayMs * 1), chiefComplaint: 'Stress review', history: '', observations: 'Calm', diagnosis: 'Good', treatmentPlan: 'Continue Yoga', dietAdvice: 'Same', followUpDate: '' }
 ];
 
 export const mockTherapies = [
@@ -91,7 +94,7 @@ export const mockTherapyAssignments = [
 export const mockTherapySessions = [
   { _id: 'SESS001', assignmentId: 'ASSIGN001', patientId: 'PAT001', doctorId: 'doc1', therapyId: 'ther4', therapyName: 'Mud Therapy', sessionNumber: 1, scheduledDate: new Date(dateBase - dayMs*10).toISOString().split('T')[0], status: 'Completed', notes: 'Patient responded well' },
   { _id: 'SESS002', assignmentId: 'ASSIGN001', patientId: 'PAT001', doctorId: 'doc1', therapyId: 'ther5', therapyName: 'Hydrotherapy', sessionNumber: 2, scheduledDate: new Date(dateBase - dayMs*8).toISOString().split('T')[0], status: 'Completed', notes: 'Felt relaxed' },
-  { _id: 'SESS003', assignmentId: 'ASSIGN001', patientId: 'PAT001', doctorId: 'doc1', therapyId: 'ther4', therapyName: 'Mud Therapy', sessionNumber: 3, scheduledDate: new Date(dateBase - dayMs*5).toISOString().split('T')[0], status: 'Completed', notes: 'Digestion improved' },
+  { _id: 'SESS003', assignmentId: 'ASSIGN001', patientId: 'PAT001', doctorId: 'doc1', therapyId: 'ther4', therapyName: 'Mud Therapy', sessionNumber: 3, scheduledDate: new Date(dateBase - dayMs*5).toISOString().split('T')[0], status: 'Missed', notes: 'Patient did not show up' },
   { _id: 'SESS004', assignmentId: 'ASSIGN001', patientId: 'PAT001', doctorId: 'doc1', therapyId: 'ther5', therapyName: 'Hydrotherapy', sessionNumber: 4, scheduledDate: new Date(dateBase + dayMs*1).toISOString().split('T')[0], status: 'Pending', notes: '' },
   { _id: 'SESS005', assignmentId: 'ASSIGN001', patientId: 'PAT001', doctorId: 'doc1', therapyId: 'ther4', therapyName: 'Mud Therapy', sessionNumber: 5, scheduledDate: new Date(dateBase + dayMs*3).toISOString().split('T')[0], status: 'Pending', notes: '' },
   { _id: 'SESS006', assignmentId: 'ASSIGN004', patientId: 'PAT004', doctorId: 'doc1', therapyId: 'ther6', therapyName: 'Yoga Session', sessionNumber: 1, scheduledDate: new Date(dateBase - dayMs*9).toISOString().split('T')[0], status: 'Completed', notes: '' },
@@ -105,7 +108,10 @@ export const mockTherapySessions = [
   { _id: 'SESS014', assignmentId: 'ASSIGN005', patientId: 'PAT005', doctorId: 'doc1', therapyId: 'ther5', therapyName: 'Hydrotherapy', sessionNumber: 3, scheduledDate: new Date(dateBase + dayMs*1).toISOString().split('T')[0], status: 'Pending', notes: '' },
   { _id: 'SESS015', assignmentId: 'ASSIGN005', patientId: 'PAT005', doctorId: 'doc1', therapyId: 'ther6', therapyName: 'Yoga Session', sessionNumber: 4, scheduledDate: new Date(dateBase + dayMs*3).toISOString().split('T')[0], status: 'Pending', notes: '' },
   { _id: 'SESS016', assignmentId: 'ASSIGN002', patientId: 'PAT002', doctorId: 'doc1', therapyId: 'ther1', therapyName: 'Acupuncture', sessionNumber: 10, scheduledDate: new Date(dateBase - dayMs*5).toISOString().split('T')[0], status: 'Completed', notes: 'Pain resolved' },
-  { _id: 'SESS017', assignmentId: 'ASSIGN003', patientId: 'PAT003', doctorId: 'doc1', therapyId: 'ther3', therapyName: 'Shirodhara', sessionNumber: 6, scheduledDate: new Date(dateBase - dayMs*2).toISOString().split('T')[0], status: 'Completed', notes: 'Sleeping well now' }
+  { _id: 'SESS017', assignmentId: 'ASSIGN003', patientId: 'PAT003', doctorId: 'doc1', therapyId: 'ther3', therapyName: 'Shirodhara', sessionNumber: 6, scheduledDate: new Date(dateBase - dayMs*2).toISOString().split('T')[0], status: 'Completed', notes: 'Sleeping well now' },
+  { _id: 'SESS018', assignmentId: 'ASSIGN001', patientId: 'PAT001', doctorId: 'doc1', therapyId: 'ther4', therapyName: 'Mud Therapy', sessionNumber: 6, scheduledDate: new Date(dateBase - dayMs*1).toISOString().split('T')[0], status: 'Completed', notes: '' },
+  { _id: 'SESS019', assignmentId: 'ASSIGN002', patientId: 'PAT002', doctorId: 'doc1', therapyId: 'ther1', therapyName: 'Acupuncture', sessionNumber: 11, scheduledDate: new Date(dateBase - dayMs*1).toISOString().split('T')[0], status: 'Completed', notes: '' },
+  { _id: 'SESS020', assignmentId: 'ASSIGN004', patientId: 'PAT004', doctorId: 'doc1', therapyId: 'ther6', therapyName: 'Yoga Session', sessionNumber: 7, scheduledDate: new Date(dateBase - dayMs*1).toISOString().split('T')[0], status: 'Completed', notes: '' }
 ];
 
 export const mockFollowUps = [
@@ -169,7 +175,7 @@ export const mockSocialSubmissions = [
 ];
 
 export const mockDailyReports = [
-  { _id: 'REP001', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*6, patientsSeen: 8, consultationsCompleted: 4, therapySessions: 6, followUpsCompleted: 3, revenue: 14500, closingStatus: 'Submitted', notes: 'Busy morning, smooth afternoon.' },
+  { _id: 'REP001', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*6, patientsSeen: 8, consultationsCompleted: 4, therapySessions: 6, followUpsCompleted: 3, revenue: 14500, closingStatus: 'Submitted', status: 'Reviewed', notes: 'Busy morning, smooth afternoon.', addendums: [{ date: dateBase - dayMs*5.5, notes: 'Forgot to mention we ran out of size 2 needles.' }] },
   { _id: 'REP002', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*5, patientsSeen: 6, consultationsCompleted: 3, therapySessions: 5, followUpsCompleted: 2, revenue: 11000, closingStatus: 'Submitted', notes: 'All appointments attended.' },
   { _id: 'REP003', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*4, patientsSeen: 9, consultationsCompleted: 5, therapySessions: 7, followUpsCompleted: 4, revenue: 18500, closingStatus: 'Submitted', notes: 'High patient inflow.' },
   { _id: 'REP004', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*3, patientsSeen: 7, consultationsCompleted: 4, therapySessions: 5, followUpsCompleted: 2, revenue: 12500, closingStatus: 'Submitted', notes: 'Normal day.' },

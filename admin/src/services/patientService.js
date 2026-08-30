@@ -45,6 +45,8 @@ export const patientService = {
     await delay();
     const newPatient = { 
       _id: "pat" + Date.now(), 
+      sessionCount: 0,
+      periodOfDays: patientData.periodOfDays || 14,
       ...patientData, 
       date: Date.now() 
     };
@@ -76,6 +78,34 @@ export const patientService = {
     if (idx === -1) throw new Error("Patient not found");
     
     state.patients[idx].status = status;
+    saveState();
+    return { success: true, patient: state.patients[idx] };
+  },
+
+  incrementSessionCount: async (id) => {
+    await delay();
+    const idx = state.patients.findIndex(p => p._id === id);
+    if (idx === -1) throw new Error("Patient not found");
+    
+    // Increment the sessionsAttended property (instead of sessionCount)
+    const newCount = (state.patients[idx].sessionsAttended || 0) + 1;
+    state.patients[idx].sessionsAttended = newCount;
+    
+    // Logic requirement: If 3 sessions are completed, automatically push to Follow-up
+    if (newCount === 3) {
+      const followUps = getStore('mockFollowUps', []);
+      followUps.push({
+        _id: 'fu_auto_' + Date.now(),
+        patientId: id,
+        date: Date.now() + (86400000 * 7), // 7 days from now
+        reason: 'Auto-triggered after 3 sessions completed',
+        status: 'Pending',
+        type: 'Routine',
+        notes: ''
+      });
+      saveStore('mockFollowUps', followUps);
+    }
+    
     saveState();
     return { success: true, patient: state.patients[idx] };
   },

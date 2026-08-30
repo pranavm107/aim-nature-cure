@@ -31,12 +31,12 @@ export const userService = {
     };
   },
 
-  addAdmin: async (name, email) => {
+  addUser: async (name, email, role) => {
     await delay();
     const generatedPassword = generatePassword();
     
     // Simulate email send
-    console.log(`[SIMULATED EMAIL] To: ${email} | Subject: Your new Admin Account | Body: Your password is ${generatedPassword}`);
+    console.log(`[SIMULATED EMAIL] To: ${email} | Subject: Your new Account | Body: Your password is ${generatedPassword}`);
 
     const users = getStore('mockUsers');
     users.push({
@@ -44,13 +44,13 @@ export const userService = {
       name,
       email,
       password: generatedPassword,
-      role: 'admin',
+      role: role || 'admin',
       mustChangePassword: true,
       status: 'Active'
     });
     setStore('mockUsers', users);
 
-    return { success: true, message: 'Admin added successfully', generatedPassword };
+    return { success: true, message: 'User added successfully', generatedPassword };
   },
 
   updateUserStatus: async (userId, newStatus) => {

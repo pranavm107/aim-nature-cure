@@ -79,7 +79,9 @@ const SidebarLink = ({ to, icon: Icon, label, isCollapsed = false, onClick }) =>
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { dToken } = useContext(DoctorContext);
-  const { aToken } = useContext(AdminContext);
+  const { aToken, adminPermissions } = useContext(AdminContext);
+
+  const hasPerm = (perm) => !aToken || (adminPermissions && adminPermissions.includes(perm));
 
   // Handle collapsed state (laptop screen 1024px-1279px)
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -105,34 +107,41 @@ const Sidebar = ({ isOpen, onClose }) => {
       </SidebarSection>
       
       <SidebarSection title="People" isCollapsed={isCollapsed}>
-        <SidebarLink to='/doctor-list' icon={Stethoscope} label='Doctors' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/add-doctor' icon={UserPlus} label='Add Doctor' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/patients' icon={Users} label='Patients' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/users' icon={Settings} label='User Mgmt' isCollapsed={isCollapsed} onClick={onClose} />
+        {hasPerm('manage_users') && <SidebarLink to='/doctor-list' icon={Stethoscope} label='Doctors' isCollapsed={isCollapsed} onClick={onClose} />}
+        {hasPerm('manage_users') && <SidebarLink to='/add-doctor' icon={UserPlus} label='Add Doctor' isCollapsed={isCollapsed} onClick={onClose} />}
+        {hasPerm('view_patients') && <SidebarLink to='/patients' icon={Users} label='Patients' isCollapsed={isCollapsed} onClick={onClose} />}
+        {hasPerm('manage_users') && <SidebarLink to='/admin/users' icon={Settings} label='User Mgmt' isCollapsed={isCollapsed} onClick={onClose} />}
+        {hasPerm('manage_roles') && <SidebarLink to='/admin/roles' icon={CheckSquare} label='Roles & Perms' isCollapsed={isCollapsed} onClick={onClose} />}
       </SidebarSection>
       
-      <SidebarSection title="Operations" isCollapsed={isCollapsed}>
-        <SidebarLink to='/all-appointments' icon={Calendar} label='Appointments' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/therapies' icon={Activity} label='Therapies' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/packages' icon={Package} label='Packages' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/follow-ups' icon={Clock} label='Follow-Ups' isCollapsed={isCollapsed} onClick={onClose} />
-      </SidebarSection>
+      {hasPerm('manage_appointments') && (
+        <SidebarSection title="Operations" isCollapsed={isCollapsed}>
+          <SidebarLink to='/all-appointments' icon={Calendar} label='Appointments' isCollapsed={isCollapsed} onClick={onClose} />
+          {hasPerm('manage_therapies') && <SidebarLink to='/admin/therapies' icon={Activity} label='Therapies' isCollapsed={isCollapsed} onClick={onClose} />}
+          {hasPerm('manage_therapies') && <SidebarLink to='/admin/packages' icon={Package} label='Packages' isCollapsed={isCollapsed} onClick={onClose} />}
+          <SidebarLink to='/admin/follow-ups' icon={Clock} label='Follow-Ups' isCollapsed={isCollapsed} onClick={onClose} />
+        </SidebarSection>
+      )}
       
-      <SidebarSection title="Financials" isCollapsed={isCollapsed}>
-        <SidebarLink to='/admin/invoices' icon={Receipt} label='Invoices' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/record-payment' icon={IndianRupee} label='Payments' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/revenue' icon={LineChart} label='Revenue' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/comparison' icon={BarChart} label='Comparisons' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/incentive-config' icon={Settings} label='Incentive Config' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/incentive-approval' icon={CheckCircle} label='Incentive Approval' isCollapsed={isCollapsed} onClick={onClose} />
-      </SidebarSection>
+      {hasPerm('manage_billing') && (
+        <SidebarSection title="Financials" isCollapsed={isCollapsed}>
+          <SidebarLink to='/admin/invoices' icon={Receipt} label='Invoices' isCollapsed={isCollapsed} onClick={onClose} />
+          <SidebarLink to='/admin/record-payment' icon={IndianRupee} label='Payments' isCollapsed={isCollapsed} onClick={onClose} />
+          <SidebarLink to='/admin/revenue' icon={LineChart} label='Revenue' isCollapsed={isCollapsed} onClick={onClose} />
+          <SidebarLink to='/admin/comparison' icon={BarChart} label='Comparisons' isCollapsed={isCollapsed} onClick={onClose} />
+          <SidebarLink to='/admin/incentive-config' icon={Settings} label='Incentive Config' isCollapsed={isCollapsed} onClick={onClose} />
+          <SidebarLink to='/admin/incentive-approval' icon={CheckCircle} label='Incentive Approval' isCollapsed={isCollapsed} onClick={onClose} />
+        </SidebarSection>
+      )}
       
-      <SidebarSection title="Reports" isCollapsed={isCollapsed}>
-        <SidebarLink to='/admin/leads' icon={FileText} label='Lead Sources' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/social-review' icon={Users} label='Social Media' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/daily-reports' icon={FileText} label='Daily Reports' isCollapsed={isCollapsed} onClick={onClose} />
-        <SidebarLink to='/admin/reports' icon={BarChart} label='General Reports' isCollapsed={isCollapsed} onClick={onClose} />
-      </SidebarSection>
+      {hasPerm('view_reports') && (
+        <SidebarSection title="Reports" isCollapsed={isCollapsed}>
+          <SidebarLink to='/admin/leads' icon={FileText} label='Lead Sources' isCollapsed={isCollapsed} onClick={onClose} />
+          <SidebarLink to='/admin/social-review' icon={Users} label='Social Media' isCollapsed={isCollapsed} onClick={onClose} />
+          <SidebarLink to='/admin/daily-reports' icon={FileText} label='Daily Reports' isCollapsed={isCollapsed} onClick={onClose} />
+          <SidebarLink to='/admin/reports' icon={BarChart} label='General Reports' isCollapsed={isCollapsed} onClick={onClose} />
+        </SidebarSection>
+      )}
     </div>
   );
 
