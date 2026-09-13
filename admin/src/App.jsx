@@ -121,8 +121,8 @@ const App = () => {
             <Route path='/patients' element={<PatientList />} />
             <Route path='/add-patient' element={<PatientRegistration />} />
             <Route path='/patient/:id' element={<PatientDetail />} />
-            <Route path='/patient/:id/case-sheet' element={<CaseSheet />} />
-            <Route path='/patient/:id/new-consultation' element={<NewConsultation />} />
+            <Route path='/patient/:id/case-sheet' element={<ProtectedRoute role="doctor"><CaseSheet /></ProtectedRoute>} />
+            <Route path='/patient/:id/new-consultation' element={<ProtectedRoute role="doctor"><NewConsultation /></ProtectedRoute>} />
 
         {/* Catch All */}
         <Route path='*' element={<Navigate to="/" />} />

@@ -1,23 +1,26 @@
 import React from 'react';
 import Modal from '../common/Modal';
 import { InputField, PrimaryButton } from '../common/FormFields';
-import { AVAILABLE_PERMISSIONS } from '../../services/rolesService';
+import { AVAILABLE_SCREENS } from '../../services/rolesService';
 
 const RoleModal = ({ isOpen, onClose, onSubmit, formData, setFormData, editingRole }) => {
-  const groupedPermissions = AVAILABLE_PERMISSIONS.reduce((acc, perm) => {
-    if (!acc[perm.group]) acc[perm.group] = [];
-    acc[perm.group].push(perm);
-    return acc;
-  }, {});
-
-  const handleTogglePermission = (permId) => {
+  const handlePermissionChange = (screen, type, value) => {
     setFormData(prev => {
-      const perms = [...prev.permissions];
-      if (perms.includes(permId)) {
-        return { ...prev, permissions: perms.filter(p => p !== permId) };
-      } else {
-        return { ...prev, permissions: [...perms, permId] };
-      }
+      const perms = prev.permissions || {};
+      const screenPerms = perms[screen] || { view: false, edit: false };
+      
+      const newScreenPerms = { ...screenPerms, [type]: value };
+      
+      if (type === 'edit' && value) newScreenPerms.view = true;
+      if (type === 'view' && !value) newScreenPerms.edit = false;
+
+      return {
+        ...prev,
+        permissions: {
+          ...perms,
+          [screen]: newScreenPerms
+        }
+      };
     });
   };
 
@@ -34,25 +37,36 @@ const RoleModal = ({ isOpen, onClose, onSubmit, formData, setFormData, editingRo
         
         <div>
           <label className="block text-sm font-bold text-slate-700 mb-3">Assign Permissions</label>
-          <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
-            {Object.entries(groupedPermissions).map(([group, perms]) => (
-              <div key={group} className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <h4 className="font-semibold text-slate-800 mb-3 border-b border-slate-200 pb-2">{group}</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {perms.map(p => (
-                    <label key={p.id} className="flex items-center gap-2 cursor-pointer hover:bg-white p-1 rounded transition-colors">
-                      <input 
-                        type="checkbox"
-                        className="w-4 h-4 text-primary rounded border-slate-300 focus:ring-primary/20"
-                        checked={formData.permissions.includes(p.id)}
-                        onChange={() => handleTogglePermission(p.id)}
-                      />
-                      <span className="text-sm text-slate-700 font-medium">{p.name}</span>
-                    </label>
-                  ))}
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2">
+            <div className="grid grid-cols-3 gap-2 px-3 py-2 bg-slate-50 text-xs font-semibold text-slate-500 uppercase rounded-t-lg">
+              <div>Screen</div>
+              <div className="text-center">View</div>
+              <div className="text-center">Edit</div>
+            </div>
+            {AVAILABLE_SCREENS.map((screen) => {
+              const perms = (formData.permissions && formData.permissions[screen]) || { view: false, edit: false };
+              return (
+                <div key={screen} className="grid grid-cols-3 gap-2 px-3 py-2 border-b border-slate-100 items-center">
+                  <div className="text-sm text-slate-700 font-medium">{screen}</div>
+                  <div className="flex justify-center">
+                    <input 
+                      type="checkbox"
+                      className="w-4 h-4 text-primary rounded border-slate-300"
+                      checked={perms.view}
+                      onChange={(e) => handlePermissionChange(screen, 'view', e.target.checked)}
+                    />
+                  </div>
+                  <div className="flex justify-center">
+                    <input 
+                      type="checkbox"
+                      className="w-4 h-4 text-primary rounded border-slate-300"
+                      checked={perms.edit}
+                      onChange={(e) => handlePermissionChange(screen, 'edit', e.target.checked)}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

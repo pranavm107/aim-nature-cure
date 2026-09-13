@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import therapyService from '../../services/therapyService';
 import { toast } from 'react-toastify';
+import { useTableFeatures } from '../../hooks/useTableFeatures';
+import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 const Therapies = () => {
   const [therapies, setTherapies] = useState([]);
@@ -69,6 +71,20 @@ const Therapies = () => {
     }
   };
 
+  const {
+    searchTerm, setSearchTerm,
+    filters, handleFilterChange,
+    sortConfig, handleSort,
+    processedData
+  } = useTableFeatures(therapies, ['name'], { key: 'name', direction: 'asc' });
+
+  const renderSortIcon = (key) => {
+    if (sortConfig?.key === key) {
+      return sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1 inline" /> : <ArrowDown className="w-3 h-3 ml-1 inline" />;
+    }
+    return <ArrowUpDown className="w-3 h-3 ml-1 inline text-slate-300" />;
+  };
+
   if (loading) return <div className="p-5">Loading...</div>;
 
   return (
@@ -78,19 +94,43 @@ const Therapies = () => {
         <button onClick={() => openModal()} className="bg-primary text-white px-4 py-2 rounded">Add New Therapy</button>
       </div>
 
+      <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-80">
+            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input 
+              type="text"
+              placeholder="Search by therapy name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border border-slate-200 rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm"
+            />
+          </div>
+          <select
+            value={filters.status !== undefined ? filters.status : 'All'}
+            onChange={(e) => handleFilterChange('status', e.target.value === 'All' ? 'All' : e.target.value === 'true')}
+            className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          >
+            <option value="All">All Statuses</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+      </div>
+
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mt-6">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
-              <th className="p-4 font-semibold text-slate-700 text-sm">Name</th>
-              <th className="p-4 font-semibold text-slate-700 text-sm">Duration (mins)</th>
-              <th className="p-4 font-semibold text-slate-700 text-sm">Price ($)</th>
-              <th className="p-4 font-semibold text-slate-700 text-sm">Status</th>
+              <th className="p-4 font-semibold text-slate-700 text-sm cursor-pointer" onClick={() => handleSort('name')}>Name {renderSortIcon('name')}</th>
+              <th className="p-4 font-semibold text-slate-700 text-sm cursor-pointer" onClick={() => handleSort('duration')}>Duration (mins) {renderSortIcon('duration')}</th>
+              <th className="p-4 font-semibold text-slate-700 text-sm cursor-pointer" onClick={() => handleSort('price')}>Price ($) {renderSortIcon('price')}</th>
+              <th className="p-4 font-semibold text-slate-700 text-sm cursor-pointer" onClick={() => handleSort('status')}>Status {renderSortIcon('status')}</th>
               <th className="p-4 font-semibold text-slate-700 text-sm">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {therapies.map((item) => (
+            {processedData.map((item) => (
               <tr key={item._id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors text-sm text-slate-600">
                 <td className="p-4 font-medium text-slate-800">{item.name}</td>
                 <td className="p-4">{item.duration}</td>
@@ -108,7 +148,7 @@ const Therapies = () => {
                 </td>
               </tr>
             ))}
-            {therapies.length === 0 && (
+            {processedData.length === 0 && (
               <tr>
                 <td colSpan="5" className="p-8 text-center text-slate-500">No therapies found</td>
               </tr>

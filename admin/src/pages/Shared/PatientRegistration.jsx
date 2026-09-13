@@ -53,8 +53,25 @@ const PatientRegistration = () => {
     }
   }, [aToken, dToken, profileData]);
 
+  const calculateAge = (dobString) => {
+    if (!dobString) return '';
+    const today = new Date();
+    const birthDate = new Date(dobString);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let updates = { [name]: value };
+    if (name === 'dob') {
+      updates.age = calculateAge(value);
+    }
+    setFormData(prev => ({ ...prev, ...updates }));
   };
 
   const handleSubmit = async (e) => {
@@ -119,9 +136,31 @@ const PatientRegistration = () => {
             onChange={handleChange} 
             required 
           />
+          <InputField 
+            label="Age (Derived)" 
+            type="number"
+            name="age"
+            value={formData.age || ''} 
+            disabled 
+            className="bg-slate-50"
+          />
         </div>
 
         <div className='flex flex-col lg:flex-row gap-6'>
+          <InputField 
+            label="Height (cm)" 
+            name="height"
+            value={formData.height || ''} 
+            onChange={handleChange} 
+            placeholder="e.g. 165" 
+          />
+          <InputField 
+            label="Weight (kg)" 
+            name="weight"
+            value={formData.weight || ''} 
+            onChange={handleChange} 
+            placeholder="e.g. 60" 
+          />
           <SelectField 
             label="Gender" 
             name="gender"
@@ -133,6 +172,9 @@ const PatientRegistration = () => {
               { label: 'Other', value: 'Other' }
             ]}
           />
+        </div>
+
+        <div className='flex flex-col lg:flex-row gap-6'>
           <InputField 
             label="Lead Source" 
             name="leadSource"
@@ -140,9 +182,6 @@ const PatientRegistration = () => {
             onChange={handleChange} 
             placeholder="e.g. Google, Referral" 
           />
-        </div>
-
-        <div className='flex flex-col lg:flex-row gap-6'>
           {aToken ? (
             <SelectField 
               label="Assigned Doctor" 
@@ -160,7 +199,6 @@ const PatientRegistration = () => {
               className="bg-gray-50"
             />
           )}
-          
           <SelectField 
             label="Status" 
             name="status"
@@ -184,7 +222,7 @@ const PatientRegistration = () => {
           />
         </div>
 
-        <div className='flex flex-col gap-6'>
+        <div className='flex flex-col lg:flex-row gap-6'>
           <InputField 
             label="Period of Days (Treatment cycle duration)" 
             type="number"
@@ -192,6 +230,15 @@ const PatientRegistration = () => {
             value={formData.periodOfDays} 
             onChange={handleChange} 
             required 
+          />
+          <InputField 
+            label="Sessions" 
+            type="number"
+            name="sessions"
+            value={formData.sessions || ''} 
+            onChange={handleChange} 
+            required 
+            placeholder="Number of sessions"
           />
         </div>
 

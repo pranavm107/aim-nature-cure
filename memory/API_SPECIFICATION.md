@@ -238,10 +238,11 @@ No server-side WhatsApp API integration needed for V1 — the `wa.me` link opens
 
 | Method | Endpoint | Purpose | Role |
 |---|---|---|---|
-| POST | `/daily-reports` | Submit end-of-day summary `[FR-105]` | Doctor |
+| POST | `/daily-reports` | Submit end-of-day summary including `boxCash` `[FR-105]` | Doctor |
 | GET | `/daily-reports?doctorId=&date=` | View a submitted report | Both |
-| PATCH | `/daily-reports/:id/review` | Admin comment/flag `[FR-108]` | Admin |
+| PATCH | `/daily-reports/:id/review` | Admin comment/flag | Admin |
 | GET | `/daily-reports/pending-review` | Reports awaiting Admin review | Admin |
+| GET | `/daily-reports/aggregate?date=` | Admin view of aggregated stats by date, including total `boxCash` | Admin |
 
 ### Reporting & Analytics (read-only aggregation layer)
 
