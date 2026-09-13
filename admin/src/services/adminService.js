@@ -75,7 +75,6 @@ export const adminService = {
       experience: formData.get('experience'),
       about: formData.get('about'),
       fees: Number(formData.get('fees')),
-      salary: Number(formData.get('salary')) || 0,
       address: JSON.parse(formData.get('address')),
       date: Date.now(),
       slots_booked: {},

@@ -144,6 +144,13 @@ Companion to the PRD, Gap Analysis, and Implementation Roadmap. Organized by mod
 | GET | `/revenue/doctors/:doctorId?period=today\|week\|month` | Revenue for one doctor from **paid** amounts only `[FR-062, FR-063, BR-09]` | Both — Doctor can only query self |
 | GET | `/revenue/doctors?period=` | Comparative doctor-wise revenue report `[FR-064, FR-066]` | Admin |
 | GET | `/revenue/doctors/:doctorId/breakdown` | One doctor's revenue by patient and service type `[FR-065]` | Both — Doctor self only |
+### Future Salary/Incentive Phase 1 backend specification
+*(Note: The following endpoints represent the future Phase 1 backend implementation and are separated from the current active endpoints)*
+
+| GET | `/doctors/:id/salary` | Get doctor's current active salary | Both — Doctor self only |
+| GET | `/doctors/:id/salary-history` | Get doctor's salary history | Both — Doctor self only |
+| POST | `/doctors/:id/salary` | Set a new salary for a doctor (maintains history) | Admin |
+
 | GET | `/incentive-rules` | List all incentive rules/targets | Admin |
 | POST | `/incentive-rules` | Create a target + percentage rule for a doctor, with effective date `[FR-068]` `[BR-04, BR-05]` | Admin |
 | PUT | `/incentive-rules/:id` | Update a rule | Admin |

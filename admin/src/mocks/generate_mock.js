@@ -17,6 +17,13 @@ const mockDoctors = [
   }
 ];
 
+const mockSalaries = [
+  { _id: 'sal_1', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', salaryAmount: 40000, effectiveFrom: '2026-08-01', status: 'Historical', createdAt: dateBase - (dayMs * 45), createdBy: 'Admin' },
+  { _id: 'sal_2', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', salaryAmount: 45000, effectiveFrom: '2026-09-01', status: 'Current', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' },
+  { _id: 'sal_3', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', salaryAmount: 50000, effectiveFrom: '2026-09-01', status: 'Current', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' },
+  { _id: 'sal_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', salaryAmount: 42000, effectiveFrom: '2026-09-01', status: 'Current', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' }
+];
+
 const mockProfile = {
   admin: { name: 'Admin', email: 'admin@aimnaturecure.com', role: 'admin', image: '' },
   doctor: { name: 'Dr. Ananya Sharma', email: 'doctor@aimnaturecure.com', role: 'doctor', speciality: 'Naturopathy & Diet', _id: 'doc1', image: '' }
@@ -150,14 +157,7 @@ const mockPayments = mockInvoices.map(inv => ({
   _id: 'PAY_' + inv._id, invoiceId: inv._id, patientId: inv.patientId, amount: inv.paidAmount, mode: 'UPI', date: inv.date, transactionId: 'TXN' + Math.floor(Math.random()*10000000)
 }));
 
-const mockIncentives = [
-  { _id: 'INC001', docId: 'doc1', doctorId: 'doc1', period: '2026-03', totalRevenue: 82500, target: 75000, percentage: 5, calculatedAmount: 4125, status: 'Approved', date: dateBase - dayMs*150 },
-  { _id: 'INC002', docId: 'doc1', doctorId: 'doc1', period: '2026-04', totalRevenue: 91000, target: 80000, percentage: 5, calculatedAmount: 4550, status: 'Approved', date: dateBase - dayMs*120 },
-  { _id: 'INC003', docId: 'doc1', doctorId: 'doc1', period: '2026-05', totalRevenue: 85000, target: 80000, percentage: 5, calculatedAmount: 4250, status: 'Approved', date: dateBase - dayMs*90 },
-  { _id: 'INC004', docId: 'doc1', doctorId: 'doc1', period: '2026-06', totalRevenue: 95000, target: 80000, percentage: 5, calculatedAmount: 4750, status: 'Approved', date: dateBase - dayMs*60 },
-  { _id: 'INC005', docId: 'doc1', doctorId: 'doc1', period: '2026-07', totalRevenue: 105000, target: 90000, percentage: 5, calculatedAmount: 5250, status: 'Approved', date: dateBase - dayMs*30 },
-  { _id: 'INC006', docId: 'doc1', doctorId: 'doc1', period: '2026-08', totalRevenue: 41600, target: 90000, percentage: 5, calculatedAmount: 2080, status: 'Pending', date: dateBase }
-];
+
 
 const mockSocialSubmissions = [
   { _id: 'SOC001', docId: 'doc1', platform: 'Instagram', title: 'Top 5 Detox Diets', description: 'A short reel on naturopathy detox basics', link: 'https://instagram.com/aimnaturecure/reel1', type: 'Video', status: 'Approved', date: dateBase - dayMs*30, reviewNote: 'Great engagement!' },
@@ -203,6 +203,7 @@ const exportStr = \`
 import { assets } from '../assets/assets'
 
 export const mockDoctors = \${JSON.stringify(mockDoctors, null, 2).replace(/\\"assets\\.doc\\d\\"/g, 'assets.doc1')};
+export const mockSalaries = \${JSON.stringify(mockSalaries, null, 2)};
 export const mockProfile = \${JSON.stringify(mockProfile, null, 2)};
 export const mockCredentials = \${JSON.stringify(mockCredentials, null, 2)};
 export const mockPatients = \${JSON.stringify(mockPatients, null, 2)};
@@ -216,14 +217,13 @@ export const mockFollowUps = \${JSON.stringify(mockFollowUps, null, 2)};
 export const mockTasks = \${JSON.stringify(mockTasks, null, 2)};
 export const mockInvoices = \${JSON.stringify(mockInvoices, null, 2)};
 export const mockPayments = \${JSON.stringify(mockPayments, null, 2)};
-export const mockIncentives = \${JSON.stringify(mockIncentives, null, 2)};
+
 export const mockSocialSubmissions = \${JSON.stringify(mockSocialSubmissions, null, 2)};
 export const mockDailyReports = \${JSON.stringify(mockDailyReports, null, 2)};
 export const mockDoctorNotes = \${JSON.stringify(mockDoctorNotes, null, 2)};
 export const mockPatientDocuments = \${JSON.stringify(mockPatientDocuments, null, 2)};
 export const mockLeads = \${JSON.stringify(mockLeads, null, 2)};
-// Fallbacks for missing exports that might crash Admin components
-export const mockIncentiveRules = [];
+
 \`;
 
 fs.writeFileSync('mockData.js', exportStr.trim());

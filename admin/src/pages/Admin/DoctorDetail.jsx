@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import { adminService } from '../../services/adminService';
+import { salaryService } from '../../services/salaryService';
 import { toast } from 'react-toastify';
 import { Edit } from 'lucide-react';
 import { InputField, SelectField, TextareaField } from '../../components/common/FormFields';
@@ -11,10 +12,29 @@ const DoctorDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
+  const [currentSalary, setCurrentSalary] = useState(null);
+  const [salaryHistory, setSalaryHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({});
+
+  const [salaryModalOpen, setSalaryModalOpen] = useState(false);
+  const [salaryFormData, setSalaryFormData] = useState({ amount: '', effectiveFrom: '' });
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+
+  const fetchSalary = async () => {
+    try {
+      const res = await salaryService.getCurrentSalary(id);
+      if (res.success) setCurrentSalary(res.salary);
+      else setCurrentSalary(null);
+      
+      const histRes = await salaryService.getSalaryHistory(id);
+      if (histRes.success) setSalaryHistory(histRes.history);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchDoctor = async () => {
     setLoading(true);
@@ -22,6 +42,7 @@ const DoctorDetail = () => {
       const res = await adminService.getDoctorById(id);
       if (res.success) {
         setDoctor(res.doctor);
+        await fetchSalary();
       } else {
         toast.error("Doctor not found");
         navigate('/doctor-list');
@@ -73,6 +94,22 @@ const DoctorDetail = () => {
       }
     } catch (err) {
       toast.error("Error updating doctor");
+    }
+  };
+
+  const handleSalarySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await salaryService.setSalary(id, doctor.name, salaryFormData.amount, salaryFormData.effectiveFrom);
+      if (res.success) {
+        toast.success(res.message);
+        setSalaryModalOpen(false);
+        fetchSalary();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err) {
+      toast.error("Error setting salary");
     }
   };
 
@@ -156,6 +193,37 @@ const DoctorDetail = () => {
         </div>
       </div>
 
+      {/* Salary Section */}
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-3xl mt-6">
+        <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-2">
+          <h2 className="text-lg font-semibold text-slate-800">Salary Information</h2>
+          <button onClick={() => {
+            setSalaryFormData({ amount: currentSalary?.salaryAmount || '', effectiveFrom: new Date().toISOString().split('T')[0] });
+            setSalaryModalOpen(true);
+          }} className="px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary/90 text-xs font-medium transition-colors">
+            Set Salary
+          </button>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <p className="text-slate-500 text-sm mb-1">Current Monthly Salary</p>
+            <p className="text-2xl font-bold text-slate-800">
+              {currentSalary ? `₹${currentSalary.salaryAmount.toLocaleString('en-IN')}` : 'Not Set'}
+            </p>
+            {currentSalary && (
+              <p className="text-xs text-slate-500 mt-1">
+                Effective From: {new Date(currentSalary.effectiveFrom).toLocaleDateString('en-GB')}
+              </p>
+            )}
+          </div>
+          
+          <button onClick={() => setHistoryModalOpen(true)} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors">
+            View Salary History
+          </button>
+        </div>
+      </div>
+
       {editModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
@@ -185,6 +253,81 @@ const DoctorDetail = () => {
                 <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-sm font-medium transition-colors">Save Changes</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Set Salary Modal */}
+      {salaryModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="text-lg font-semibold text-slate-800">Set Doctor Salary</h3>
+              <button onClick={() => setSalaryModalOpen(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+            </div>
+            
+            <form onSubmit={handleSalarySubmit} className="p-6">
+              <div className="mb-4">
+                <p className="text-sm font-medium text-slate-500 mb-1">Doctor</p>
+                <p className="text-base text-slate-800 font-medium">{doctor.name}</p>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                <InputField label="Monthly Salary (₹)" type="number" min="1" value={salaryFormData.amount} onChange={e => setSalaryFormData({...salaryFormData, amount: e.target.value})} required />
+                <InputField label="Effective From" type="date" value={salaryFormData.effectiveFrom} onChange={e => setSalaryFormData({...salaryFormData, effectiveFrom: e.target.value})} required />
+              </div>
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
+                <button type="button" onClick={() => setSalaryModalOpen(false)} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-sm font-medium transition-colors">Set Salary</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Salary History Modal */}
+      {historyModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl overflow-hidden max-h-[80vh] flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="text-lg font-semibold text-slate-800">Salary History - {doctor.name}</h3>
+              <button onClick={() => setHistoryModalOpen(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto">
+              {salaryHistory.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200">
+                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase">Effective From</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase">Salary</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase">Status</th>
+                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase">Set By</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {salaryHistory.map(record => (
+                        <tr key={record._id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
+                          <td className="py-3 px-4 text-sm text-slate-700">{new Date(record.effectiveFrom).toLocaleDateString('en-GB')}</td>
+                          <td className="py-3 px-4 text-sm font-medium text-slate-800">₹{record.salaryAmount.toLocaleString('en-IN')}</td>
+                          <td className="py-3 px-4 text-sm">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${record.status === 'Current' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                              {record.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-sm text-slate-600">{record.createdBy}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-center text-slate-500 py-8">No salary history available.</p>
+              )}
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+              <button onClick={() => setHistoryModalOpen(false)} className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 text-sm font-medium transition-colors">Close</button>
+            </div>
           </div>
         </div>
       )}

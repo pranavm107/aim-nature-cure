@@ -6,20 +6,27 @@ const dayMs = 86400000;
 export const mockDoctors = [
   {
     _id: 'doc1', name: 'Dr. Ananya Sharma', speciality: 'Naturopathy & Diet',
-    degree: 'BNYS', experience: '8 Years', fees: 1500, salary: 80000, address: { line1: 'Wellness Wing', line2: 'AIM Nature Cure' },
+    degree: 'BNYS', experience: '8 Years', fees: 1500, address: { line1: 'Wellness Wing', line2: 'AIM Nature Cure' },
     date: dateBase - (dayMs * 365), available: true, image: assets.doc1 || ''
   },
   {
     _id: 'doc2', name: 'Dr. Rahul Menon', speciality: 'Acupuncture & Yoga',
-    degree: 'BNYS', experience: '5 Years', fees: 1200, salary: 60000, address: { line1: 'Therapy Block', line2: 'AIM Nature Cure' },
+    degree: 'BNYS', experience: '5 Years', fees: 1200, address: { line1: 'Therapy Block', line2: 'AIM Nature Cure' },
     date: dateBase - (dayMs * 300), available: true, image: assets.doc2 || ''
   }
 , 
   {
     _id: 'doc3', name: 'Dr. Vikram Singh', speciality: 'Physiotherapy',
-    degree: 'BPT', experience: '10 Years', fees: 1400, salary: 90000, address: { line1: 'Rehab Center', line2: 'AIM Nature Cure' },
+    degree: 'BPT', experience: '10 Years', fees: 1400, address: { line1: 'Rehab Center', line2: 'AIM Nature Cure' },
     date: dateBase - (dayMs * 400), available: true, image: ''
   }
+];
+
+export const mockSalaries = [
+  { _id: 'sal_1', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', salaryAmount: 40000, effectiveFrom: '2026-08-01', status: 'Historical', createdAt: dateBase - (dayMs * 45), createdBy: 'Admin' },
+  { _id: 'sal_2', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', salaryAmount: 45000, effectiveFrom: '2026-09-01', status: 'Current', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' },
+  { _id: 'sal_3', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', salaryAmount: 50000, effectiveFrom: '2026-09-01', status: 'Current', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' },
+  { _id: 'sal_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', salaryAmount: 42000, effectiveFrom: '2026-09-01', status: 'Current', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' }
 ];
 
 export const mockProfile = {
@@ -157,14 +164,7 @@ export const mockPayments = mockInvoices.map(inv => ({
   _id: 'PAY_' + inv._id, invoiceId: inv._id, patientId: inv.patientId, amount: inv.paidAmount, mode: 'UPI', date: inv.date, transactionId: 'TXN' + Math.floor(Math.random()*10000000)
 }));
 
-export const mockIncentives = [
-  { _id: 'INC001', docId: 'doc1', doctorId: 'doc1', period: '2026-03', totalRevenue: 82500, target: 75000, percentage: 5, calculatedAmount: 4125, status: 'Approved', date: dateBase - dayMs*150 },
-  { _id: 'INC002', docId: 'doc1', doctorId: 'doc1', period: '2026-04', totalRevenue: 91000, target: 80000, percentage: 5, calculatedAmount: 4550, status: 'Approved', date: dateBase - dayMs*120 },
-  { _id: 'INC003', docId: 'doc1', doctorId: 'doc1', period: '2026-05', totalRevenue: 85000, target: 80000, percentage: 5, calculatedAmount: 4250, status: 'Approved', date: dateBase - dayMs*90 },
-  { _id: 'INC004', docId: 'doc1', doctorId: 'doc1', period: '2026-06', totalRevenue: 95000, target: 80000, percentage: 5, calculatedAmount: 4750, status: 'Approved', date: dateBase - dayMs*60 },
-  { _id: 'INC005', docId: 'doc1', doctorId: 'doc1', period: '2026-07', totalRevenue: 105000, target: 90000, percentage: 5, calculatedAmount: 5250, status: 'Approved', date: dateBase - dayMs*30 },
-  { _id: 'INC006', docId: 'doc1', doctorId: 'doc1', period: '2026-08', totalRevenue: 41600, target: 90000, percentage: 5, calculatedAmount: 2080, status: 'Pending', date: dateBase }
-];
+
 
 export const mockSocialSubmissions = [
   { _id: 'SOC001', docId: 'doc1', doctorId: 'doc1', platform: 'Instagram', title: 'Top 5 Detox Diets', description: 'A short reel on naturopathy detox basics', link: 'https://instagram.com/aimnaturecure/reel1', type: 'Video', status: 'Approved', date: dateBase - dayMs*30, reviewNote: 'Great engagement!' },
@@ -206,9 +206,7 @@ export const mockLeads = [
   { _id: 'lead1', name: 'Ramesh Singh', phone: '9112223333', source: 'Instagram', status: 'New', notes: 'Interested in detox package.', date: dateBase - dayMs*2 }
 ];
 
-export const mockIncentiveRules = [
-  { _id: 'rule1', docId: 'doc1', targetAmount: 75000, percentage: 5, effectiveDate: '2026-01-01', date: dateBase - dayMs*200 }
-];
+
 
 
 export const mockCaseSheets = [

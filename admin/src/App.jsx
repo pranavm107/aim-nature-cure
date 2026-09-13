@@ -31,11 +31,11 @@ import InvoiceList from './pages/Admin/InvoiceList';
 import InvoiceDetail from './pages/Admin/InvoiceDetail';
 import DoctorRevenue from './pages/Admin/DoctorRevenue';
 import DoctorComparison from './pages/Admin/DoctorComparison';
-import IncentiveConfig from './pages/Admin/IncentiveConfig';
-import IncentiveApproval from './pages/Admin/IncentiveApproval';
+
 import AdminFollowUpOverview from './pages/Admin/AdminFollowUpOverview';
 import MyRevenue from './pages/Doctor/MyRevenue';
-import MyIncentive from './pages/Doctor/MyIncentive';
+import MySalary from './pages/Doctor/MySalary';
+
 import FollowUpList from './pages/Doctor/FollowUpList';
 import Leads from './pages/Admin/Leads';
 import SocialReview from './pages/Admin/SocialReview';
@@ -93,8 +93,7 @@ const App = () => {
             {/* Payment is handled via modal inside InvoiceDetail */}
             <Route path='/admin/revenue' element={<ProtectedRoute role="admin"><DoctorRevenue /></ProtectedRoute>} />
             <Route path='/admin/comparison' element={<ProtectedRoute role="admin"><DoctorComparison /></ProtectedRoute>} />
-            <Route path='/admin/incentive-config' element={<ProtectedRoute role="admin"><IncentiveConfig /></ProtectedRoute>} />
-            <Route path='/admin/incentive-approval' element={<ProtectedRoute role="admin"><IncentiveApproval /></ProtectedRoute>} />
+
             <Route path='/admin/follow-ups' element={<ProtectedRoute role="admin"><AdminFollowUpOverview /></ProtectedRoute>} />
             <Route path='/admin/leads' element={<ProtectedRoute role="admin"><Leads /></ProtectedRoute>} />
             <Route path='/admin/social-review' element={<ProtectedRoute role="admin"><SocialReview /></ProtectedRoute>} />
@@ -109,7 +108,8 @@ const App = () => {
             <Route path='/doctor/therapy-assignment' element={<ProtectedRoute role="doctor"><TherapyAssignment /></ProtectedRoute>} />
             <Route path='/doctor/therapy-sessions' element={<ProtectedRoute role="doctor"><TherapySessions /></ProtectedRoute>} />
             <Route path='/doctor/revenue' element={<ProtectedRoute role="doctor"><MyRevenue /></ProtectedRoute>} />
-            <Route path='/doctor/incentive' element={<ProtectedRoute role="doctor"><MyIncentive /></ProtectedRoute>} />
+            <Route path='/doctor/salary' element={<ProtectedRoute role="doctor"><MySalary /></ProtectedRoute>} />
+
             <Route path='/doctor/follow-ups' element={<ProtectedRoute role="doctor"><FollowUpList /></ProtectedRoute>} />
             <Route path='/doctor/social-submission' element={<ProtectedRoute role="doctor"><SocialSubmission /></ProtectedRoute>} />
             <Route path='/doctor/notes' element={<ProtectedRoute role="doctor"><DoctorNotes /></ProtectedRoute>} />

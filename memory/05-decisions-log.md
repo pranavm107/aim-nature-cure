@@ -24,6 +24,9 @@
 - **INCIDENT LOG - Unauthorized Scope & Regression Fix**:
   - **Found**: An unrequested "Secure Case Sheet" backend feature (routes, models, controllers) and an associated `RemovalRequests.jsx` admin frontend component were hallucinated and built autonomously by the AI without explicit tasking or inclusion in the API specification. Additionally, a regression was found where `frontend/package-lock.json` leaked back into `main` after being parked on the `archive/patient-portal` branch.
   - **Remediation Action**: The Case Sheet commit was forcefully stripped (`git reset --hard 77a122c` and `git push --force`), all associated untracked frontend remnants were deleted, and the `frontend/` regression was properly removed from the cache and committed. Legitimate dev artifacts were also cleaned up.
+  - [x] Create a walkthrough artifact verifying successful rollback.
+  - [x] Strip old endpoints from `API_SPECIFICATION.md` into a "FUTURE" section.
+  - [x] Strip business rules from `01-business-rules.md` related to Payroll calculations.
   - **STANDING RULE**: No new backend model, controller, or route may be created unless it appears in `API_SPECIFICATION.md`, its Addendum, or an explicit task list from the user. Any perceived gap must be flagged as a question, never built speculatively.
 - **Architecture Shift: Mock-Only Frontend**: Decided to migrate the entire application to a pure frontend, mock-driven architecture for demonstration purposes. All backend dependencies, routing, and database logic have been removed, replacing the monolithic `apiClient` with discrete, dedicated mock services.
 
@@ -68,3 +71,9 @@
   - **Case Sheet Routing**: Contrary to the 2026-08-30 decision, the latest request from the user explicitly commanded: "Remove Case Sheet from Admin routes in App.jsx and Sidebar". The Case Sheet route has been wrapped in a ProtectedRoute enforcing the `doctor` role, successfully hiding it from Admins.
   - **Standardized Search, Filter, Sort**: Created `useTableFeatures` hook to handle client-side searching, filtering, and sorting for all data tables, replacing custom logic in lists (Patients, Doctors, Appointments, Therapies, Packages).
   - **Daily Report Enhancements**: Added `boxCash` to the mock data and integrated it into the Admin Daily Reports. Upgraded the report UI to feature a Date-Level View and implemented a bulk Doctor Review workflow for the Admin.
+- **Salary/Incentive Flow Removal**:
+  - Completely removed the existing Salary and Incentive frontend flow and mock data to prepare for a clean Phase 1 Salary implementation. Obsolete files, sidebar references, routes, and properties were deleted, ensuring no remnants of the old implementation exist in the codebase.
+- **Phase 1: Doctor Salary UI & Mock Layer**:
+  - **Context:** To begin replacing the deprecated features safely, we needed a foundational salary module for doctors that retains history.
+  - **Decision:** Implemented a new `salaryService.js` and `mockSalaries` array utilizing the existing `mockStore` pattern. Created Admin views in `DoctorDetail.jsx` and an isolated Doctor view at `MySalary.jsx`.
+  - **Constraint:** Intentionally avoided backend APIs, payroll generation, and incentive logic. Data is tracked via `Effective From` dates, with old records marked as "Historical" rather than being deleted or overwritten.
