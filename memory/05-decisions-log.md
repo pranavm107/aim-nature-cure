@@ -62,3 +62,9 @@
   - **Daily Report**: Per-date review status is required; per-patient-row is optional if straightforward, do not block on it.
   - **Appointment Edit Lock**: Once Completed, lock Doctor/Patient/Date/Time/Fees; allow notes/addendum only.
   - **Finite Add/Edit/View List Confirmed**: Users, Doctors, Appointments, Patients, Therapies, Packages, Follow-Ups. Invoices/Leads/Incentives explicitly out of scope for this pass.
+
+## 2026-09-13
+- **Phase 4 to 8 Completion**:
+  - **Case Sheet Routing**: Contrary to the 2026-08-30 decision, the latest request from the user explicitly commanded: "Remove Case Sheet from Admin routes in App.jsx and Sidebar". The Case Sheet route has been wrapped in a ProtectedRoute enforcing the `doctor` role, successfully hiding it from Admins.
+  - **Standardized Search, Filter, Sort**: Created `useTableFeatures` hook to handle client-side searching, filtering, and sorting for all data tables, replacing custom logic in lists (Patients, Doctors, Appointments, Therapies, Packages).
+  - **Daily Report Enhancements**: Added `boxCash` to the mock data and integrated it into the Admin Daily Reports. Upgraded the report UI to feature a Date-Level View and implemented a bulk Doctor Review workflow for the Admin.

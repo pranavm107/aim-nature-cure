@@ -6,18 +6,18 @@ const dayMs = 86400000;
 export const mockDoctors = [
   {
     _id: 'doc1', name: 'Dr. Ananya Sharma', speciality: 'Naturopathy & Diet',
-    degree: 'BNYS', experience: '8 Years', fees: 1500, address: { line1: 'Wellness Wing', line2: 'AIM Nature Cure' },
+    degree: 'BNYS', experience: '8 Years', fees: 1500, salary: 80000, address: { line1: 'Wellness Wing', line2: 'AIM Nature Cure' },
     date: dateBase - (dayMs * 365), available: true, image: assets.doc1 || ''
   },
   {
     _id: 'doc2', name: 'Dr. Rahul Menon', speciality: 'Acupuncture & Yoga',
-    degree: 'BNYS', experience: '5 Years', fees: 1200, address: { line1: 'Therapy Block', line2: 'AIM Nature Cure' },
+    degree: 'BNYS', experience: '5 Years', fees: 1200, salary: 60000, address: { line1: 'Therapy Block', line2: 'AIM Nature Cure' },
     date: dateBase - (dayMs * 300), available: true, image: assets.doc2 || ''
   }
 , 
   {
     _id: 'doc3', name: 'Dr. Vikram Singh', speciality: 'Physiotherapy',
-    degree: 'BPT', experience: '10 Years', fees: 1400, address: { line1: 'Rehab Center', line2: 'AIM Nature Cure' },
+    degree: 'BPT', experience: '10 Years', fees: 1400, salary: 90000, address: { line1: 'Rehab Center', line2: 'AIM Nature Cure' },
     date: dateBase - (dayMs * 400), available: true, image: ''
   }
 ];
@@ -39,14 +39,15 @@ export const mockUsers = [
 ];
 
 export const mockPatients = [
-  { _id: 'PAT001', name: 'Priya Menon', age: 29, gender: 'Female', phone: '9876543210', address: 'Coimbatore', condition: 'Digestive Wellness', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 30), totalSessions: 5, sessionsAttended: 3 },
-  { _id: 'PAT002', name: 'Arun Kumar', age: 42, gender: 'Male', phone: '9876543211', address: 'Pollachi', condition: 'Chronic Back Pain', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Google', date: dateBase - (dayMs * 45), totalSessions: 10, sessionsAttended: 10 },
-  { _id: 'PAT003', name: 'Kavya Krishnan', age: 35, gender: 'Female', phone: '9876543212', address: 'Coimbatore', condition: 'Stress and Sleep Management', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 60), totalSessions: 6, sessionsAttended: 6 },
-  { _id: 'PAT004', name: 'Suresh Ravi', age: 51, gender: 'Male', phone: '9876543213', address: 'Tiruppur', condition: 'Diabetes Wellness', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 15), totalSessions: 7, sessionsAttended: 4 },
-  { _id: 'PAT005', name: 'Meena Raj', age: 38, gender: 'Female', phone: '9876543214', address: 'Coimbatore', condition: 'Weight Management', assignedDoctor: 'doc3', status: 'Active', leadSource: 'Instagram', date: dateBase - (dayMs * 10), totalSessions: 10, sessionsAttended: 2 },
-  { _id: 'PAT006', name: 'Vignesh Kumar', age: 31, gender: 'Male', phone: '9876543215', address: 'Pollachi', condition: 'Lifestyle Management', assignedDoctor: 'doc3', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 5), totalSessions: 0, sessionsAttended: 0 },
-  { _id: 'PAT007', name: 'Neha Sharma', age: 45, gender: 'Female', phone: '9876543216', address: 'Coimbatore', condition: 'Joint Pain', assignedDoctor: 'doc1', status: 'Completed Treatment', leadSource: 'Direct', date: dateBase - (dayMs * 25), totalSessions: 10, sessionsAttended: 10 },
-  { _id: 'PAT008', name: 'Rahul Das', age: 50, gender: 'Male', phone: '9876543217', address: 'Chennai', condition: 'Post-Op Recovery', assignedDoctor: 'doc2', status: 'Inactive', leadSource: 'Google', date: dateBase - (dayMs * 100), totalSessions: 0, sessionsAttended: 0 }
+  { _id: 'PAT001', name: 'Priya Menon', age: 29, gender: 'Female', height: '160', weight: '65', phone: '9876543210', address: 'Coimbatore', condition: 'Digestive Wellness', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 30), totalSessions: 5, sessionsAttended: 3, periodOfDays: 15, sessions: 5 },
+  { _id: 'PAT002', name: 'Arun Kumar', age: 42, gender: 'Male', height: '175', weight: '80', phone: '9876543211', address: 'Pollachi', condition: 'Chronic Back Pain', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Google', date: dateBase - (dayMs * 45), totalSessions: 10, sessionsAttended: 10, periodOfDays: 30, sessions: 10 },
+  { _id: 'PAT003', name: 'Kavya Krishnan', age: 35, gender: 'Female', height: '165', weight: '58', phone: '9876543212', address: 'Coimbatore', condition: 'Stress and Sleep Management', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 60), totalSessions: 6, sessionsAttended: 6, periodOfDays: 20, sessions: 6 },
+  { _id: 'PAT004', name: 'Suresh Ravi', age: 51, gender: 'Male', height: '170', weight: '75', phone: '9876543213', address: 'Tiruppur', condition: 'Diabetes Wellness', assignedDoctor: 'doc2', status: 'Active', leadSource: 'Direct', date: dateBase - (dayMs * 15), totalSessions: 7, sessionsAttended: 4, periodOfDays: 21, sessions: 7 },
+  { _id: 'PAT005', name: 'Meena Raj', age: 38, gender: 'Female', height: '158', weight: '70', phone: '9876543214', address: 'Coimbatore', condition: 'Weight Management', assignedDoctor: 'doc3', status: 'Active', leadSource: 'Instagram', date: dateBase - (dayMs * 10), totalSessions: 10, sessionsAttended: 2, periodOfDays: 30, sessions: 10 },
+  { _id: 'PAT006', name: 'Vignesh Kumar', age: 31, gender: 'Male', height: '180', weight: '85', phone: '9876543215', address: 'Pollachi', condition: 'Lifestyle Management', assignedDoctor: 'doc3', status: 'Active', leadSource: 'Referral', date: dateBase - (dayMs * 5), totalSessions: 0, sessionsAttended: 0, periodOfDays: 10, sessions: 0 },
+  { _id: 'PAT007', name: 'Neha Sharma', age: 45, gender: 'Female', height: '162', weight: '68', phone: '9876543216', address: 'Coimbatore', condition: 'Joint Pain', assignedDoctor: 'doc1', status: 'Completed Treatment', leadSource: 'Direct', date: dateBase - (dayMs * 25), totalSessions: 10, sessionsAttended: 10, periodOfDays: 30, sessions: 10 },
+  { _id: 'PAT008', name: 'Rahul Das', age: 50, gender: 'Male', height: '172', weight: '72', phone: '9876543217', address: 'Chennai', condition: 'Post-Op Recovery', assignedDoctor: 'doc2', status: 'Inactive', leadSource: 'Google', date: dateBase - (dayMs * 100), totalSessions: 0, sessionsAttended: 0, periodOfDays: 0, sessions: 0 },
+  { _id: 'PAT009', name: 'Ankita Rao', age: 28, gender: 'Female', height: '155', weight: '55', phone: '9876543218', address: 'Ooty', condition: 'Detox', assignedDoctor: 'doc1', status: 'Active', leadSource: 'Instagram', date: dateBase - (dayMs * 5), totalSessions: 5, sessionsAttended: 3, periodOfDays: 15, sessions: 5 }
 ];
 
 export const mockAppointments = [
@@ -175,13 +176,13 @@ export const mockSocialSubmissions = [
 ];
 
 export const mockDailyReports = [
-  { _id: 'REP001', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*6, patientsSeen: 8, consultationsCompleted: 4, therapySessions: 6, followUpsCompleted: 3, revenue: 14500, closingStatus: 'Submitted', status: 'Reviewed', notes: 'Busy morning, smooth afternoon.', addendums: [{ date: dateBase - dayMs*5.5, notes: 'Forgot to mention we ran out of size 2 needles.' }] },
-  { _id: 'REP002', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*5, patientsSeen: 6, consultationsCompleted: 3, therapySessions: 5, followUpsCompleted: 2, revenue: 11000, closingStatus: 'Submitted', notes: 'All appointments attended.' },
-  { _id: 'REP003', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*4, patientsSeen: 9, consultationsCompleted: 5, therapySessions: 7, followUpsCompleted: 4, revenue: 18500, closingStatus: 'Submitted', notes: 'High patient inflow.' },
-  { _id: 'REP004', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*3, patientsSeen: 7, consultationsCompleted: 4, therapySessions: 5, followUpsCompleted: 2, revenue: 12500, closingStatus: 'Submitted', notes: 'Normal day.' },
-  { _id: 'REP005', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*2, patientsSeen: 5, consultationsCompleted: 2, therapySessions: 4, followUpsCompleted: 1, revenue: 8500, closingStatus: 'Submitted', notes: 'Light schedule due to rain.' },
-  { _id: 'REP006', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*1, patientsSeen: 8, consultationsCompleted: 4, therapySessions: 6, followUpsCompleted: 3, revenue: 15500, closingStatus: 'Submitted', notes: 'Completed all sessions on time.' },
-  { _id: 'REP007', docId: 'doc1', doctorId: 'doc1', date: dateBase, patientsSeen: 4, consultationsCompleted: 2, therapySessions: 2, followUpsCompleted: 1, revenue: 5500, closingStatus: 'Draft', notes: 'Half day completed.' }
+  { _id: 'REP001', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*6, patientsSeen: 8, consultationsCompleted: 4, therapySessions: 6, followUpsCompleted: 3, revenue: 14500, boxCash: 2500, closingStatus: 'Submitted', status: 'Reviewed', notes: 'Busy morning, smooth afternoon.', addendums: [{ date: dateBase - dayMs*5.5, notes: 'Forgot to mention we ran out of size 2 needles.' }] },
+  { _id: 'REP002', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*5, patientsSeen: 6, consultationsCompleted: 3, therapySessions: 5, followUpsCompleted: 2, revenue: 11000, boxCash: 1000, closingStatus: 'Submitted', status: 'Pending', notes: 'All appointments attended.' },
+  { _id: 'REP003', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*4, patientsSeen: 9, consultationsCompleted: 5, therapySessions: 7, followUpsCompleted: 4, revenue: 18500, boxCash: 5000, closingStatus: 'Submitted', status: 'Reviewed', notes: 'High patient inflow.' },
+  { _id: 'REP004', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*3, patientsSeen: 7, consultationsCompleted: 4, therapySessions: 5, followUpsCompleted: 2, revenue: 12500, boxCash: 2000, closingStatus: 'Submitted', status: 'Pending', notes: 'Normal day.' },
+  { _id: 'REP005', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*2, patientsSeen: 5, consultationsCompleted: 2, therapySessions: 4, followUpsCompleted: 1, revenue: 8500, boxCash: 500, closingStatus: 'Submitted', status: 'Reviewed', notes: 'Light schedule due to rain.' },
+  { _id: 'REP006', docId: 'doc1', doctorId: 'doc1', date: dateBase - dayMs*1, patientsSeen: 8, consultationsCompleted: 4, therapySessions: 6, followUpsCompleted: 3, revenue: 15500, boxCash: 3500, closingStatus: 'Submitted', status: 'Pending', notes: 'Completed all sessions on time.' },
+  { _id: 'REP007', docId: 'doc1', doctorId: 'doc1', date: dateBase, patientsSeen: 4, consultationsCompleted: 2, therapySessions: 2, followUpsCompleted: 1, revenue: 5500, boxCash: 1000, closingStatus: 'Draft', status: 'Pending', notes: 'Half day completed.' }
 ];
 
 export const mockDoctorNotes = [

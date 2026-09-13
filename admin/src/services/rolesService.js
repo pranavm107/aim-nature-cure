@@ -1,36 +1,52 @@
 const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Available permissions in the system
-export const AVAILABLE_PERMISSIONS = [
-  { id: 'view_dashboard', name: 'View Dashboard', group: 'General' },
-  { id: 'manage_users', name: 'Manage Users', group: 'Administration' },
-  { id: 'manage_roles', name: 'Manage Roles', group: 'Administration' },
-  { id: 'view_patients', name: 'View Patients', group: 'Clinical' },
-  { id: 'edit_patients', name: 'Add/Edit Patients', group: 'Clinical' },
-  { id: 'manage_appointments', name: 'Manage Appointments', group: 'Operations' },
-  { id: 'manage_therapies', name: 'Manage Therapies & Packages', group: 'Operations' },
-  { id: 'view_reports', name: 'View Reports', group: 'Analytics' },
-  { id: 'manage_billing', name: 'Manage Billing & Invoices', group: 'Finance' },
+// Available screens in the system
+export const AVAILABLE_SCREENS = [
+  'Dashboard',
+  'Doctors',
+  'Patients',
+  'Appointments',
+  'Therapies',
+  'Packages',
+  'Follow-Ups',
+  'Reports'
 ];
 
+// Helper to generate the default permissions object (View: false, Edit: false for all)
+const generateDefaultPermissions = () => {
+  const perms = {};
+  AVAILABLE_SCREENS.forEach(screen => {
+    perms[screen] = { view: false, edit: false };
+  });
+  return perms;
+};
+
+// Seed mock roles
 let mockRoles = [
   { 
     _id: 'role1', 
     name: 'Super Admin', 
-    permissions: AVAILABLE_PERMISSIONS.map(p => p.id),
-    isSystem: true // Cannot be deleted
+    permissions: AVAILABLE_SCREENS.reduce((acc, screen) => {
+      acc[screen] = { view: true, edit: true };
+      return acc;
+    }, {}),
+    isSystem: true
   },
   { 
     _id: 'role2', 
     name: 'Receptionist', 
-    permissions: ['view_dashboard', 'view_patients', 'add_patients', 'manage_appointments', 'manage_billing'],
+    permissions: AVAILABLE_SCREENS.reduce((acc, screen) => {
+      // Example restricted permissions
+      if (['Dashboard', 'Patients', 'Appointments'].includes(screen)) {
+        acc[screen] = { view: true, edit: true };
+      } else if (screen === 'Doctors' || screen === 'Therapies' || screen === 'Packages') {
+        acc[screen] = { view: true, edit: false };
+      } else {
+        acc[screen] = { view: false, edit: false };
+      }
+      return acc;
+    }, {}),
     isSystem: false
-  },
-  { 
-    _id: 'role3', 
-    name: 'Doctor', 
-    permissions: ['view_dashboard', 'view_patients', 'edit_patients', 'view_reports'],
-    isSystem: true
   }
 ];
 
@@ -52,7 +68,7 @@ export const rolesService = {
     const newRole = {
       _id: 'role_' + Date.now(),
       name: roleData.name,
-      permissions: roleData.permissions || [],
+      permissions: roleData.permissions || generateDefaultPermissions(),
       isSystem: false
     };
     mockRoles.push(newRole);

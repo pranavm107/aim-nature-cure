@@ -97,13 +97,14 @@ export const patientService = {
       followUps.push({
         _id: 'fu_auto_' + Date.now(),
         patientId: id,
-        date: Date.now() + (86400000 * 7), // 7 days from now
-        reason: 'Auto-triggered after 3 sessions completed',
+        doctorId: state.patients[idx].assignedDoctor,
+        dueDate: new Date(Date.now() + (86400000 * 7)).toISOString().split('T')[0], // 7 days from now
+        reason: '3 therapy sessions completed',
         status: 'Pending',
         type: 'Routine',
         notes: ''
       });
-      saveStore('mockFollowUps', followUps);
+      setStore('mockFollowUps', followUps);
     }
     
     saveState();

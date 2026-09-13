@@ -63,7 +63,7 @@ const AdminDailyReports = () => {
       filtered = filtered.filter(r => r.docId === selectedDoctor);
     }
 
-    const grouped = filtered.reduce((acc, report) => {
+        const grouped = filtered.reduce((acc, report) => {
           const dateStr = new Date(report.date).toISOString().split('T')[0];
           if (!acc[dateStr]) {
             acc[dateStr] = {
@@ -73,6 +73,7 @@ const AdminDailyReports = () => {
               totalPatients: 0,
               totalConsultations: 0,
               totalTherapies: 0,
+              totalBoxCash: 0,
               allReviewed: true
             };
           }
@@ -80,6 +81,7 @@ const AdminDailyReports = () => {
           acc[dateStr].totalPatients += (report.patientCount || report.patientsSeen || 0);
           acc[dateStr].totalConsultations += (report.consultations || report.consultationsCompleted || 0);
           acc[dateStr].totalTherapies += (report.therapySessions || 0);
+          acc[dateStr].totalBoxCash += (report.boxCash || 0);
           if (report.status !== 'Reviewed') {
             acc[dateStr].allReviewed = false;
           }
@@ -96,17 +98,19 @@ const AdminDailyReports = () => {
     { label: 'Total Patients' },
     { label: 'Total Consultations' },
     { label: 'Total Therapies' },
+    { label: 'Total Box Cash' },
     { label: 'Status' },
     { label: 'Action', className: 'text-right' }
   ];
 
   const renderRow = (item) => (
-    <div key={item.dateStr} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_1fr] py-3 px-6 border-b items-center text-sm hover:bg-slate-50 cursor-pointer" onClick={() => navigate(`/admin/daily-reports/${item.dateStr}`)}>
+    <div key={item.dateStr} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] py-3 px-6 border-b items-center text-sm hover:bg-slate-50 cursor-pointer" onClick={() => navigate(`/admin/daily-reports/${item.dateStr}`)}>
       <p className="font-medium text-slate-800">{item.dateObj.toLocaleDateString()}</p>
       <p>{item.totalDoctors}</p>
       <p>{item.totalPatients}</p>
       <p>{item.totalConsultations}</p>
       <p>{item.totalTherapies}</p>
+      <p className="font-medium text-slate-700">₹{item.totalBoxCash.toLocaleString()}</p>
       <div>
         {item.allReviewed ? <Badge variant="success">Reviewed</Badge> : <Badge variant="warning">Pending Review</Badge>}
       </div>
@@ -172,7 +176,7 @@ const AdminDailyReports = () => {
         renderRow={renderRow} 
         renderMobileCard={() => <div />} 
         emptyMessage="No reports found."
-        gridColsClass="grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_1fr]" 
+        gridColsClass="grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr]" 
       />
     </PageContainer>
   );
