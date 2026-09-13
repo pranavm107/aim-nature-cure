@@ -7,19 +7,18 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 
+import { useTableFeatures } from '../../hooks/useTableFeatures';
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+
 const PatientList = () => {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
-  const fetchPatients = async (query = '') => {
+  const fetchPatients = async () => {
     setLoading(true);
     try {
-      const data = query 
-        ? await patientService.searchPatients(query) 
-        : await patientService.getPatients();
-      
+      const data = await patientService.getPatients();
       if (data.success) {
         setPatients(data.patients);
       } else {
@@ -37,16 +36,25 @@ const PatientList = () => {
     fetchPatients();
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchPatients(searchQuery);
+  const {
+    searchTerm, setSearchTerm,
+    filters, handleFilterChange,
+    sortConfig, handleSort,
+    processedData
+  } = useTableFeatures(patients, ['name', 'phone', 'email'], { key: 'name', direction: 'asc' });
+
+  const renderSortIcon = (key) => {
+    if (sortConfig?.key === key) {
+      return sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1 inline" /> : <ArrowDown className="w-3 h-3 ml-1 inline" />;
+    }
+    return <ArrowUpDown className="w-3 h-3 ml-1 inline text-slate-300" />;
   };
 
   const columns = [
     { label: '#' },
-    { label: 'Patient Name' },
+    { label: <div className="cursor-pointer" onClick={() => handleSort('name')}>Patient Name {renderSortIcon('name')}</div> },
     { label: 'Contact' },
-    { label: 'Status' },
+    { label: <div className="cursor-pointer" onClick={() => handleSort('status')}>Status {renderSortIcon('status')}</div> },
     { label: 'Action', className: 'text-right' }
   ];
 
@@ -124,38 +132,34 @@ const PatientList = () => {
         }
       />
 
-      <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center">
-        <form onSubmit={handleSearch} className="flex-1 flex flex-col sm:flex-row gap-3 w-full">
-          <div className="relative flex-1 max-w-md">
+      <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-80">
             <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
               type="text"
               placeholder="Search by name or phone..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-slate-200 rounded-lg pl-10 pr-4 py-2.5 w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border border-slate-200 rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm"
             />
           </div>
-          <div className="flex gap-2">
-            <button type="submit" className="bg-slate-50 px-6 py-2.5 rounded-lg text-slate-700 hover:bg-slate-100 border border-slate-200 text-sm font-medium transition-colors flex-1 sm:flex-none">
-              Search
-            </button>
-            {searchQuery && (
-              <button 
-                type="button" 
-                onClick={() => { setSearchQuery(''); fetchPatients(); }}
-                className="text-slate-500 px-4 py-2.5 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors text-sm font-medium"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </form>
+          <select
+            value={filters.status || 'All'}
+            onChange={(e) => handleFilterChange('status', e.target.value)}
+            className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          >
+            <option value="All">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Completed Treatment">Completed Treatment</option>
+          </select>
+        </div>
       </div>
 
       <DataTable
         columns={columns}
-        data={patients}
+        data={processedData}
         loading={loading}
         renderRow={renderRow}
         renderMobileCard={renderMobileCard}

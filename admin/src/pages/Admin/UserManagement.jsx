@@ -22,7 +22,7 @@ const UserManagement = () => {
   
   // Role Creation State
   const [showRoleModal, setShowRoleModal] = useState(false);
-  const [roleFormData, setRoleFormData] = useState({ name: '', permissions: [] });
+  const [roleFormData, setRoleFormData] = useState({ name: '', permissions: {} });
   
   const navigate = useNavigate();
 
@@ -67,7 +67,7 @@ const UserManagement = () => {
   const handleRoleSelectChange = (e) => {
     const val = e.target.value;
     if (val === 'CREATE_NEW') {
-      setRoleFormData({ name: '', permissions: [] });
+      setRoleFormData({ name: '', permissions: {} });
       setShowRoleModal(true);
       // Don't change adminRole to CREATE_NEW, leave it as is or empty
     } else {
@@ -77,7 +77,8 @@ const UserManagement = () => {
 
   const handleCreateRoleSubmit = async (e) => {
     e.preventDefault();
-    if (roleFormData.permissions.length === 0) {
+    const hasAnyPermission = Object.values(roleFormData.permissions).some(p => p.view || p.edit);
+    if (!hasAnyPermission) {
       return toast.error("Please assign at least one permission");
     }
     try {

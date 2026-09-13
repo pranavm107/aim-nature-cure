@@ -37,12 +37,14 @@ const AdminDailyReportDetail = () => {
         let totalPatients = 0;
         let totalConsultations = 0;
         let totalTherapies = 0;
+        let totalBoxCash = 0;
         let allReviewed = dateReports.length > 0;
 
         dateReports.forEach(r => {
           totalPatients += (r.patientCount || r.patientsSeen || 0);
           totalConsultations += (r.consultations || r.consultationsCompleted || 0);
           totalTherapies += (r.therapySessions || 0);
+          totalBoxCash += (r.boxCash || 0);
           if (r.status !== 'Reviewed') {
             allReviewed = false;
           }
@@ -53,6 +55,7 @@ const AdminDailyReportDetail = () => {
           totalPatients,
           totalConsultations,
           totalTherapies,
+          totalBoxCash,
           allReviewed
         });
       }
@@ -109,7 +112,7 @@ const AdminDailyReportDetail = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
           <p className="text-3xl font-bold text-slate-800">{aggregates.totalDoctors}</p>
           <p className="text-sm text-slate-500 font-medium mt-1 uppercase tracking-wider">Doctors</p>
@@ -125,6 +128,10 @@ const AdminDailyReportDetail = () => {
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
           <p className="text-3xl font-bold text-slate-800">{aggregates.totalTherapies}</p>
           <p className="text-sm text-slate-500 font-medium mt-1 uppercase tracking-wider">Therapies</p>
+        </div>
+        <div className="bg-emerald-50 p-5 rounded-xl border border-emerald-200 shadow-sm flex flex-col items-center justify-center">
+          <p className="text-3xl font-bold text-emerald-800">₹{aggregates.totalBoxCash.toLocaleString()}</p>
+          <p className="text-sm text-emerald-600 font-bold mt-1 uppercase tracking-wider">Total Box Cash</p>
         </div>
       </div>
 
@@ -143,11 +150,12 @@ const AdminDailyReportDetail = () => {
                 {report.status === 'Reviewed' ? <Badge variant="success">Reviewed</Badge> : <Badge variant="warning">Pending Review</Badge>}
               </div>
               <div className="p-6">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
                   <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Patients</p><p className="font-semibold text-lg">{report.patientCount || report.patientsSeen || 0}</p></div>
                   <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Consults</p><p className="font-semibold text-lg">{report.consultations || report.consultationsCompleted || 0}</p></div>
                   <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Therapies</p><p className="font-semibold text-lg">{report.therapySessions || 0}</p></div>
                   <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Follow-Ups</p><p className="font-semibold text-lg">{report.followUps || report.followUpsCompleted || 0}</p></div>
+                  <div><p className="text-xs text-emerald-600 uppercase font-bold tracking-wider">Box Cash</p><p className="font-semibold text-lg text-emerald-700">₹{report.boxCash || 0}</p></div>
                 </div>
                 
                 {/* Patients Seen Section */}

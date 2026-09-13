@@ -118,6 +118,10 @@ const therapySessionService = {
     mockTherapySessions[idx].status = 'Completed';
     mockTherapySessions[idx].notes = notes || '';
     
+    // Auto-increment patient session count and trigger follow-up if needed
+    const { patientService } = await import('./patientService');
+    await patientService.incrementSessionCount(mockTherapySessions[idx].patientId);
+
     return mockTherapySessions[idx];
   },
 

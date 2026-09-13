@@ -8,6 +8,8 @@ import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { useTableFeatures } from '../../hooks/useTableFeatures';
+import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 const AllAppointments = () => {
   const { slotDateFormat, currency, calculateAge } = useContext(AppContext);
@@ -69,7 +71,6 @@ const AllAppointments = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      // Find patient and doc data for the mock payload to render correctly
       const p = patients.find(pat => pat._id === newAppointment.patientId);
       const d = doctors.find(doc => doc._id === newAppointment.docId);
       
@@ -94,11 +95,25 @@ const AllAppointments = () => {
     }
   };
 
+  const {
+    searchTerm, setSearchTerm,
+    filters, handleFilterChange,
+    sortConfig, handleSort,
+    processedData
+  } = useTableFeatures(appointments, ['userData.name', 'docData.name'], { key: 'slotDate', direction: 'desc' });
+
+  const renderSortIcon = (key) => {
+    if (sortConfig?.key === key) {
+      return sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1 inline" /> : <ArrowDown className="w-3 h-3 ml-1 inline" />;
+    }
+    return <ArrowUpDown className="w-3 h-3 ml-1 inline text-slate-300" />;
+  };
+
   const columns = [
     { label: '#', className: '' },
-    { label: 'Patient', className: '' },
-    { label: 'Date & Time', className: '' },
-    { label: 'Doctor', className: '' },
+    { label: <div className="cursor-pointer" onClick={() => handleSort('userData.name')}>Patient {renderSortIcon('userData.name')}</div>, className: '' },
+    { label: <div className="cursor-pointer" onClick={() => handleSort('slotDate')}>Date & Time {renderSortIcon('slotDate')}</div>, className: '' },
+    { label: <div className="cursor-pointer" onClick={() => handleSort('docData.name')}>Doctor {renderSortIcon('docData.name')}</div>, className: '' },
     { label: 'Fees', className: '' },
     { label: 'Action', className: '' },
   ];
@@ -181,9 +196,38 @@ const AllAppointments = () => {
         </button>
       </div>
 
+      <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-80">
+            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input 
+              type="text"
+              placeholder="Search by patient or doctor name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border border-slate-200 rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm"
+            />
+          </div>
+          <select
+            value={filters.isCompleted !== undefined ? (filters.isCompleted ? 'completed' : 'upcoming') : (filters.cancelled ? 'cancelled' : 'All')}
+            onChange={(e) => {
+              const val = e.target.value;
+              handleFilterChange('isCompleted', val === 'completed' ? true : (val === 'upcoming' ? false : 'All'));
+              handleFilterChange('cancelled', val === 'cancelled' ? true : (val === 'upcoming' ? false : 'All'));
+            }}
+            className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          >
+            <option value="All">All Statuses</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+
       <DataTable 
         columns={columns}
-        data={appointments}
+        data={processedData}
         renderRow={renderRow}
         renderMobileCard={renderMobileCard}
         loading={appointments === null}

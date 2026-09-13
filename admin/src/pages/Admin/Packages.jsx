@@ -7,6 +7,9 @@ import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import DataTable from '../../components/common/DataTable';
 
+import { useTableFeatures } from '../../hooks/useTableFeatures';
+import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+
 const Packages = () => {
   const [packages, setPackages] = useState([]);
   const [availableTherapies, setAvailableTherapies] = useState([]);
@@ -48,11 +51,25 @@ const Packages = () => {
     return th ? th.name : 'Unknown Therapy';
   };
 
+  const {
+    searchTerm, setSearchTerm,
+    filters, handleFilterChange,
+    sortConfig, handleSort,
+    processedData
+  } = useTableFeatures(packages, ['name'], { key: 'name', direction: 'asc' });
+
+  const renderSortIcon = (key) => {
+    if (sortConfig?.key === key) {
+      return sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1 inline" /> : <ArrowDown className="w-3 h-3 ml-1 inline" />;
+    }
+    return <ArrowUpDown className="w-3 h-3 ml-1 inline text-slate-300" />;
+  };
+
   const columns = [
-    { label: 'Name' },
+    { label: <div className="cursor-pointer" onClick={() => handleSort('name')}>Name {renderSortIcon('name')}</div> },
     { label: 'Included Therapies' },
-    { label: 'Price ($)' },
-    { label: 'Status' },
+    { label: <div className="cursor-pointer" onClick={() => handleSort('price')}>Price ($) {renderSortIcon('price')}</div> },
+    { label: <div className="cursor-pointer" onClick={() => handleSort('status')}>Status {renderSortIcon('status')}</div> },
     { label: 'Actions' }
   ];
 
@@ -95,9 +112,33 @@ const Packages = () => {
         </button>
       </div>
 
+      <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-80">
+            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input 
+              type="text"
+              placeholder="Search by package name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border border-slate-200 rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm"
+            />
+          </div>
+          <select
+            value={filters.status !== undefined ? filters.status : 'All'}
+            onChange={(e) => handleFilterChange('status', e.target.value === 'All' ? 'All' : e.target.value === 'true')}
+            className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          >
+            <option value="All">All Statuses</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+      </div>
+
       <DataTable 
         columns={columns}
-        data={packages}
+        data={processedData}
         renderRow={renderRow}
         renderMobileCard={() => <div/>}
         loading={loading}
