@@ -29,6 +29,20 @@ export const mockSalaries = [
   { _id: 'sal_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', salaryAmount: 42000, effectiveFrom: '2026-09-01', status: 'Current', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' }
 ];
 
+export const mockIncentiveConfigurations = [
+  { _id: 'inc_config_1', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', type: 'percentage', percentage: 8, effectiveFrom: '2026-08-01', status: 'Historical', createdBy: 'Admin' },
+  { _id: 'inc_config_2', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', type: 'percentage', percentage: 10, effectiveFrom: '2026-09-01', status: 'Active', createdBy: 'Admin' },
+  { _id: 'inc_config_3', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', type: 'percentage', percentage: 12, effectiveFrom: '2026-09-01', status: 'Active', createdBy: 'Admin' },
+  { _id: 'inc_config_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', type: 'percentage', percentage: 15, effectiveFrom: '2026-09-01', status: 'Active', createdBy: 'Admin' }
+];
+
+export const mockIncentiveEarnings = [
+  { _id: 'inc_earn_1', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'August 2026', revenue: 95000, incentivePercentage: 8, incentiveAmount: 7600, status: 'Calculated' },
+  { _id: 'inc_earn_2', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'September 2026', revenue: 105000, incentivePercentage: 10, incentiveAmount: 10500, status: 'Calculated' },
+  { _id: 'inc_earn_3', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', period: 'September 2026', revenue: 120000, incentivePercentage: 12, incentiveAmount: 14400, status: 'Calculated' },
+  { _id: 'inc_earn_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'September 2026', revenue: 80000, incentivePercentage: 15, incentiveAmount: 12000, status: 'Calculated' }
+];
+
 export const mockProfile = {
   admin: { name: 'Admin', email: 'admin@aimnaturecure.com', role: 'admin', image: '' },
   doctor: { name: 'Dr. Ananya Sharma', email: 'doctor@aimnaturecure.com', role: 'doctor', speciality: 'Naturopathy & Diet', _id: 'doc1', image: '' }

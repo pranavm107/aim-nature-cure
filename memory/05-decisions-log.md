@@ -77,3 +77,7 @@
   - **Context:** To begin replacing the deprecated features safely, we needed a foundational salary module for doctors that retains history.
   - **Decision:** Implemented a new `salaryService.js` and `mockSalaries` array utilizing the existing `mockStore` pattern. Created Admin views in `DoctorDetail.jsx` and an isolated Doctor view at `MySalary.jsx`.
   - **Constraint:** Intentionally avoided backend APIs, payroll generation, and incentive logic. Data is tracked via `Effective From` dates, with old records marked as "Historical" rather than being deleted or overwritten.
+- **Phase 2: Doctor Incentive**:
+  - **Context:** Following Phase 1, we needed to reintroduce an isolated incentive layer without the complex baggage of the old flow.
+  - **Decision:** Percentage-based incentive chosen for the first version. Admin controls configuration via `DoctorDetail.jsx` and views global earnings at `/admin/incentives`. Doctor has read-only access to own information via `/doctor/incentive`.
+  - **Constraint:** Frontend/mock-data only. Backend is strictly future work. Legacy Incentive Config/Approval flow remains removed. No manual payment/payroll flows implemented.

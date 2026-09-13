@@ -46,11 +46,14 @@ import AdminReports from './pages/Admin/AdminReports';
 import UserManagement from './pages/Admin/UserManagement';
 import UserDetail from './pages/Admin/UserDetail';
 import RoleConfig from './pages/Admin/RoleConfig';
+import IncentivesOverview from './pages/Admin/IncentivesOverview';
 import DoctorDetail from './pages/Admin/DoctorDetail';
 import AppointmentDetail from './pages/Admin/AppointmentDetail';
 import DoctorNotes from './pages/Doctor/DoctorNotes';
 import DoctorTasks from './pages/Doctor/DoctorTasks';
 import DoctorDailyReport from './pages/Doctor/DoctorDailyReport';
+import DoctorAppointments from './pages/Doctor/DoctorAppointments';
+import MyIncentive from './pages/Doctor/MyIncentive';
 
 const App = () => {
   const { dToken } = useContext(DoctorContext)
@@ -78,6 +81,7 @@ const App = () => {
             <Route path='/admin/users' element={<ProtectedRoute role="admin" requiredPermission="manage_users"><UserManagement /></ProtectedRoute>} />
             <Route path='/admin/users/:id' element={<ProtectedRoute role="admin" requiredPermission="manage_users"><UserDetail /></ProtectedRoute>} />
             <Route path='/admin/roles' element={<ProtectedRoute role="admin" requiredPermission="manage_roles"><RoleConfig /></ProtectedRoute>} />
+            <Route path='/admin/incentives' element={<ProtectedRoute role="admin"><IncentivesOverview /></ProtectedRoute>} />
             <Route path='/add-doctor' element={<ProtectedRoute role="admin" requiredPermission="manage_users"><AddDoctor /></ProtectedRoute>} />
             <Route path='/doctor-list' element={<ProtectedRoute role="admin"><DoctorsList /></ProtectedRoute>} />
             <Route path='/admin/doctors/:id' element={<ProtectedRoute role="admin"><DoctorDetail /></ProtectedRoute>} />
@@ -103,12 +107,16 @@ const App = () => {
 
             {/* Doctor Routes */}
             <Route path='/doctor-dashboard' element={<ProtectedRoute role="doctor"><DoctorDashboard /></ProtectedRoute>} />
+            <Route path='/doctor/dashboard' element={<ProtectedRoute role="doctor"><DoctorDashboard /></ProtectedRoute>} />
+            <Route path='/doctor/appointments' element={<ProtectedRoute role="doctor"><DoctorAppointments /></ProtectedRoute>} />
             <Route path='/doctor/consultation' element={<ProtectedRoute role="doctor"><NewConsultation /></ProtectedRoute>} />
             <Route path='/doctor/history' element={<ProtectedRoute role="doctor"><ConsultationHistory /></ProtectedRoute>} />
             <Route path='/doctor/therapy-assignment' element={<ProtectedRoute role="doctor"><TherapyAssignment /></ProtectedRoute>} />
             <Route path='/doctor/therapy-sessions' element={<ProtectedRoute role="doctor"><TherapySessions /></ProtectedRoute>} />
+            <Route path='/doctor/sessions' element={<ProtectedRoute role="doctor"><TherapySessions /></ProtectedRoute>} />
             <Route path='/doctor/revenue' element={<ProtectedRoute role="doctor"><MyRevenue /></ProtectedRoute>} />
             <Route path='/doctor/salary' element={<ProtectedRoute role="doctor"><MySalary /></ProtectedRoute>} />
+            <Route path='/doctor/incentive' element={<ProtectedRoute role="doctor"><MyIncentive /></ProtectedRoute>} />
 
             <Route path='/doctor/follow-ups' element={<ProtectedRoute role="doctor"><FollowUpList /></ProtectedRoute>} />
             <Route path='/doctor/social-submission' element={<ProtectedRoute role="doctor"><SocialSubmission /></ProtectedRoute>} />

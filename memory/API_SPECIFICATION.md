@@ -151,6 +151,15 @@ Companion to the PRD, Gap Analysis, and Implementation Roadmap. Organized by mod
 | GET | `/doctors/:id/salary-history` | Get doctor's salary history | Both — Doctor self only |
 | POST | `/doctors/:id/salary` | Set a new salary for a doctor (maintains history) | Admin |
 
+### Future Incentive Phase 2 backend specification
+*(Note: The following endpoints represent the future Phase 2 backend implementation and are separated from the current active endpoints)*
+
+| GET | `/doctors/:id/incentive` | Get doctor's current active incentive configuration | Both — Doctor self only |
+| GET | `/doctors/:id/incentive-history` | Get doctor's incentive history | Both — Doctor self only |
+| POST | `/doctors/:id/incentive` | Set a new incentive configuration for a doctor (maintains history) | Admin |
+| GET | `/incentives` | List all current incentive configurations | Admin |
+| GET | `/incentives/earnings` | List all incentive earnings | Admin |
+
 | GET | `/incentive-rules` | List all incentive rules/targets | Admin |
 | POST | `/incentive-rules` | Create a target + percentage rule for a doctor, with effective date `[FR-068]` `[BR-04, BR-05]` | Admin |
 | PUT | `/incentive-rules/:id` | Update a rule | Admin |
