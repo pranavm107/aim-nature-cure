@@ -28,5 +28,11 @@ They do not correlate to any real backend credentials and should be removed befo
 - **`mockIncentiveEarnings`**: Tracks simulated earnings based on revenue (`revenue × percentage / 100`).
 - **Testing Isolation**: Log in as `Doctor` to view `/doctor/incentive` which strictly shows data for `doc1`. Admin can configure via `DoctorDetail.jsx` and view earnings at `/admin/incentives`.
 
+### Phase 3 Payroll Module (Frontend Mock Layer)
+- **`payrollService.js`**: Handles isolated read/write of doctor payrolls using `mockStore`.
+- **`mockPayrolls`**: Tracks combined Salary + Incentive records per period.
+- **`Calculated` vs `Paid`**: Admins can mark records as `Paid`. `Paid` is a one-way mock status flag.
+- **Testing Isolation**: Log in as `Doctor` to view `/doctor/payroll` which strictly shows data for `doc1`. Admin can view global records at `/admin/payroll` and execute status shifts. No real payment processing is implemented.
+
 ## State Management
 - Authentication state is managed via Context API (`AdminContext.jsx`, `DoctorContext.jsx`).

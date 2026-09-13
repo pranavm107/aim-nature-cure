@@ -47,6 +47,7 @@ import UserManagement from './pages/Admin/UserManagement';
 import UserDetail from './pages/Admin/UserDetail';
 import RoleConfig from './pages/Admin/RoleConfig';
 import IncentivesOverview from './pages/Admin/IncentivesOverview';
+import DoctorPayroll from './pages/Admin/DoctorPayroll';
 import DoctorDetail from './pages/Admin/DoctorDetail';
 import AppointmentDetail from './pages/Admin/AppointmentDetail';
 import DoctorNotes from './pages/Doctor/DoctorNotes';
@@ -54,6 +55,7 @@ import DoctorTasks from './pages/Doctor/DoctorTasks';
 import DoctorDailyReport from './pages/Doctor/DoctorDailyReport';
 import DoctorAppointments from './pages/Doctor/DoctorAppointments';
 import MyIncentive from './pages/Doctor/MyIncentive';
+import MyPayroll from './pages/Doctor/MyPayroll';
 
 const App = () => {
   const { dToken } = useContext(DoctorContext)
@@ -82,6 +84,7 @@ const App = () => {
             <Route path='/admin/users/:id' element={<ProtectedRoute role="admin" requiredPermission="manage_users"><UserDetail /></ProtectedRoute>} />
             <Route path='/admin/roles' element={<ProtectedRoute role="admin" requiredPermission="manage_roles"><RoleConfig /></ProtectedRoute>} />
             <Route path='/admin/incentives' element={<ProtectedRoute role="admin"><IncentivesOverview /></ProtectedRoute>} />
+            <Route path='/admin/payroll' element={<ProtectedRoute role="admin"><DoctorPayroll /></ProtectedRoute>} />
             <Route path='/add-doctor' element={<ProtectedRoute role="admin" requiredPermission="manage_users"><AddDoctor /></ProtectedRoute>} />
             <Route path='/doctor-list' element={<ProtectedRoute role="admin"><DoctorsList /></ProtectedRoute>} />
             <Route path='/admin/doctors/:id' element={<ProtectedRoute role="admin"><DoctorDetail /></ProtectedRoute>} />
@@ -117,6 +120,7 @@ const App = () => {
             <Route path='/doctor/revenue' element={<ProtectedRoute role="doctor"><MyRevenue /></ProtectedRoute>} />
             <Route path='/doctor/salary' element={<ProtectedRoute role="doctor"><MySalary /></ProtectedRoute>} />
             <Route path='/doctor/incentive' element={<ProtectedRoute role="doctor"><MyIncentive /></ProtectedRoute>} />
+            <Route path='/doctor/payroll' element={<ProtectedRoute role="doctor"><MyPayroll /></ProtectedRoute>} />
 
             <Route path='/doctor/follow-ups' element={<ProtectedRoute role="doctor"><FollowUpList /></ProtectedRoute>} />
             <Route path='/doctor/social-submission' element={<ProtectedRoute role="doctor"><SocialSubmission /></ProtectedRoute>} />

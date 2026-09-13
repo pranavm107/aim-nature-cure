@@ -81,3 +81,7 @@
   - **Context:** Following Phase 1, we needed to reintroduce an isolated incentive layer without the complex baggage of the old flow.
   - **Decision:** Percentage-based incentive chosen for the first version. Admin controls configuration via `DoctorDetail.jsx` and views global earnings at `/admin/incentives`. Doctor has read-only access to own information via `/doctor/incentive`.
   - **Constraint:** Frontend/mock-data only. Backend is strictly future work. Legacy Incentive Config/Approval flow remains removed. No manual payment/payroll flows implemented.
+- **Phase 3: Doctor Monthly Payroll**:
+  - **Context:** Following Phase 1 and 2, a payroll layer was needed to unify the salary and incentive data and provide an actionable payment flow for the Admin.
+  - **Decision:** Implemented a new `payrollService.js` and `mockPayrolls` to provide a consolidated view. The Admin can mark a payroll record as "Paid" changing the lifecycle status. The Doctor views a read-only consolidated earnings page.
+  - **Constraint:** Frontend/mock-data only. Backend remains future work. "Paid" status is purely a UI state toggle. Real integrations with banks or HR logic (taxes, deductions) are actively blocked.

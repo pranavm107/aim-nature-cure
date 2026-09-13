@@ -38,6 +38,15 @@ const mockIncentiveEarnings = [
   { _id: 'inc_earn_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'September 2026', revenue: 80000, incentivePercentage: 15, incentiveAmount: 12000, status: 'Calculated' }
 ];
 
+const mockPayrolls = [
+  { _id: 'pay_001', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'August 2026', salaryAmount: 40000, incentivePercentage: 8, incentiveAmount: 7600, grossEarnings: 47600, status: 'Paid', calculatedAt: '2026-08-31', paidAt: '2026-09-02' },
+  { _id: 'pay_002', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'September 2026', salaryAmount: 45000, incentivePercentage: 10, incentiveAmount: 10500, grossEarnings: 55500, status: 'Calculated', calculatedAt: '2026-09-30', paidAt: null },
+  { _id: 'pay_003', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', period: 'August 2026', salaryAmount: 50000, incentivePercentage: 12, incentiveAmount: 12000, grossEarnings: 62000, status: 'Paid', calculatedAt: '2026-08-31', paidAt: '2026-09-02' },
+  { _id: 'pay_004', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', period: 'September 2026', salaryAmount: 50000, incentivePercentage: 12, incentiveAmount: 14400, grossEarnings: 64400, status: 'Calculated', calculatedAt: '2026-09-30', paidAt: null },
+  { _id: 'pay_005', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'August 2026', salaryAmount: 42000, incentivePercentage: 15, incentiveAmount: 10000, grossEarnings: 52000, status: 'Paid', calculatedAt: '2026-08-31', paidAt: '2026-09-02' },
+  { _id: 'pay_006', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'September 2026', salaryAmount: 42000, incentivePercentage: 15, incentiveAmount: 12000, grossEarnings: 54000, status: 'Calculated', calculatedAt: '2026-09-30', paidAt: null }
+];
+
 const mockProfile = {
   admin: { name: 'Admin', email: 'admin@aimnaturecure.com', role: 'admin', image: '' },
   doctor: { name: 'Dr. Ananya Sharma', email: 'doctor@aimnaturecure.com', role: 'doctor', speciality: 'Naturopathy & Diet', _id: 'doc1', image: '' }
@@ -220,6 +229,7 @@ export const mockDoctors = \${JSON.stringify(mockDoctors, null, 2).replace(/\\"a
 export const mockSalaries = \${JSON.stringify(mockSalaries, null, 2)};
 export const mockIncentiveConfigurations = \${JSON.stringify(mockIncentiveConfigurations, null, 2)};
 export const mockIncentiveEarnings = \${JSON.stringify(mockIncentiveEarnings, null, 2)};
+export const mockPayrolls = \${JSON.stringify(mockPayrolls, null, 2)};
 export const mockProfile = \${JSON.stringify(mockProfile, null, 2)};
 export const mockCredentials = \${JSON.stringify(mockCredentials, null, 2)};
 export const mockPatients = \${JSON.stringify(mockPatients, null, 2)};

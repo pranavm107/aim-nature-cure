@@ -8,7 +8,7 @@ import {
   Package, Clock, Receipt, IndianRupee, LineChart, 
   Settings, CheckCircle, BarChart, FileText, CheckSquare, 
   Stethoscope, BookOpen, ChevronDown, MoreHorizontal, Search,
-  Percent, X
+  Percent, X, CreditCard
 } from 'lucide-react';
 
 // Helper component for expandable sections
@@ -131,6 +131,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           <SidebarLink to='/admin/revenue' icon={LineChart} label='Revenue' isCollapsed={isCollapsed} onClick={onClose} />
           <SidebarLink to='/admin/comparison' icon={BarChart} label='Comparisons' isCollapsed={isCollapsed} onClick={onClose} />
           <SidebarLink to='/admin/incentives' icon={Percent} label='Incentives' isCollapsed={isCollapsed} onClick={onClose} />
+          <SidebarLink to='/admin/payroll' icon={CreditCard} label='Payroll' isCollapsed={isCollapsed} onClick={onClose} />
         </SidebarSection>
       )}
       
@@ -168,6 +169,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <SidebarLink to='/doctor/revenue' icon={IndianRupee} label='My Revenue' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/doctor/salary' icon={IndianRupee} label='My Salary' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/doctor/incentive' icon={Percent} label='My Incentive' isCollapsed={isCollapsed} onClick={onClose} />
+        <SidebarLink to='/doctor/payroll' icon={CreditCard} label='My Payroll' isCollapsed={isCollapsed} onClick={onClose} />
       </SidebarSection>
 
       <SidebarSection title="Personal" isCollapsed={isCollapsed}>

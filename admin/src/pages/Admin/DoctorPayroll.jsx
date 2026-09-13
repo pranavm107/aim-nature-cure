@@ -1,0 +1,355 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import PageContainer from '../../components/layout/PageContainer';
+import PageHeader from '../../components/layout/PageHeader';
+import { payrollService } from '../../services/payrollService';
+import { toast } from 'react-toastify';
+import { Search, Filter, ArrowUpDown, Eye, Users, IndianRupee, Percent, CreditCard } from 'lucide-react';
+import { useTableFeatures } from '../../hooks/useTableFeatures';
+
+const DoctorPayroll = () => {
+  const [payrolls, setPayrolls] = useState([]);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const [selectedPayroll, setSelectedPayroll] = useState(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await payrollService.getAllPayrolls();
+      if (res.success) {
+        setPayrolls(res.payrolls);
+      } else {
+        toast.error("Failed to load payrolls");
+      }
+
+      const sumRes = await payrollService.getPayrollSummary();
+      if (sumRes.success) {
+        setSummary(sumRes.summary);
+      }
+    } catch (err) {
+      toast.error("Error loading payroll data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleView = (payroll) => {
+    setSelectedPayroll(payroll);
+    setViewModalOpen(true);
+  };
+
+  const handleMarkAsPaidClick = () => {
+    setViewModalOpen(false);
+    setConfirmModalOpen(true);
+  };
+
+  const handleConfirmPaid = async () => {
+    if (!selectedPayroll) return;
+    try {
+      const res = await payrollService.markPayrollAsPaid(selectedPayroll._id);
+      if (res.success) {
+        toast.success(res.message);
+        setConfirmModalOpen(false);
+        fetchData(); // Refresh data
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error("Error updating payroll status");
+    }
+  };
+
+  const {
+    searchTerm: searchQuery, 
+    setSearchTerm: setSearchQuery,
+    sortConfig, 
+    handleSort,
+    processedData: filteredAndSortedData,
+    filters, 
+    handleFilterChange
+  } = useTableFeatures(
+    payrolls, 
+    ['doctorName', 'period', 'status'], 
+    { key: 'period', direction: 'desc' }
+  );
+
+  const uniquePeriods = useMemo(() => [...new Set(payrolls.map(p => p.period))], [payrolls]);
+  const uniqueStatuses = useMemo(() => [...new Set(payrolls.map(p => p.status))], [payrolls]);
+
+  return (
+    <PageContainer>
+      <PageHeader title="Doctor Payroll" subtitle="View monthly salary and incentive earnings for doctors." />
+      
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+          <div className="p-3 bg-blue-50 text-blue-600 rounded-lg">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500 mb-1">Total Doctors</p>
+            <h3 className="text-2xl font-bold text-slate-800">{summary?.totalDoctors || 0}</h3>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+            <IndianRupee className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500 mb-1">Total Salary</p>
+            <h3 className="text-2xl font-bold text-slate-800">₹{summary?.totalSalary?.toLocaleString('en-IN') || 0}</h3>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+          <div className="p-3 bg-amber-50 text-amber-600 rounded-lg">
+            <Percent className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500 mb-1">Total Incentive</p>
+            <h3 className="text-2xl font-bold text-slate-800">₹{summary?.totalIncentive?.toLocaleString('en-IN') || 0}</h3>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
+            <CreditCard className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500 mb-1">Total Gross Earnings</p>
+            <h3 className="text-2xl font-bold text-slate-800">₹{summary?.totalGross?.toLocaleString('en-IN') || 0}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-50">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <input 
+              type="text"
+              placeholder="Search doctors..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          
+          <div className="flex gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-none">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <select 
+                className="w-full pl-9 pr-8 py-2 border border-slate-300 rounded-lg text-sm appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                value={filters.period || ''}
+                onChange={(e) => handleFilterChange('period', e.target.value)}
+              >
+                <option value="">All Periods</option>
+                {uniquePeriods.map(p => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="relative flex-1 sm:flex-none">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <select 
+                className="w-full pl-9 pr-8 py-2 border border-slate-300 rounded-lg text-sm appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                value={filters.status || ''}
+                onChange={(e) => handleFilterChange('status', e.target.value)}
+              >
+                <option value="">All Statuses</option>
+                {uniqueStatuses.map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200">
+                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Doctor
+                </th>
+                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Period
+                </th>
+                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('salaryAmount')}>
+                  <div className="flex items-center gap-1">Salary <ArrowUpDown className="w-3 h-3" /></div>
+                </th>
+                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('incentiveAmount')}>
+                  <div className="flex items-center gap-1">Incentive <ArrowUpDown className="w-3 h-3" /></div>
+                </th>
+                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('grossEarnings')}>
+                  <div className="flex items-center gap-1">Gross Earnings <ArrowUpDown className="w-3 h-3" /></div>
+                </th>
+                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="py-8 text-center text-slate-500">Loading...</td>
+                </tr>
+              ) : filteredAndSortedData.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-8 text-center text-slate-500">No payroll records found.</td>
+                </tr>
+              ) : (
+                filteredAndSortedData.map(record => (
+                  <tr key={record._id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-3 px-4 text-sm font-medium text-slate-800">{record.doctorName}</td>
+                    <td className="py-3 px-4 text-sm text-slate-600">{record.period}</td>
+                    <td className="py-3 px-4 text-sm text-slate-700">₹{record.salaryAmount.toLocaleString('en-IN')}</td>
+                    <td className="py-3 px-4 text-sm text-slate-700">₹{record.incentiveAmount.toLocaleString('en-IN')}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-primary">₹{record.grossEarnings.toLocaleString('en-IN')}</td>
+                    <td className="py-3 px-4 text-sm">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        record.status === 'Paid' 
+                          ? 'bg-emerald-50 text-emerald-700' 
+                          : 'bg-blue-50 text-blue-700'
+                      }`}>
+                        {record.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-right">
+                      <button 
+                        onClick={() => handleView(record)}
+                        className="text-slate-400 hover:text-primary transition-colors p-1"
+                        title="View Details"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* View Modal */}
+      {viewModalOpen && selectedPayroll && (
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="text-lg font-semibold text-slate-800">Payroll Detail</h3>
+              <button onClick={() => setViewModalOpen(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-500 mb-1">Doctor Name</p>
+                  <p className="text-base text-slate-800 font-semibold">{selectedPayroll.doctorName}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500 mb-1">Payroll Period</p>
+                  <p className="text-base text-slate-800 font-semibold">{selectedPayroll.period}</p>
+                </div>
+                
+                <div className="col-span-2 border-t border-slate-100 pt-4"></div>
+                
+                <div>
+                  <p className="text-sm font-medium text-slate-500 mb-1">Base Salary</p>
+                  <p className="text-base text-slate-800 font-medium">₹{selectedPayroll.salaryAmount.toLocaleString('en-IN')}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500 mb-1">Incentive Percentage</p>
+                  <p className="text-base text-slate-800 font-medium">{selectedPayroll.incentivePercentage}%</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium text-slate-500 mb-1">Earned Incentive</p>
+                  <p className="text-base text-slate-800 font-medium">₹{selectedPayroll.incentiveAmount.toLocaleString('en-IN')}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-primary mb-1">Gross Earnings</p>
+                  <p className="text-lg text-primary font-bold">₹{selectedPayroll.grossEarnings.toLocaleString('en-IN')}</p>
+                </div>
+
+                <div className="col-span-2 border-t border-slate-100 pt-4"></div>
+
+                <div>
+                  <p className="text-sm font-medium text-slate-500 mb-1">Status</p>
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                    selectedPayroll.status === 'Paid' 
+                      ? 'bg-emerald-50 text-emerald-700' 
+                      : 'bg-blue-50 text-blue-700'
+                  }`}>
+                    {selectedPayroll.status}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500 mb-1">Calculated Date</p>
+                  <p className="text-sm text-slate-800 font-medium">{new Date(selectedPayroll.calculatedAt).toLocaleDateString('en-GB')}</p>
+                </div>
+              </div>
+              
+              <div className="mt-8 flex justify-end gap-3">
+                <button type="button" onClick={() => setViewModalOpen(false)} className="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-lg font-medium transition-colors">
+                  Close
+                </button>
+                {selectedPayroll.status === 'Calculated' && (
+                  <button 
+                    type="button" 
+                    onClick={handleMarkAsPaidClick} 
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 font-medium transition-colors"
+                  >
+                    Mark as Paid
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmModalOpen && selectedPayroll && (
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-slate-800 mb-2">Mark as Paid?</h3>
+              <p className="text-slate-600 text-sm mb-6">
+                Are you sure you want to mark the payroll for <strong>{selectedPayroll.doctorName}</strong> ({selectedPayroll.period}) as paid? This action cannot be undone in the UI.
+              </p>
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setConfirmModalOpen(false)} 
+                  className="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-lg font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleConfirmPaid} 
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium transition-colors"
+                >
+                  Mark as Paid
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </PageContainer>
+  );
+};
+
+export default DoctorPayroll;
