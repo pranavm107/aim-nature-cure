@@ -158,7 +158,8 @@ Companion to the PRD, Gap Analysis, and Implementation Roadmap. Organized by mod
 | GET | `/doctors/:id/incentive-history` | Get doctor's incentive history | Both — Doctor self only |
 | POST | `/doctors/:id/incentive` | Set a new incentive configuration for a doctor (maintains history) | Admin |
 | GET | `/incentives` | List all current incentive configurations | Admin |
-| GET | `/incentives/earnings` | List all incentive earnings | Admin |
+| GET | `/incentives` | List all current incentive configurations (Pending Refactor) | Admin |
+| GET | `/incentives/earnings` | List all incentive earnings (Pending Refactor) | Admin |
 
 ### Future Payroll Phase 3 backend specification
 *(Note: The following endpoints represent the future Phase 3 backend implementation and are separated from the current active endpoints)*
@@ -167,7 +168,7 @@ Companion to the PRD, Gap Analysis, and Implementation Roadmap. Organized by mod
 | GET | `/payroll/:id` | Get specific payroll detail | Admin |
 | GET | `/doctors/:id/payroll` | Get doctor's payroll records | Both — Doctor self only |
 | POST | `/payroll/:id/calculate` | Calculate / Recalculate a payroll record | Admin |
-| PUT | `/payroll/:id/mark-paid` | Mark a calculated payroll as paid | Admin |
+| PUT | `/payroll/:id/mark-paid` | Mark a payroll as approved/paid (Workflow: Pending Review -> Approved -> Paid) | Admin |
 
 | GET | `/incentive-rules` | List all incentive rules/targets | Admin |
 | POST | `/incentive-rules` | Create a target + percentage rule for a doctor, with effective date `[FR-068]` `[BR-04, BR-05]` | Admin |

@@ -50,36 +50,26 @@ const MyPayroll = () => {
       ) : (
         <>
           {currentMonth && (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8 max-w-4xl">
-              <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
-                <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg">
-                  <CreditCard className="w-5 h-5" />
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8 max-w-xl">
+              <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg">
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-800">Current Month Earnings <span className="text-sm font-normal text-slate-500 ml-2">({currentMonth.period})</span></h3>
                 </div>
-                <h3 className="text-lg font-semibold text-slate-800">Current Month Earnings <span className="text-sm font-normal text-slate-500 ml-2">({currentMonth.period})</span></h3>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                  currentMonth.status === 'Paid' 
+                    ? 'bg-emerald-100 text-emerald-700' 
+                    : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {currentMonth.status}
+                </span>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">Base Salary</p>
-                  <p className="text-xl font-bold text-slate-800">₹{currentMonth.salaryAmount.toLocaleString('en-IN')}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">Incentive</p>
-                  <p className="text-xl font-bold text-slate-800">₹{currentMonth.incentiveAmount.toLocaleString('en-IN')}</p>
-                </div>
-                <div className="md:col-span-2">
-                  <p className="text-sm font-medium text-primary mb-1">Gross Earnings</p>
-                  <div className="flex items-center gap-4">
-                    <p className="text-3xl font-bold text-primary">₹{currentMonth.grossEarnings.toLocaleString('en-IN')}</p>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                      currentMonth.status === 'Paid' 
-                        ? 'bg-emerald-100 text-emerald-700' 
-                        : 'bg-blue-100 text-blue-700'
-                    }`}>
-                      {currentMonth.status}
-                    </span>
-                  </div>
-                </div>
+              <div>
+                <p className="text-sm font-medium text-slate-500 mb-1">Base Salary</p>
+                <p className="text-3xl font-bold text-slate-800">₹{currentMonth.salaryAmount.toLocaleString('en-IN')}</p>
               </div>
             </div>
           )}
@@ -95,8 +85,6 @@ const MyPayroll = () => {
                   <tr className="border-b border-slate-200">
                     <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Period</th>
                     <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Salary</th>
-                    <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Incentive</th>
-                    <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Gross Earnings</th>
                     <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
@@ -106,8 +94,6 @@ const MyPayroll = () => {
                       <tr key={record._id} className="hover:bg-slate-50 transition-colors">
                         <td className="py-4 px-6 text-sm text-slate-700 font-medium">{record.period}</td>
                         <td className="py-4 px-6 text-sm text-slate-700">₹{record.salaryAmount.toLocaleString('en-IN')}</td>
-                        <td className="py-4 px-6 text-sm text-slate-700">₹{record.incentiveAmount.toLocaleString('en-IN')}</td>
-                        <td className="py-4 px-6 text-sm font-medium text-primary">₹{record.grossEarnings.toLocaleString('en-IN')}</td>
                         <td className="py-4 px-6 text-sm">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             record.status === 'Paid' 

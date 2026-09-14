@@ -12,6 +12,16 @@ To reset the mock data to its original seeded state:
    ```
 3. The page will clear its mock store and refresh automatically.
 
+## Phase Progress
+
+- [x] Phase 0 - Cleanup Legacy Code
+- [x] Phase 1 - Salary Foundation
+- [x] Phase 2A - Incentive Rule Management
+- [x] Phase 2B - Doctor Follow-up Submission & Review
+- [x] Phase 2C - Social Media Submission & Review
+- [ ] Phase 3 - Doctor Monthly Payroll
+- [ ] Phase 4 - Final Integration & Testing
+
 ## Seeded Mock Patients Reference
 
 Use this table to quickly find a patient that matches the test scenario you want to verify. Remember that doctors can only see patients assigned to them (BR-02), so you will need to switch between doctor accounts (`doc1`, `doc2`, `doc3`) to view them all from the Doctor perspective.

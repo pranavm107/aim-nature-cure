@@ -45,27 +45,6 @@ const DoctorPayroll = () => {
     setViewModalOpen(true);
   };
 
-  const handleMarkAsPaidClick = () => {
-    setViewModalOpen(false);
-    setConfirmModalOpen(true);
-  };
-
-  const handleConfirmPaid = async () => {
-    if (!selectedPayroll) return;
-    try {
-      const res = await payrollService.markPayrollAsPaid(selectedPayroll._id);
-      if (res.success) {
-        toast.success(res.message);
-        setConfirmModalOpen(false);
-        fetchData(); // Refresh data
-      } else {
-        toast.error(res.message);
-      }
-    } catch (error) {
-      toast.error("Error updating payroll status");
-    }
-  };
-
   const {
     searchTerm: searchQuery, 
     setSearchTerm: setSearchQuery,
@@ -88,7 +67,7 @@ const DoctorPayroll = () => {
       <PageHeader title="Doctor Payroll" subtitle="View monthly salary and incentive earnings for doctors." />
       
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
           <div className="p-3 bg-blue-50 text-blue-600 rounded-lg">
             <Users className="w-6 h-6" />
@@ -106,26 +85,6 @@ const DoctorPayroll = () => {
           <div>
             <p className="text-sm font-medium text-slate-500 mb-1">Total Salary</p>
             <h3 className="text-2xl font-bold text-slate-800">₹{summary?.totalSalary?.toLocaleString('en-IN') || 0}</h3>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
-          <div className="p-3 bg-amber-50 text-amber-600 rounded-lg">
-            <Percent className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-slate-500 mb-1">Total Incentive</p>
-            <h3 className="text-2xl font-bold text-slate-800">₹{summary?.totalIncentive?.toLocaleString('en-IN') || 0}</h3>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
-          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
-            <CreditCard className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-slate-500 mb-1">Total Gross Earnings</p>
-            <h3 className="text-2xl font-bold text-slate-800">₹{summary?.totalGross?.toLocaleString('en-IN') || 0}</h3>
           </div>
         </div>
       </div>
@@ -187,12 +146,6 @@ const DoctorPayroll = () => {
                 <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('salaryAmount')}>
                   <div className="flex items-center gap-1">Salary <ArrowUpDown className="w-3 h-3" /></div>
                 </th>
-                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('incentiveAmount')}>
-                  <div className="flex items-center gap-1">Incentive <ArrowUpDown className="w-3 h-3" /></div>
-                </th>
-                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('grossEarnings')}>
-                  <div className="flex items-center gap-1">Gross Earnings <ArrowUpDown className="w-3 h-3" /></div>
-                </th>
                 <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Status
                 </th>
@@ -204,11 +157,11 @@ const DoctorPayroll = () => {
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-slate-500">Loading...</td>
+                  <td colSpan="5" className="py-8 text-center text-slate-500">Loading...</td>
                 </tr>
               ) : filteredAndSortedData.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-slate-500">No payroll records found.</td>
+                  <td colSpan="5" className="py-8 text-center text-slate-500">No payroll records found.</td>
                 </tr>
               ) : (
                 filteredAndSortedData.map(record => (
@@ -216,8 +169,6 @@ const DoctorPayroll = () => {
                     <td className="py-3 px-4 text-sm font-medium text-slate-800">{record.doctorName}</td>
                     <td className="py-3 px-4 text-sm text-slate-600">{record.period}</td>
                     <td className="py-3 px-4 text-sm text-slate-700">₹{record.salaryAmount.toLocaleString('en-IN')}</td>
-                    <td className="py-3 px-4 text-sm text-slate-700">₹{record.incentiveAmount.toLocaleString('en-IN')}</td>
-                    <td className="py-3 px-4 text-sm font-medium text-primary">₹{record.grossEarnings.toLocaleString('en-IN')}</td>
                     <td className="py-3 px-4 text-sm">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         record.status === 'Paid' 
@@ -271,22 +222,6 @@ const DoctorPayroll = () => {
                   <p className="text-base text-slate-800 font-medium">₹{selectedPayroll.salaryAmount.toLocaleString('en-IN')}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">Incentive Percentage</p>
-                  <p className="text-base text-slate-800 font-medium">{selectedPayroll.incentivePercentage}%</p>
-                </div>
-                
-                <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">Earned Incentive</p>
-                  <p className="text-base text-slate-800 font-medium">₹{selectedPayroll.incentiveAmount.toLocaleString('en-IN')}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-primary mb-1">Gross Earnings</p>
-                  <p className="text-lg text-primary font-bold">₹{selectedPayroll.grossEarnings.toLocaleString('en-IN')}</p>
-                </div>
-
-                <div className="col-span-2 border-t border-slate-100 pt-4"></div>
-
-                <div>
                   <p className="text-sm font-medium text-slate-500 mb-1">Status</p>
                   <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                     selectedPayroll.status === 'Paid' 
@@ -296,52 +231,11 @@ const DoctorPayroll = () => {
                     {selectedPayroll.status}
                   </span>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">Calculated Date</p>
-                  <p className="text-sm text-slate-800 font-medium">{new Date(selectedPayroll.calculatedAt).toLocaleDateString('en-GB')}</p>
-                </div>
               </div>
               
               <div className="mt-8 flex justify-end gap-3">
                 <button type="button" onClick={() => setViewModalOpen(false)} className="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-lg font-medium transition-colors">
                   Close
-                </button>
-                {selectedPayroll.status === 'Calculated' && (
-                  <button 
-                    type="button" 
-                    onClick={handleMarkAsPaidClick} 
-                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 font-medium transition-colors"
-                  >
-                    Mark as Paid
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Confirmation Modal */}
-      {confirmModalOpen && selectedPayroll && (
-        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-2">Mark as Paid?</h3>
-              <p className="text-slate-600 text-sm mb-6">
-                Are you sure you want to mark the payroll for <strong>{selectedPayroll.doctorName}</strong> ({selectedPayroll.period}) as paid? This action cannot be undone in the UI.
-              </p>
-              <div className="flex justify-end gap-3">
-                <button 
-                  onClick={() => setConfirmModalOpen(false)} 
-                  className="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-lg font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleConfirmPaid} 
-                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium transition-colors"
-                >
-                  Mark as Paid
                 </button>
               </div>
             </div>

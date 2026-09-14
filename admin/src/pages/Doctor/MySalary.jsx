@@ -118,9 +118,9 @@ const MySalary = () => {
                       </td>
                       <td className="py-4 px-6 text-sm">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          record.status === 'Current' 
-                            ? 'bg-emerald-100 text-emerald-800' 
-                            : 'bg-slate-100 text-slate-600'
+                          record.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 
+                          record.status === 'Scheduled' ? 'bg-blue-100 text-blue-800' :
+                          'bg-slate-100 text-slate-600'
                         }`}>
                           {record.status}
                         </span>

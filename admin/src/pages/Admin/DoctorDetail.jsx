@@ -4,10 +4,9 @@ import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import { adminService } from '../../services/adminService';
 import { salaryService } from '../../services/salaryService';
-import { incentiveService } from '../../services/incentiveService';
 import { toast } from 'react-toastify';
 import { Edit } from 'lucide-react';
-import { InputField, SelectField, TextareaField } from '../../components/common/FormFields';
+import { InputField, TextareaField } from '../../components/common/FormFields';
 
 const DoctorDetail = () => {
   const { id } = useParams();
@@ -24,12 +23,6 @@ const DoctorDetail = () => {
   const [salaryFormData, setSalaryFormData] = useState({ amount: '', effectiveFrom: '' });
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
 
-  const [currentIncentive, setCurrentIncentive] = useState(null);
-  const [incentiveHistory, setIncentiveHistory] = useState([]);
-  const [incentiveModalOpen, setIncentiveModalOpen] = useState(false);
-  const [incentiveFormData, setIncentiveFormData] = useState({ percentage: '', effectiveFrom: '' });
-  const [incentiveHistoryModalOpen, setIncentiveHistoryModalOpen] = useState(false);
-
   const fetchSalaryAndIncentive = async () => {
     try {
       const res = await salaryService.getCurrentSalary(id);
@@ -38,13 +31,6 @@ const DoctorDetail = () => {
       
       const histRes = await salaryService.getSalaryHistory(id);
       if (histRes.success) setSalaryHistory(histRes.history);
-
-      const incRes = await incentiveService.getCurrentIncentive(id);
-      if (incRes.success) setCurrentIncentive(incRes.incentive);
-      else setCurrentIncentive(null);
-
-      const incHistRes = await incentiveService.getIncentiveHistory(id);
-      if (incHistRes.success) setIncentiveHistory(incHistRes.history);
     } catch (err) {
       console.error(err);
     }
@@ -113,6 +99,15 @@ const DoctorDetail = () => {
 
   const handleSalarySubmit = async (e) => {
     e.preventDefault();
+    if (!salaryFormData.amount || Number(salaryFormData.amount) <= 0) {
+      toast.error("Salary amount must be greater than zero");
+      return;
+    }
+    if (!salaryFormData.effectiveFrom) {
+      toast.error("Effective date is required");
+      return;
+    }
+
     try {
       const res = await salaryService.setSalary(id, doctor.name, salaryFormData.amount, salaryFormData.effectiveFrom);
       if (res.success) {
@@ -124,32 +119,6 @@ const DoctorDetail = () => {
       }
     } catch (err) {
       toast.error("Failed to set salary");
-    }
-  };
-
-  const handleIncentiveSubmit = async (e) => {
-    e.preventDefault();
-    if (!incentiveFormData.percentage || !incentiveFormData.effectiveFrom) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-    const perc = Number(incentiveFormData.percentage);
-    if (perc <= 0 || perc > 100) {
-      toast.error("Percentage must be between 1 and 100");
-      return;
-    }
-
-    try {
-      const res = await incentiveService.setIncentive(id, doctor.name, incentiveFormData.percentage, incentiveFormData.effectiveFrom);
-      if (res.success) {
-        toast.success(res.message);
-        setIncentiveModalOpen(false);
-        fetchSalaryAndIncentive();
-      } else {
-        toast.error(res.message);
-      }
-    } catch (err) {
-      toast.error("Failed to set incentive");
     }
   };
 
@@ -264,37 +233,6 @@ const DoctorDetail = () => {
         </div>
       </div>
 
-      {/* Incentive Section */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-3xl mt-6 mb-8">
-        <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-2">
-          <h2 className="text-lg font-semibold text-slate-800">Incentive Information</h2>
-          <button onClick={() => {
-            setIncentiveFormData({ percentage: currentIncentive?.percentage || '', effectiveFrom: new Date().toISOString().split('T')[0] });
-            setIncentiveModalOpen(true);
-          }} className="px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary/90 text-xs font-medium transition-colors">
-            Set Incentive
-          </button>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <p className="text-slate-500 text-sm mb-1">Current Incentive</p>
-            <p className="text-2xl font-bold text-slate-800">
-              {currentIncentive ? `${currentIncentive.percentage}%` : 'Not Set'}
-            </p>
-            {currentIncentive && (
-              <p className="text-xs text-slate-500 mt-1">
-                Effective From: {new Date(currentIncentive.effectiveFrom).toLocaleDateString('en-GB')}
-              </p>
-            )}
-          </div>
-          
-          <button onClick={() => setIncentiveHistoryModalOpen(true)} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors">
-            View Incentive History
-          </button>
-        </div>
-      </div>
-
       {editModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
@@ -382,7 +320,11 @@ const DoctorDetail = () => {
                           <td className="py-3 px-4 text-sm text-slate-700">{new Date(record.effectiveFrom).toLocaleDateString('en-GB')}</td>
                           <td className="py-3 px-4 text-sm font-medium text-slate-800">₹{record.salaryAmount.toLocaleString('en-IN')}</td>
                           <td className="py-3 px-4 text-sm">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${record.status === 'Current' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                              record.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 
+                              record.status === 'Scheduled' ? 'bg-blue-100 text-blue-700' :
+                              'bg-slate-100 text-slate-600'
+                            }`}>
                               {record.status}
                             </span>
                           </td>
@@ -400,90 +342,6 @@ const DoctorDetail = () => {
             </div>
             <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end">
               <button onClick={() => setHistoryModalOpen(false)} className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 text-sm font-medium transition-colors">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Set Incentive Modal */}
-      {incentiveModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-              <h3 className="text-lg font-semibold text-slate-800">Set Doctor Incentive</h3>
-              <button onClick={() => setIncentiveModalOpen(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
-            </div>
-            
-            <form onSubmit={handleIncentiveSubmit} className="p-6">
-              <div className="mb-4">
-                <p className="text-sm font-medium text-slate-500 mb-1">Doctor</p>
-                <p className="text-base text-slate-800 font-medium">{doctor.name}</p>
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                <InputField label="Incentive Percentage (%)" type="number" min="1" max="100" value={incentiveFormData.percentage} onChange={e => setIncentiveFormData({...incentiveFormData, percentage: e.target.value})} required />
-                <InputField label="Effective From" type="date" value={incentiveFormData.effectiveFrom} onChange={e => setIncentiveFormData({...incentiveFormData, effectiveFrom: e.target.value})} required />
-              </div>
-              
-              <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
-                <button type="button" onClick={() => setIncentiveModalOpen(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors">
-                  Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 font-medium transition-colors">
-                  Save Incentive
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Incentive History Modal */}
-      {incentiveHistoryModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-              <h3 className="text-lg font-semibold text-slate-800">Incentive History</h3>
-              <button onClick={() => setIncentiveHistoryModalOpen(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto">
-              <div className="mb-4">
-                <p className="text-sm font-medium text-slate-500 mb-1">Doctor</p>
-                <p className="text-base text-slate-800 font-medium">{doctor.name}</p>
-              </div>
-              
-              {incentiveHistory.length > 0 ? (
-                <div className="overflow-x-auto rounded-lg border border-slate-200">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-200">
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase">Effective From</th>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase">Incentive</th>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase">Status</th>
-                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase">Set By</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {incentiveHistory.map(record => (
-                        <tr key={record._id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
-                          <td className="py-3 px-4 text-sm text-slate-700">{new Date(record.effectiveFrom).toLocaleDateString('en-GB')}</td>
-                          <td className="py-3 px-4 text-sm font-medium text-slate-800">{record.percentage}%</td>
-                          <td className="py-3 px-4 text-sm">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${record.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                              {record.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-sm text-slate-600">{record.createdBy}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="p-8 text-center text-slate-500">
-                  <p>No incentive history available.</p>
-                </div>
-              )}
             </div>
           </div>
         </div>

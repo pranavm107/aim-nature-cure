@@ -1,83 +1,93 @@
+import { mockSocialMediaActivities } from '../mocks/mockData';
+import { getStore, setStore } from '../utils/mockStore';
+
+let state = {
+  activities: getStore('mockSocialMediaActivities', mockSocialMediaActivities)
+};
+
+const saveState = () => setStore('mockSocialMediaActivities', state.activities);
+
 const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
-import { mockSocialSubmissions } from '../mocks/mockData';
-
 export const socialService = {
-  getSubmissions: async () => {
+  getSocialMediaActivities: async () => {
     await delay();
-    return { success: true, submissions: mockSocialSubmissions };
+    return { success: true, activities: [...state.activities] };
   },
 
-  getDoctorSubmissions: async (doctorId) => {
+  getDoctorSocialMediaActivities: async (doctorId) => {
     await delay();
-    const submissions = mockSocialSubmissions.filter(s => s.docId === doctorId);
-    return { success: true, submissions };
+    const activities = state.activities.filter(a => a.doctorId === doctorId);
+    return { success: true, activities };
   },
 
-  createSubmission: async (data) => {
+  submitSocialMediaActivity: async (data) => {
     await delay();
-    const newSubmission = {
-      _id: "soc" + Date.now(),
-      date: Date.now(),
-      status: "Pending Review",
-      history: [],
-      ...data
-    };
-    mockSocialSubmissions.push(newSubmission);
-    return { success: true, submission: newSubmission };
-  },
-
-  approveSubmission: async (id, adminId = 'Admin') => {
-    await delay();
-    const idx = mockSocialSubmissions.findIndex(s => s._id === id);
-    if (idx === -1) throw new Error("Not found");
-    
-    mockSocialSubmissions[idx].status = "Approved";
-    mockSocialSubmissions[idx].approvedBy = adminId;
-    mockSocialSubmissions[idx].approvedDate = Date.now();
-    
-    return { success: true, submission: mockSocialSubmissions[idx] };
-  },
-
-  rejectSubmission: async (id, reason, adminId = 'Admin') => {
-    await delay();
-    const idx = mockSocialSubmissions.findIndex(s => s._id === id);
-    if (idx === -1) throw new Error("Not found");
-    
-    mockSocialSubmissions[idx].status = "Rejected";
-    mockSocialSubmissions[idx].rejectionReason = reason;
-    mockSocialSubmissions[idx].rejectedBy = adminId;
-    mockSocialSubmissions[idx].rejectedDate = Date.now();
-    
-    return { success: true, submission: mockSocialSubmissions[idx] };
-  },
-
-  resubmitSubmission: async (id, data) => {
-    await delay();
-    const idx = mockSocialSubmissions.findIndex(s => s._id === id);
-    if (idx === -1) throw new Error("Not found");
-    
-    const oldVersion = { ...mockSocialSubmissions[idx] };
-    
-    // Push old version to history
-    mockSocialSubmissions[idx].history.push({
-      date: oldVersion.date,
-      status: oldVersion.status,
-      rejectedBy: oldVersion.rejectedBy,
-      rejectionReason: oldVersion.rejectionReason
-    });
-    
-    // Update with new data
-    mockSocialSubmissions[idx] = {
-      ...mockSocialSubmissions[idx],
-      ...data,
-      date: Date.now(),
-      status: "Pending Review",
-      rejectionReason: null,
-      rejectedBy: null,
-      rejectedDate: null
+    const newActivity = {
+      _id: "sma_" + Date.now(),
+      doctorId: data.doctorId,
+      platform: data.platform,
+      postDate: data.postDate,
+      postLink: data.postLink,
+      description: data.description,
+      proofReference: data.proofReference || '',
+      status: 'Submitted',
+      submittedAt: Date.now(),
+      reviewedAt: null,
+      reviewedBy: null,
+      reviewRemark: ''
     };
     
-    return { success: true, submission: mockSocialSubmissions[idx] };
+    state.activities = [...state.activities, newActivity];
+    saveState();
+    return { success: true, message: 'Social Media Activity submitted for review.', activity: newActivity };
+  },
+
+  approveSocialMediaActivity: async (id, reviewData, adminId = 'Admin') => {
+    await delay();
+    const activities = [...state.activities];
+    const idx = activities.findIndex(a => a._id === id);
+    if (idx === -1) return { success: false, message: 'Activity not found.' };
+    
+    if (activities[idx].status !== 'Submitted') {
+      return { success: false, message: 'Only Submitted activities can be approved.' };
+    }
+
+    activities[idx] = {
+      ...activities[idx],
+      status: 'Approved',
+      reviewedAt: Date.now(),
+      reviewedBy: adminId,
+      reviewRemark: reviewData.remark || ''
+    };
+
+    state.activities = activities;
+    saveState();
+    return { success: true, message: 'Activity Approved. It is now eligible for incentives.' };
+  },
+
+  rejectSocialMediaActivity: async (id, reviewData, adminId = 'Admin') => {
+    await delay();
+    const activities = [...state.activities];
+    const idx = activities.findIndex(a => a._id === id);
+    if (idx === -1) return { success: false, message: 'Activity not found.' };
+    
+    if (activities[idx].status !== 'Submitted') {
+      return { success: false, message: 'Only Submitted activities can be rejected.' };
+    }
+
+    activities[idx] = {
+      ...activities[idx],
+      status: 'Rejected',
+      reviewedAt: Date.now(),
+      reviewedBy: adminId,
+      reviewRemark: reviewData.remark || ''
+    };
+
+    state.activities = activities;
+    saveState();
+    return { success: true, message: 'Activity Rejected.' };
   }
+
 };
+

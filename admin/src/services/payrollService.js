@@ -26,19 +26,6 @@ export const payrollService = {
     return { success: true, payrolls };
   },
 
-  markPayrollAsPaid: async (id) => {
-    await delay();
-    const mockPayrolls = getStore('mockPayrolls');
-    const index = mockPayrolls.findIndex(p => p._id === id);
-    if (index !== -1) {
-      mockPayrolls[index].status = 'Paid';
-      mockPayrolls[index].paidAt = new Date().toISOString().split('T')[0];
-      setStore('mockPayrolls', mockPayrolls);
-      return { success: true, message: 'Payroll marked as paid successfully', payroll: mockPayrolls[index] };
-    }
-    return { success: false, message: 'Payroll not found' };
-  },
-
   getPayrollSummary: async () => {
     await delay();
     const mockPayrolls = getStore('mockPayrolls');
@@ -47,10 +34,8 @@ export const payrollService = {
     
     const summary = mockPayrolls.reduce((acc, curr) => {
       acc.totalSalary += curr.salaryAmount || 0;
-      acc.totalIncentive += curr.incentiveAmount || 0;
-      acc.totalGross += curr.grossEarnings || 0;
       return acc;
-    }, { totalSalary: 0, totalIncentive: 0, totalGross: 0 });
+    }, { totalSalary: 0 });
 
     return {
       success: true,

@@ -24,27 +24,13 @@ const mockSalaries = [
   { _id: 'sal_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', salaryAmount: 42000, effectiveFrom: '2026-09-01', status: 'Current', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' }
 ];
 
-const mockIncentiveConfigurations = [
-  { _id: 'inc_config_1', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', type: 'percentage', percentage: 8, effectiveFrom: '2026-08-01', status: 'Historical', createdBy: 'Admin' },
-  { _id: 'inc_config_2', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', type: 'percentage', percentage: 10, effectiveFrom: '2026-09-01', status: 'Active', createdBy: 'Admin' },
-  { _id: 'inc_config_3', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', type: 'percentage', percentage: 12, effectiveFrom: '2026-09-01', status: 'Active', createdBy: 'Admin' },
-  { _id: 'inc_config_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', type: 'percentage', percentage: 15, effectiveFrom: '2026-09-01', status: 'Active', createdBy: 'Admin' }
-];
-
-const mockIncentiveEarnings = [
-  { _id: 'inc_earn_1', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'August 2026', revenue: 95000, incentivePercentage: 8, incentiveAmount: 7600, status: 'Calculated' },
-  { _id: 'inc_earn_2', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'September 2026', revenue: 105000, incentivePercentage: 10, incentiveAmount: 10500, status: 'Calculated' },
-  { _id: 'inc_earn_3', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', period: 'September 2026', revenue: 120000, incentivePercentage: 12, incentiveAmount: 14400, status: 'Calculated' },
-  { _id: 'inc_earn_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'September 2026', revenue: 80000, incentivePercentage: 15, incentiveAmount: 12000, status: 'Calculated' }
-];
-
 const mockPayrolls = [
-  { _id: 'pay_001', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'August 2026', salaryAmount: 40000, incentivePercentage: 8, incentiveAmount: 7600, grossEarnings: 47600, status: 'Paid', calculatedAt: '2026-08-31', paidAt: '2026-09-02' },
-  { _id: 'pay_002', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'September 2026', salaryAmount: 45000, incentivePercentage: 10, incentiveAmount: 10500, grossEarnings: 55500, status: 'Calculated', calculatedAt: '2026-09-30', paidAt: null },
-  { _id: 'pay_003', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', period: 'August 2026', salaryAmount: 50000, incentivePercentage: 12, incentiveAmount: 12000, grossEarnings: 62000, status: 'Paid', calculatedAt: '2026-08-31', paidAt: '2026-09-02' },
-  { _id: 'pay_004', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', period: 'September 2026', salaryAmount: 50000, incentivePercentage: 12, incentiveAmount: 14400, grossEarnings: 64400, status: 'Calculated', calculatedAt: '2026-09-30', paidAt: null },
-  { _id: 'pay_005', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'August 2026', salaryAmount: 42000, incentivePercentage: 15, incentiveAmount: 10000, grossEarnings: 52000, status: 'Paid', calculatedAt: '2026-08-31', paidAt: '2026-09-02' },
-  { _id: 'pay_006', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'September 2026', salaryAmount: 42000, incentivePercentage: 15, incentiveAmount: 12000, grossEarnings: 54000, status: 'Calculated', calculatedAt: '2026-09-30', paidAt: null }
+  { _id: 'pay_001', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'August 2026', salaryAmount: 40000, status: 'Pending Review' },
+  { _id: 'pay_002', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'September 2026', salaryAmount: 45000, status: 'Pending Review' },
+  { _id: 'pay_003', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', period: 'August 2026', salaryAmount: 50000, status: 'Pending Review' },
+  { _id: 'pay_004', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', period: 'September 2026', salaryAmount: 50000, status: 'Pending Review' },
+  { _id: 'pay_005', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'August 2026', salaryAmount: 42000, status: 'Pending Review' },
+  { _id: 'pay_006', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'September 2026', salaryAmount: 42000, status: 'Pending Review' }
 ];
 
 const mockProfile = {
@@ -227,8 +213,6 @@ import { assets } from '../assets/assets'
 
 export const mockDoctors = \${JSON.stringify(mockDoctors, null, 2).replace(/\\"assets\\.doc\\d\\"/g, 'assets.doc1')};
 export const mockSalaries = \${JSON.stringify(mockSalaries, null, 2)};
-export const mockIncentiveConfigurations = \${JSON.stringify(mockIncentiveConfigurations, null, 2)};
-export const mockIncentiveEarnings = \${JSON.stringify(mockIncentiveEarnings, null, 2)};
 export const mockPayrolls = \${JSON.stringify(mockPayrolls, null, 2)};
 export const mockProfile = \${JSON.stringify(mockProfile, null, 2)};
 export const mockCredentials = \${JSON.stringify(mockCredentials, null, 2)};

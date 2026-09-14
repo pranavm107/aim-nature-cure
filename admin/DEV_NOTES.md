@@ -20,19 +20,27 @@ Forced Password Reset User (New Doctor):
 These exist purely to drive the mock auth service during Stage 1-8 development and are intentionally fake.
 They do not correlate to any real backend credentials and should be removed before Stage 9.*
 
-- `mockSalaries`: Array of salary configurations tracking historical and current records.
+## Mock Data Modules
 
-### Phase 2 Incentive Module (Frontend Mock Layer)
-- **`incentiveService.js`**: Handles isolated read/write of doctor incentives using `mockStore`.
-- **`mockIncentiveConfigurations`**: Tracks percentage-based incentive rules. Includes `status` ('Active', 'Historical') and `effectiveFrom`.
-- **`mockIncentiveEarnings`**: Tracks simulated earnings based on revenue (`revenue × percentage / 100`).
-- **Testing Isolation**: Log in as `Doctor` to view `/doctor/incentive` which strictly shows data for `doc1`. Admin can configure via `DoctorDetail.jsx` and view earnings at `/admin/incentives`.
+### Phase 2B Follow-up Activity Submission
+- **Status:** Completed.
+- **`followUpService.js`**: Separated generic follow-up tasks from incentive submission activities (`mockFollowUpActivities`). Added complete submission, approval, and rejection methods.
+- **Workflow**: `Submitted` != `Earned`. `Approved` = `Incentive Eligible`. No payroll or calculation actions take place here.
 
-### Phase 3 Payroll Module (Frontend Mock Layer)
-- **`payrollService.js`**: Handles isolated read/write of doctor payrolls using `mockStore`.
-- **`mockPayrolls`**: Tracks combined Salary + Incentive records per period.
-- **`Calculated` vs `Paid`**: Admins can mark records as `Paid`. `Paid` is a one-way mock status flag.
-- **Testing Isolation**: Log in as `Doctor` to view `/doctor/payroll` which strictly shows data for `doc1`. Admin can view global records at `/admin/payroll` and execute status shifts. No real payment processing is implemented.
+### Phase 2A Incentive Rule Management
+- **Status:** Completed.
+- **`incentiveService.js`**: Rebuilt to manage configurable revenue percentages and activity flat amounts.
+- **`mockIncentiveRules`**: Single source of truth for global incentive rule definitions. Contains rules with explicit `effectiveFrom` dates. Prevents duplicates and strictly preserves historical data.
+
+### Phase 1 Salary Foundation
+- **Status:** Completed.
+- **`salaryService.js`**: Calculates the `Current` salary dynamically based on the latest `effectiveFrom` date that is `<= Date.now()`.
+- **`mockSalaries`**: Appends new records on update (does not overwrite), preserving a full historical timeline. `status` is evaluated on-the-fly (`Active`, `Scheduled`, `Historical`) rather than being hardcoded into the DB schema.
+
+### Phase 0 Cleanup (Preparation for New Workflows)
+- **Status:** Completed. Obsolete generic incentive logics and calculations were removed to pave the way for Activity & Revenue-based implementations.
+- **Removed Modules:** `IncentivesOverview`, `MyIncentive`, old flat-percentage Incentive config in `DoctorDetail`.
+- **Status Workflow:** Hardcoded "Calculated" -> "Paid" mock payroll status flow was cleaned up, replaced temporarily with a "Pending Review" baseline until the new feature set is developed.
 
 ## State Management
 - Authentication state is managed via Context API (`AdminContext.jsx`, `DoctorContext.jsx`).

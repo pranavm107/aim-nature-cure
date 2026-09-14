@@ -6,43 +6,63 @@ export const salaryService = {
   getCurrentSalary: async (doctorId) => {
     await delay();
     const mockSalaries = getStore('mockSalaries');
-    const currentSalary = mockSalaries.find(
-      (s) => s.doctorId === doctorId && s.status === 'Current'
-    );
+    const today = new Date().setHours(0, 0, 0, 0);
+
+    const docSalaries = mockSalaries
+      .filter(s => s.doctorId === doctorId)
+      .sort((a, b) => new Date(b.effectiveFrom) - new Date(a.effectiveFrom));
+
+    const currentSalary = docSalaries.find(s => {
+      const effectiveDate = new Date(s.effectiveFrom).setHours(0, 0, 0, 0);
+      return effectiveDate <= today;
+    });
+
     if (currentSalary) {
-      return { success: true, salary: currentSalary };
+      return { success: true, salary: { ...currentSalary, status: 'Active' } };
     }
-    return { success: false, message: 'No current salary found' };
+    return { success: false, message: 'No active salary configured' };
   },
 
   getSalaryHistory: async (doctorId) => {
     await delay();
     const mockSalaries = getStore('mockSalaries');
-    const history = mockSalaries
+    const today = new Date().setHours(0, 0, 0, 0);
+
+    let docSalaries = mockSalaries
       .filter((s) => s.doctorId === doctorId)
       .sort((a, b) => new Date(b.effectiveFrom) - new Date(a.effectiveFrom));
     
-    return { success: true, history };
+    // Determine dynamic status
+    let foundCurrent = false;
+    docSalaries = docSalaries.map(s => {
+      const effectiveDate = new Date(s.effectiveFrom).setHours(0, 0, 0, 0);
+      let dynamicStatus = 'Historical';
+
+      if (effectiveDate > today) {
+        dynamicStatus = 'Scheduled';
+      } else if (!foundCurrent) {
+        dynamicStatus = 'Active';
+        foundCurrent = true;
+      }
+
+      return { ...s, status: dynamicStatus };
+    });
+
+    return { success: true, history: docSalaries };
   },
 
   setSalary: async (doctorId, doctorName, amount, effectiveFrom) => {
     await delay();
     const mockSalaries = getStore('mockSalaries');
     
-    // Mark old as historical
-    mockSalaries.forEach(s => {
-      if (s.doctorId === doctorId && s.status === 'Current') {
-        s.status = 'Historical';
-      }
-    });
-
+    // Do NOT overwrite previous records or manually shift statuses
+    // The history is preserved simply by pushing the new record.
     const newSalary = {
       _id: 'sal_' + Date.now(),
       doctorId,
       doctorName,
       salaryAmount: Number(amount),
       effectiveFrom,
-      status: 'Current',
       createdAt: Date.now(),
       createdBy: 'Admin'
     };

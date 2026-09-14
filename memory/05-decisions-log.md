@@ -85,3 +85,23 @@
   - **Context:** Following Phase 1 and 2, a payroll layer was needed to unify the salary and incentive data and provide an actionable payment flow for the Admin.
   - **Decision:** Implemented a new `payrollService.js` and `mockPayrolls` to provide a consolidated view. The Admin can mark a payroll record as "Paid" changing the lifecycle status. The Doctor views a read-only consolidated earnings page.
   - **Constraint:** Frontend/mock-data only. Backend remains future work. "Paid" status is purely a UI state toggle. Real integrations with banks or HR logic (taxes, deductions) are actively blocked.
+- **Phase 0: Existing Code Cleanup**:
+  - **Context:** The legacy implementation of generic flat-percentage incentives and static mocked payroll statuses conflicting with the new workflow needed to be removed.
+  - **Decision:** Scrubbed `mockData.js` of obsolete arrays (`mockIncentiveConfigurations`, `mockIncentiveEarnings`). Reverted `mockPayrolls` to a base "Pending Review" status. Removed obsolete screens (`IncentivesOverview`, `MyIncentive`) and generic logic from `incentiveService` and `payrollService`.
+  - **Constraint:** Maintain strict compatibility with future phases (Pending Review -> Approved -> Paid workflow) without actually implementing the features yet. Preserve core UI and basic Salary features.
+- **Phase 1: Salary Foundation**:
+  - **Context:** Complete and stabilize Salary CRUD and salary history, while enforcing effective date logic and preserving history without hard deletes.
+  - **Decision:** Implemented dynamic status calculation in `salaryService.js` (Active, Scheduled, Historical) based on `effectiveFrom`. `mockSalaries` is strictly append-only. Enhanced Admin validation to prevent invalid inputs.
+  - **Constraint:** Frontend/mock-data only. Doctor UI remains completely read-only.
+- **Phase 2A: Incentive Rule Management**:
+  - **Context:** Build a new generic Incentive Rule system that supports both percentage-based Revenue rules and flat-amount Activity rules.
+  - **Decision:** Implemented `mockIncentiveRules` and rewrote `incentiveService.js` following the same effective-date and append-only logic as Phase 1 Salary. Admins configure rules generically across types and categories. No calculations are triggered.
+  - **Constraint:** Frontend/mock-data only. Completely decoupled from Doctor execution. No actual incentive earnings generated.
+- **Phase 2B: Follow-up Activity Submission**:
+  - **Context:** Allow Doctors to submit completed follow-ups, and Admins to review them for incentive eligibility.
+  - **Decision:** Used a tabbed interface inside the existing `FollowUpList.jsx` and `AdminFollowUpOverview.jsx` screens to neatly separate operational tasks from incentive submissions. `mockFollowUpActivities` serves as the centralized store. Submissions are strictly marked as 'Submitted', 'Approved', or 'Rejected'. `Submitted != Earned`, `Approved = Incentive Eligible`.
+  - **Constraint:** No incentive or payroll calculations are made during this phase.
+- **Phase 2C: Social Media Activity Submission**:
+  - **Context:** Rebuild the generic social media submission tool into a strict Phase 2 workflow matching `Submitted != Earned`.
+  - **Decision:** Transformed `SocialSubmission.jsx` (Doctor) and `SocialReview.jsx` (Admin) to use `mockSocialMediaActivities`. Enforced explicit field collection (Platform, Link, Proof) instead of unstructured markdown. Stripped out all legacy generic logic and replaced it with strict `Submitted`, `Approved`, `Rejected` states with mandatory review remarks on rejection.
+  - **Constraint:** No incentive calculations or payroll integration. No hard deletes. Backend is out of scope.
