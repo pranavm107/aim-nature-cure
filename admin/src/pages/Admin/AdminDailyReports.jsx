@@ -78,9 +78,10 @@ const AdminDailyReports = () => {
             };
           }
           acc[dateStr].totalDoctors += 1;
-          acc[dateStr].totalPatients += (report.patientCount || report.patientsSeen || 0);
-          acc[dateStr].totalConsultations += (report.consultations || report.consultationsCompleted || 0);
-          acc[dateStr].totalTherapies += (report.therapySessions || 0);
+          acc[dateStr].totalPatients += (report.summaryMetrics?.patientsSeen || 0);
+          acc[dateStr].totalConsultations += (report.summaryMetrics?.consultations || 0);
+          acc[dateStr].totalTherapies += (report.summaryMetrics?.therapySessions || 0);
+          // Box cash is legacy or derived elsewhere, we can leave it 0 or keep as is if it's on report
           acc[dateStr].totalBoxCash += (report.boxCash || 0);
           if (report.status !== 'Reviewed') {
             acc[dateStr].allReviewed = false;

@@ -22,6 +22,15 @@ They do not correlate to any real backend credentials and should be removed befo
 
 ## Mock Data Modules
 
+### Phase 5 Testing & Business Rule Validation
+- **Status:** Completed.
+- **Validation Report**:
+  - **Tests Performed**: Checked invoice payment filtering (unpaid = 0, partial = actual paid, full = total), verified exact boundary dates in Node (`getMonthBounds` timezone bug identified and fixed), confirmed Activity status parsing (`Approved` only), prevented `Pending Review -> Paid` state hops.
+  - **Business Rules Verified**: Payroll is exclusively system-calculated. Doctors cannot generate/approve/pay. Statement locking post-approval works as expected. Duplicate statements blocked. Recalculation restricted to `Pending Review`.
+  - **Bugs Found**: `getMonthBounds` logic allowed timezone offset misalignment, causing e.g., "2026-09" to be parsed as August 31st UTC depending on local time.
+  - **Bugs Fixed**: Split `YYYY-MM` string manually for Date parsing in `getMonthBounds`.
+  - **Final Module Status**: The Salary, Incentive & Payroll module is complete and structurally sound.
+
 ### Phase 4 Payroll Approval & Payment
 - **Status:** Completed.
 - **`payrollService.js`**: Introduced structured `Pending Review` -> `Approved` -> `Paid` state transitions without recalculating Phase 3 baseline data. 

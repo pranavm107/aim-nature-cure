@@ -4,10 +4,13 @@ const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Helper: Get month date boundaries
 const getMonthBounds = (monthString) => {
-  // Assuming monthString is like "September 2026"
-  const date = new Date(`${monthString} 1`);
-  const start = new Date(date.getFullYear(), date.getMonth(), 1).setHours(0,0,0,0);
-  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999).getTime();
+  // monthString is "YYYY-MM" (e.g., "2026-09")
+  const [yearStr, monthStr] = monthString.split('-');
+  const year = parseInt(yearStr, 10);
+  const month = parseInt(monthStr, 10) - 1; // 0-indexed month
+
+  const start = new Date(year, month, 1).setHours(0,0,0,0);
+  const end = new Date(year, month + 1, 0, 23, 59, 59, 999).getTime();
   return { start, end };
 };
 

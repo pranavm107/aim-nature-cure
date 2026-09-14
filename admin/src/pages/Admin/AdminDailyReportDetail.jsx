@@ -20,20 +20,10 @@ const AdminDailyReportDetail = () => {
       if (res.success) {
         // Filter by date
         const dateReports = res.reports.filter(r => new Date(r.date).toISOString().split('T')[0] === date);
-        
-        // Fetch patient list for each report's doctor
-        for (let r of dateReports) {
-          const ptRes = await dailyReportService.getPatientsSeen(r.doctorId || r.docId, date);
-          if (ptRes.success) {
-            r.patientsSeenList = ptRes.patientsSeen;
-          } else {
-            r.patientsSeenList = [];
-          }
-        }
 
         setReports(dateReports);
 
-        // Aggregate
+        // Aggregate dynamically from summaryMetrics
         let totalPatients = 0;
         let totalConsultations = 0;
         let totalTherapies = 0;
@@ -41,9 +31,9 @@ const AdminDailyReportDetail = () => {
         let allReviewed = dateReports.length > 0;
 
         dateReports.forEach(r => {
-          totalPatients += (r.patientCount || r.patientsSeen || 0);
-          totalConsultations += (r.consultations || r.consultationsCompleted || 0);
-          totalTherapies += (r.therapySessions || 0);
+          totalPatients += (r.summaryMetrics?.patientsSeen || 0);
+          totalConsultations += (r.summaryMetrics?.consultations || 0);
+          totalTherapies += (r.summaryMetrics?.therapySessions || 0);
           totalBoxCash += (r.boxCash || 0);
           if (r.status !== 'Reviewed') {
             allReviewed = false;
@@ -75,7 +65,7 @@ const AdminDailyReportDetail = () => {
     try {
       const pendingReports = reports.filter(r => r.status !== 'Reviewed');
       for (const rep of pendingReports) {
-        await dailyReportService.updateReportStatus(rep._id, 'Reviewed');
+        await dailyReportService.reviewDailyReport(rep._id, 'Reviewed as bulk action', 'Admin');
       }
       toast.success('All reports for this date marked as Reviewed');
       fetchDateReports();
@@ -150,20 +140,21 @@ const AdminDailyReportDetail = () => {
                 {report.status === 'Reviewed' ? <Badge variant="success">Reviewed</Badge> : <Badge variant="warning">Pending Review</Badge>}
               </div>
               <div className="p-6">
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
-                  <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Patients</p><p className="font-semibold text-lg">{report.patientCount || report.patientsSeen || 0}</p></div>
-                  <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Consults</p><p className="font-semibold text-lg">{report.consultations || report.consultationsCompleted || 0}</p></div>
-                  <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Therapies</p><p className="font-semibold text-lg">{report.therapySessions || 0}</p></div>
-                  <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Follow-Ups</p><p className="font-semibold text-lg">{report.followUps || report.followUpsCompleted || 0}</p></div>
+                <div className="grid grid-cols-2 sm:grid-cols-6 gap-4 mb-6">
+                  <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Patients</p><p className="font-semibold text-lg">{report.summaryMetrics?.patientsSeen || 0}</p></div>
+                  <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Consults</p><p className="font-semibold text-lg">{report.summaryMetrics?.consultations || 0}</p></div>
+                  <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Therapies</p><p className="font-semibold text-lg">{report.summaryMetrics?.therapySessions || 0}</p></div>
+                  <div><p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Follow-Ups</p><p className="font-semibold text-lg">{report.summaryMetrics?.followUps || 0}</p></div>
+                  <div><p className="text-xs text-blue-500 uppercase font-bold tracking-wider">Social</p><p className="font-semibold text-lg text-blue-700">{report.summaryMetrics?.socialMediaActivities || 0}</p></div>
                   <div><p className="text-xs text-emerald-600 uppercase font-bold tracking-wider">Box Cash</p><p className="font-semibold text-lg text-emerald-700">₹{report.boxCash || 0}</p></div>
                 </div>
                 
                 {/* Patients Seen Section */}
-                {report.patientsSeenList && report.patientsSeenList.length > 0 && (
+                {report.summaryMetrics?.patientsList && report.summaryMetrics.patientsList.length > 0 && (
                   <div className="mb-6">
                     <p className="text-sm font-bold text-slate-700 mb-3">Patients Seen</p>
                     <div className="flex flex-col gap-2">
-                      {report.patientsSeenList.map(pt => (
+                      {report.summaryMetrics.patientsList.map(pt => (
                         <div key={pt.patientId} className="flex items-center gap-3 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                           <p className="text-sm font-medium text-slate-800 min-w-[150px]">{pt.patientName}</p>
                           <div className="flex gap-2 flex-wrap">
