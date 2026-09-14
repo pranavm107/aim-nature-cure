@@ -240,6 +240,52 @@ const DoctorDailyReport = () => {
                   {/* Aggregated Metrics */}
                   {renderMetricsGrid(selectedReportContext.summary)}
 
+                  {/* Patient Activity Section */}
+                  {selectedReportContext.summary.patientActivities && (
+                    <Card title={`Today's Patient Activity`} className="mb-6 border-slate-200 shadow-sm">
+                       <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                             <thead>
+                                <tr className="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 uppercase tracking-wider">
+                                   <th className="p-3 font-semibold">Patient</th>
+                                   <th className="p-3 font-semibold">Consultation</th>
+                                   <th className="p-3 font-semibold">Therapy</th>
+                                   <th className="p-3 font-semibold text-center">Sessions</th>
+                                   <th className="p-3 font-semibold">Follow-up</th>
+                                </tr>
+                             </thead>
+                             <tbody className="text-sm">
+                               {selectedReportContext.summary.patientActivities.length === 0 ? (
+                                 <tr>
+                                   <td colSpan="5" className="p-8 text-center text-slate-500 italic">
+                                      No patient activity recorded for this date.
+                                   </td>
+                                 </tr>
+                               ) : (
+                                 selectedReportContext.summary.patientActivities.map(p => (
+                                   <tr key={p.patientId} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
+                                      <td className="p-3 font-medium text-slate-800">{p.patientName}</td>
+                                      <td className="p-3">
+                                         {p.consultationStatus === 'Completed' ? <span className="text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded text-xs">Completed</span> : <span className="text-slate-300">—</span>}
+                                      </td>
+                                      <td className="p-3 text-slate-700">
+                                         {p.therapies.length > 0 ? p.therapies.map(t => t.therapyName).join(', ') : <span className="text-slate-300">—</span>}
+                                      </td>
+                                      <td className="p-3 text-center text-slate-700 font-medium">
+                                         {p.totalTherapySessions > 0 ? p.totalTherapySessions : <span className="text-slate-300">—</span>}
+                                      </td>
+                                      <td className="p-3">
+                                         {p.followUpStatus === 'Completed' ? <span className="text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded text-xs">Completed</span> : <span className="text-slate-300">—</span>}
+                                      </td>
+                                   </tr>
+                                 ))
+                               )}
+                             </tbody>
+                          </table>
+                       </div>
+                    </Card>
+                  )}
+
                   {/* Form or Locked Data depending on status */}
                   {selectedReportContext.report.status === 'Draft' ? (
                     <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-6 border-t border-slate-100 pt-6">

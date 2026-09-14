@@ -37,33 +37,64 @@ export const dailyReportService = {
       return (s.doctorId === doctorId || s.docId === doctorId) && s.postDate === reportDateStr;
     });
 
-    // Unique Patients Seen
+    // Build Patient Activity Rows
     const patientMap = {};
+
+    const getPatientEntry = (pid) => {
+      if (!patientMap[pid]) {
+         patientMap[pid] = {
+            patientId: pid,
+            consultationStatus: '—',
+            therapiesMap: {},
+            totalTherapySessions: 0,
+            followUpStatus: '—'
+         };
+      }
+      return patientMap[pid];
+    };
+
     consults.forEach(c => {
-      if (!patientMap[c.patientId]) patientMap[c.patientId] = { patientId: c.patientId, types: new Set() };
-      patientMap[c.patientId].types.add('Consultation');
-    });
-    therapies.forEach(t => {
-      if (!patientMap[t.patientId]) patientMap[t.patientId] = { patientId: t.patientId, types: new Set() };
-      patientMap[t.patientId].types.add('Therapy');
+      const p = getPatientEntry(c.patientId);
+      p.consultationStatus = 'Completed';
     });
 
-    const patientsList = Object.values(patientMap).map(p => {
+    therapies.forEach(t => {
+      const p = getPatientEntry(t.patientId);
+      const name = t.therapyName || 'Unknown Therapy';
+      p.therapiesMap[name] = (p.therapiesMap[name] || 0) + 1;
+      p.totalTherapySessions += 1;
+    });
+
+    followUps.forEach(f => {
+      const p = getPatientEntry(f.patientId);
+      p.followUpStatus = 'Completed';
+    });
+
+    const patientActivities = Object.values(patientMap).map(p => {
       const patient = mockPatients.find(mp => mp._id === p.patientId);
+      
+      const therapiesList = Object.keys(p.therapiesMap).map(name => ({
+         therapyName: name,
+         sessions: p.therapiesMap[name]
+      }));
+
       return {
         patientId: p.patientId,
         patientName: patient ? patient.name : 'Unknown Patient',
-        types: Array.from(p.types)
+        consultationStatus: p.consultationStatus,
+        therapies: therapiesList,
+        totalTherapySessions: p.totalTherapySessions,
+        followUpStatus: p.followUpStatus
       };
     });
 
     return {
-      patientsSeen: patientsList.length,
+      patientsSeen: patientActivities.filter(p => p.consultationStatus !== '—' || p.totalTherapySessions > 0).length,
       consultations: consults.length,
       therapySessions: therapies.length,
       followUps: followUps.length,
       socialMediaActivities: socialActivities.length,
-      patientsList 
+      patientActivities 
     };
   },
 
