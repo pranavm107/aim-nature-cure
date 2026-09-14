@@ -29,16 +29,17 @@ export const mockSalaries = [
   { _id: 'sal_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', salaryAmount: 42000, effectiveFrom: '2026-09-01', status: 'Current', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' }
 ];
 
-export const mockPayrolls = [
-  { _id: 'pay_001', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'August 2026', salaryAmount: 40000, status: 'Pending Review' },
-  { _id: 'pay_002', doctorId: 'doc1', doctorName: 'Dr. Ananya Sharma', period: 'September 2026', salaryAmount: 45000, status: 'Pending Review' },
-  { _id: 'pay_003', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', period: 'August 2026', salaryAmount: 50000, status: 'Pending Review' },
-  { _id: 'pay_004', doctorId: 'doc2', doctorName: 'Dr. Rahul Menon', period: 'September 2026', salaryAmount: 50000, status: 'Pending Review' },
-  { _id: 'pay_005', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'August 2026', salaryAmount: 42000, status: 'Pending Review' },
-  { _id: 'pay_006', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', period: 'September 2026', salaryAmount: 42000, status: 'Pending Review' }
-];
+export const mockPayrollStatements = [];
 
-export const mockIncentiveRules = [];
+export const mockIncentiveRules = [
+  { _id: 'rule_1', type: 'Revenue', category: 'Consultation', percentage: 10, amount: null, effectiveFrom: '2026-08-01', status: 'Active', createdAt: dateBase - (dayMs * 60), createdBy: 'Admin' },
+  { _id: 'rule_2', type: 'Revenue', category: 'Consultation', percentage: 12, amount: null, effectiveFrom: '2026-10-01', status: 'Scheduled', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' },
+  { _id: 'rule_3', type: 'Revenue', category: 'Treatment', percentage: 8, amount: null, effectiveFrom: '2026-08-01', status: 'Active', createdAt: dateBase - (dayMs * 60), createdBy: 'Admin' },
+  { _id: 'rule_4', type: 'Revenue', category: 'Package', percentage: 5, amount: null, effectiveFrom: '2026-08-01', status: 'Active', createdAt: dateBase - (dayMs * 60), createdBy: 'Admin' },
+  { _id: 'rule_5', type: 'Activity', category: 'Patient Follow-up', percentage: null, amount: 100, effectiveFrom: '2026-08-01', status: 'Active', createdAt: dateBase - (dayMs * 60), createdBy: 'Admin' },
+  { _id: 'rule_6', type: 'Activity', category: 'Social Media Activity', percentage: null, amount: 500, effectiveFrom: '2026-08-01', status: 'Active', createdAt: dateBase - (dayMs * 60), createdBy: 'Admin' },
+  { _id: 'rule_7', type: 'Revenue', category: 'Consultation', percentage: 8, amount: null, effectiveFrom: '2026-01-01', status: 'Inactive', createdAt: dateBase - (dayMs * 200), createdBy: 'Admin' }
+];
 
 export const mockFollowUpActivities = [
   {

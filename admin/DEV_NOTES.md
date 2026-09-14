@@ -22,6 +22,10 @@ They do not correlate to any real backend credentials and should be removed befo
 
 ## Mock Data Modules
 
+### Phase 3 Automatic Monthly Incentive Calculation
+- **Status:** Completed.
+- **Calculation Logic**: Implemented automatic monthly incentive calculations based on configured revenue percentages and activity flat amounts.
+
 ### Phase 2B Follow-up Activity Submission
 - **Status:** Completed.
 - **`followUpService.js`**: Separated generic follow-up tasks from incentive submission activities (`mockFollowUpActivities`). Added complete submission, approval, and rejection methods.

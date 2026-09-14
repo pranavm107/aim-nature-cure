@@ -105,3 +105,7 @@
   - **Context:** Rebuild the generic social media submission tool into a strict Phase 2 workflow matching `Submitted != Earned`.
   - **Decision:** Transformed `SocialSubmission.jsx` (Doctor) and `SocialReview.jsx` (Admin) to use `mockSocialMediaActivities`. Enforced explicit field collection (Platform, Link, Proof) instead of unstructured markdown. Stripped out all legacy generic logic and replaced it with strict `Submitted`, `Approved`, `Rejected` states with mandatory review remarks on rejection.
   - **Constraint:** No incentive calculations or payroll integration. No hard deletes. Backend is out of scope.
+- **Phase 3: Automatic Monthly Incentive Calculation**:
+  - **Context:** Calculate the monthly statement by pulling together Base Salary, Paid Revenue, and Approved Activities.
+  - **Decision:** Implemented `payrollCalculationService.js` to decouple logic from components. Replaced generic arrays with a detailed `mockPayrollStatements` preserving itemized breakdowns. Added duplicate statement generation prevention and recalculation for 'Pending Review' statements.
+  - **Constraint:** Frontend/mock-data only. Only "Paid" revenue is calculated, and only "Approved" activities. No Phase 4 payment workflow allowed.
