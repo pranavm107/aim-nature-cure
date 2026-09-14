@@ -98,5 +98,63 @@ export const payrollService = {
     }
     
     return { success: false, message: 'Failed to recalculate statement' };
+  },
+
+  approvePayroll: async (statementId, reviewData = {}) => {
+    await delay();
+    const mockPayrollStatements = getStore('mockPayrollStatements');
+    const existingIndex = mockPayrollStatements.findIndex(p => p._id === statementId);
+    
+    if (existingIndex === -1) {
+      return { success: false, message: 'Statement not found' };
+    }
+
+    const existing = mockPayrollStatements[existingIndex];
+    if (existing.status !== 'Pending Review') {
+      return { success: false, message: 'Only statements in Pending Review can be approved.' };
+    }
+
+    const updatedStatement = {
+      ...existing,
+      status: 'Approved',
+      approvedAt: Date.now(),
+      approvedBy: 'Admin',
+      reviewedAt: Date.now(),
+      reviewedBy: 'Admin',
+      reviewRemark: reviewData.reviewRemark || null
+    };
+    
+    mockPayrollStatements[existingIndex] = updatedStatement;
+    setStore('mockPayrollStatements', mockPayrollStatements);
+    return { success: true, statement: updatedStatement };
+  },
+
+  markPayrollAsPaid: async (statementId, paymentData = {}) => {
+    await delay();
+    const mockPayrollStatements = getStore('mockPayrollStatements');
+    const existingIndex = mockPayrollStatements.findIndex(p => p._id === statementId);
+    
+    if (existingIndex === -1) {
+      return { success: false, message: 'Statement not found' };
+    }
+
+    const existing = mockPayrollStatements[existingIndex];
+    if (existing.status !== 'Approved') {
+      return { success: false, message: 'Only Approved statements can be marked as Paid.' };
+    }
+
+    // Default to today if not provided, format as YYYY-MM-DD for consistency
+    const defaultDate = new Date().toISOString().split('T')[0];
+
+    const updatedStatement = {
+      ...existing,
+      status: 'Paid',
+      paidAt: paymentData.paidAt || defaultDate,
+      paidBy: 'Admin'
+    };
+    
+    mockPayrollStatements[existingIndex] = updatedStatement;
+    setStore('mockPayrollStatements', mockPayrollStatements);
+    return { success: true, statement: updatedStatement };
   }
 };

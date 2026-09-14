@@ -109,3 +109,5 @@
   - **Context:** Calculate the monthly statement by pulling together Base Salary, Paid Revenue, and Approved Activities.
   - **Decision:** Implemented `payrollCalculationService.js` to decouple logic from components. Replaced generic arrays with a detailed `mockPayrollStatements` preserving itemized breakdowns. Added duplicate statement generation prevention and recalculation for 'Pending Review' statements.
   - **Constraint:** Frontend/mock-data only. Only "Paid" revenue is calculated, and only "Approved" activities. No Phase 4 payment workflow allowed.
+    -   * * G e n e r a t i o n   &   R e c a l c u l a t i o n * * :   A d m i n   t r i g g e r s   m o n t h l y   s t a t e m e n t   g e n e r a t i o n   f r o m   t h e   D o c t o r P a y r o l l   l i s t .   T h e   s y s t e m   p e r f o r m s   t h e   c a l c u l a t i o n .   D o c t o r   c a n n o t   c r e a t e   p a y r o l l .   D u p l i c a t e   s t a t e m e n t   g e n e r a t i o n   i s   p r o t e c t e d .   R e c a l c u l a t i o n   i s   a l l o w e d   o n l y   w h i l e   t h e   s t a t e m e n t   i s   i n   \ P e n d i n g   R e v i e w \   s t a t e .  
+ 

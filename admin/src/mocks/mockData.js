@@ -29,7 +29,131 @@ export const mockSalaries = [
   { _id: 'sal_4', doctorId: 'doc3', doctorName: 'Dr. Vikram Singh', salaryAmount: 42000, effectiveFrom: '2026-09-01', status: 'Current', createdAt: dateBase - (dayMs * 15), createdBy: 'Admin' }
 ];
 
-export const mockPayrollStatements = [];
+export const mockPayrollStatements = [
+  {
+    _id: 'stm_001',
+    doctorId: 'doc1',
+    doctorName: 'Dr. Ananya Sharma',
+    month: '2026-09',
+    baseSalary: 45000,
+    revenueIncentive: {
+      consultationRevenue: 40000,
+      consultationPercentage: 10,
+      consultationIncentive: 4000,
+      treatmentRevenue: 0,
+      treatmentPercentage: 8,
+      treatmentIncentive: 0,
+      packageRevenue: 50000,
+      packagePercentage: 5,
+      packageIncentive: 2500,
+      total: 6500
+    },
+    activityIncentive: {
+      approvedFollowUps: 10,
+      followUpAmount: 100,
+      followUpIncentive: 1000,
+      approvedSocialMedia: 1,
+      socialMediaAmount: 500,
+      socialMediaIncentive: 500,
+      total: 1500
+    },
+    totalIncentive: 8000,
+    grossEarnings: 53000,
+    status: 'Pending Review',
+    calculationDetails: { paymentSourceIds: [], followUpSourceIds: [], socialMediaSourceIds: [] },
+    generatedAt: dateBase - (dayMs * 5),
+    generatedBy: 'System',
+    recalculatedAt: null,
+    recalculatedBy: null,
+    approvedAt: null,
+    approvedBy: null,
+    reviewRemark: null,
+    paidAt: null,
+    paidBy: null
+  },
+  {
+    _id: 'stm_002',
+    doctorId: 'doc2',
+    doctorName: 'Dr. Rahul Menon',
+    month: '2026-09',
+    baseSalary: 50000,
+    revenueIncentive: {
+      consultationRevenue: 20000,
+      consultationPercentage: 10,
+      consultationIncentive: 2000,
+      treatmentRevenue: 25000,
+      treatmentPercentage: 8,
+      treatmentIncentive: 2000,
+      packageRevenue: 0,
+      packagePercentage: 5,
+      packageIncentive: 0,
+      total: 4000
+    },
+    activityIncentive: {
+      approvedFollowUps: 5,
+      followUpAmount: 100,
+      followUpIncentive: 500,
+      approvedSocialMedia: 2,
+      socialMediaAmount: 500,
+      socialMediaIncentive: 1000,
+      total: 1500
+    },
+    totalIncentive: 5500,
+    grossEarnings: 55500,
+    status: 'Approved',
+    calculationDetails: { paymentSourceIds: [], followUpSourceIds: [], socialMediaSourceIds: [] },
+    generatedAt: dateBase - (dayMs * 5),
+    generatedBy: 'System',
+    recalculatedAt: null,
+    recalculatedBy: null,
+    approvedAt: dateBase - (dayMs * 2),
+    approvedBy: 'Admin',
+    reviewRemark: 'Verified manually',
+    paidAt: null,
+    paidBy: null
+  },
+  {
+    _id: 'stm_003',
+    doctorId: 'doc3',
+    doctorName: 'Dr. Vikram Singh',
+    month: '2026-09',
+    baseSalary: 42000,
+    revenueIncentive: {
+      consultationRevenue: 10000,
+      consultationPercentage: 10,
+      consultationIncentive: 1000,
+      treatmentRevenue: 30000,
+      treatmentPercentage: 8,
+      treatmentIncentive: 2400,
+      packageRevenue: 20000,
+      packagePercentage: 5,
+      packageIncentive: 1000,
+      total: 4400
+    },
+    activityIncentive: {
+      approvedFollowUps: 2,
+      followUpAmount: 100,
+      followUpIncentive: 200,
+      approvedSocialMedia: 0,
+      socialMediaAmount: 500,
+      socialMediaIncentive: 0,
+      total: 200
+    },
+    totalIncentive: 4600,
+    grossEarnings: 46600,
+    status: 'Paid',
+    calculationDetails: { paymentSourceIds: [], followUpSourceIds: [], socialMediaSourceIds: [] },
+    generatedAt: dateBase - (dayMs * 6),
+    generatedBy: 'System',
+    recalculatedAt: null,
+    recalculatedBy: null,
+    approvedAt: dateBase - (dayMs * 4),
+    approvedBy: 'Admin',
+    reviewRemark: '',
+    paidAt: new Date(dateBase - (dayMs * 1)).toISOString().split('T')[0],
+    paidBy: 'Admin'
+  }
+];
 
 export const mockIncentiveRules = [
   { _id: 'rule_1', type: 'Revenue', category: 'Consultation', percentage: 10, amount: null, effectiveFrom: '2026-08-01', status: 'Active', createdAt: dateBase - (dayMs * 60), createdBy: 'Admin' },

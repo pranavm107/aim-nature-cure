@@ -22,6 +22,12 @@ They do not correlate to any real backend credentials and should be removed befo
 
 ## Mock Data Modules
 
+### Phase 4 Payroll Approval & Payment
+- **Status:** Completed.
+- **`payrollService.js`**: Introduced structured `Pending Review` -> `Approved` -> `Paid` state transitions without recalculating Phase 3 baseline data. 
+- **Workflow**: Statements are locked into immutable financial snapshots after being generated. Doctor views are strictly read-only, maintaining complete data isolation.
+- **Generation & Recalculation**: Admin triggers monthly statement generation. The system performs the calculation. Doctor cannot create payroll. Duplicate statement generation is protected. Recalculation is allowed only while the statement is in `Pending Review` state.
+
 ### Phase 3 Automatic Monthly Incentive Calculation
 - **Status:** Completed.
 - **Calculation Logic**: Implemented automatic monthly incentive calculations based on configured revenue percentages and activity flat amounts.

@@ -6,22 +6,22 @@ import { toast } from 'react-toastify';
 import { Search, Filter, ArrowUpDown, Eye, Users, IndianRupee, RotateCw, Plus } from 'lucide-react';
 import { useTableFeatures } from '../../hooks/useTableFeatures';
 import { getStore } from '../../utils/mockStore';
+import { useNavigate } from 'react-router-dom';
 
 const DoctorPayroll = () => {
   const [payrolls, setPayrolls] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const [selectedPayroll, setSelectedPayroll] = useState(null);
-  const [viewModalOpen, setViewModalOpen] = useState(false);
   
+  const navigate = useNavigate();
+
   const [generateModalOpen, setGenerateModalOpen] = useState(false);
   const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [generating, setGenerating] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
 
-  const doctors = useMemo(() => getStore('mockUsers').filter(u => u.role === 'Doctor'), []);
+  const doctors = useMemo(() => getStore('mockUsers').filter(u => u.role === 'Doctor' && u.status === 'Active'), []);
 
   useEffect(() => {
     fetchData();
@@ -46,11 +46,6 @@ const DoctorPayroll = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleView = (payroll) => {
-    setSelectedPayroll(payroll);
-    setViewModalOpen(true);
   };
 
   const handleGenerate = async (e) => {
@@ -239,24 +234,38 @@ const DoctorPayroll = () => {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-sm text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex items-center justify-end gap-3">
+                        <button 
+                          onClick={() => navigate(`/admin/payroll/${record._id}`)}
+                          className="text-slate-600 hover:text-primary transition-colors text-sm font-medium"
+                        >
+                          View
+                        </button>
                         {record.status === 'Pending Review' && (
+                          <>
+                            <button 
+                              onClick={() => handleRecalculate(record._id)}
+                              disabled={recalculating}
+                              className="text-amber-600 hover:text-amber-800 transition-colors text-sm font-medium bg-amber-50 px-2.5 py-1 rounded-md"
+                            >
+                              Recalculate
+                            </button>
+                            <button 
+                              onClick={() => navigate(`/admin/payroll/${record._id}`)}
+                              className="text-blue-600 hover:text-blue-800 transition-colors text-sm font-medium bg-blue-50 px-2.5 py-1 rounded-md"
+                            >
+                              Review / Approve
+                            </button>
+                          </>
+                        )}
+                        {record.status === 'Approved' && (
                           <button 
-                            onClick={() => handleRecalculate(record._id)}
-                            disabled={recalculating}
-                            className="text-amber-500 hover:text-amber-700 transition-colors p-1"
-                            title="Recalculate Statement"
+                            onClick={() => navigate(`/admin/payroll/${record._id}`)}
+                            className="text-emerald-600 hover:text-emerald-800 transition-colors text-sm font-medium bg-emerald-50 px-2.5 py-1 rounded-md"
                           >
-                            <RotateCw className={`w-5 h-5 ${recalculating ? 'animate-spin' : ''}`} />
+                            Mark as Paid
                           </button>
                         )}
-                        <button 
-                          onClick={() => handleView(record)}
-                          className="text-slate-400 hover:text-primary transition-colors p-1"
-                          title="View Details"
-                        >
-                          <Eye className="w-5 h-5" />
-                        </button>
                       </div>
                     </td>
                   </tr>
@@ -318,114 +327,7 @@ const DoctorPayroll = () => {
         </div>
       )}
 
-      {/* View Modal */}
-      {viewModalOpen && selectedPayroll && (
-        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
-              <h3 className="text-lg font-semibold text-slate-800">Monthly Statement Breakdown</h3>
-              <button onClick={() => setViewModalOpen(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto">
-              <div className="grid grid-cols-2 gap-y-4 gap-x-4 mb-6">
-                <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">Doctor Name</p>
-                  <p className="text-base text-slate-800 font-semibold">{selectedPayroll.doctorName}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">Payroll Period</p>
-                  <p className="text-base text-slate-800 font-semibold">{selectedPayroll.month}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-500 mb-1">Status</p>
-                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                    selectedPayroll.status === 'Paid' ? 'bg-emerald-50 text-emerald-700' 
-                    : selectedPayroll.status === 'Approved' ? 'bg-blue-50 text-blue-700'
-                    : 'bg-amber-50 text-amber-700'
-                  }`}>
-                    {selectedPayroll.status}
-                  </span>
-                </div>
-              </div>
-
-              {/* Base Salary */}
-              <div className="mb-6">
-                <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider border-b pb-2 mb-3">Base Salary</h4>
-                <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                  <span className="text-slate-600 font-medium">Monthly Salary</span>
-                  <span className="text-slate-800 font-semibold">₹{(selectedPayroll.baseSalary || 0).toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-
-              {/* Revenue Incentive */}
-              <div className="mb-6">
-                <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider border-b pb-2 mb-3">Revenue Incentive</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-600">Consultation (₹{(selectedPayroll.revenueIncentive?.consultationRevenue || 0).toLocaleString('en-IN')} @ {selectedPayroll.revenueIncentive?.consultationPercentage || 0}%)</span>
-                    <span className="text-slate-800 font-medium">₹{(selectedPayroll.revenueIncentive?.consultationIncentive || 0).toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-600">Treatment (₹{(selectedPayroll.revenueIncentive?.treatmentRevenue || 0).toLocaleString('en-IN')} @ {selectedPayroll.revenueIncentive?.treatmentPercentage || 0}%)</span>
-                    <span className="text-slate-800 font-medium">₹{(selectedPayroll.revenueIncentive?.treatmentIncentive || 0).toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-600">Package (₹{(selectedPayroll.revenueIncentive?.packageRevenue || 0).toLocaleString('en-IN')} @ {selectedPayroll.revenueIncentive?.packagePercentage || 0}%)</span>
-                    <span className="text-slate-800 font-medium">₹{(selectedPayroll.revenueIncentive?.packageIncentive || 0).toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg mt-2">
-                    <span className="text-blue-800 font-semibold">Total Revenue Incentive</span>
-                    <span className="text-blue-800 font-bold">₹{(selectedPayroll.revenueIncentive?.total || 0).toLocaleString('en-IN')}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Activity Incentive */}
-              <div className="mb-6">
-                <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider border-b pb-2 mb-3">Activity Incentive</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-600">Follow-ups ({selectedPayroll.activityIncentive?.approvedFollowUps || 0} @ ₹{selectedPayroll.activityIncentive?.followUpAmount || 0})</span>
-                    <span className="text-slate-800 font-medium">₹{(selectedPayroll.activityIncentive?.followUpIncentive || 0).toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-600">Social Media ({selectedPayroll.activityIncentive?.approvedSocialMedia || 0} @ ₹{selectedPayroll.activityIncentive?.socialMediaAmount || 0})</span>
-                    <span className="text-slate-800 font-medium">₹{(selectedPayroll.activityIncentive?.socialMediaIncentive || 0).toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-purple-50 p-3 rounded-lg mt-2">
-                    <span className="text-purple-800 font-semibold">Total Activity Incentive</span>
-                    <span className="text-purple-800 font-bold">₹{(selectedPayroll.activityIncentive?.total || 0).toLocaleString('en-IN')}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Gross Earnings */}
-              <div>
-                <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider border-b pb-2 mb-3">Gross Earnings</h4>
-                <div className="flex justify-between items-center text-sm mb-2">
-                  <span className="text-slate-600">Base Salary</span>
-                  <span className="text-slate-800 font-medium">₹{(selectedPayroll.baseSalary || 0).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm mb-2">
-                  <span className="text-slate-600">Total Incentive</span>
-                  <span className="text-slate-800 font-medium">₹{(selectedPayroll.totalIncentive || 0).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between items-center bg-emerald-50 p-4 rounded-lg mt-3 border border-emerald-100">
-                  <span className="text-emerald-800 font-bold text-lg">Gross Earnings</span>
-                  <span className="text-emerald-800 font-bold text-xl">₹{(selectedPayroll.grossEarnings || 0).toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 shrink-0">
-              <button type="button" onClick={() => setViewModalOpen(false)} className="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-white rounded-lg font-medium transition-colors">
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Removed inline view modal, routing directly to detail page */}
     </PageContainer>
   );
 };

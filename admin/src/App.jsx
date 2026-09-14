@@ -48,6 +48,7 @@ import UserManagement from './pages/Admin/UserManagement';
 import UserDetail from './pages/Admin/UserDetail';
 import RoleConfig from './pages/Admin/RoleConfig';
 import DoctorPayroll from './pages/Admin/DoctorPayroll';
+import PayrollDetail from './pages/Admin/PayrollDetail';
 import DoctorDetail from './pages/Admin/DoctorDetail';
 import AppointmentDetail from './pages/Admin/AppointmentDetail';
 import DoctorNotes from './pages/Doctor/DoctorNotes';
@@ -83,6 +84,7 @@ const App = () => {
             <Route path='/admin/users/:id' element={<ProtectedRoute role="admin" requiredPermission="manage_users"><UserDetail /></ProtectedRoute>} />
             <Route path='/admin/roles' element={<ProtectedRoute role="admin" requiredPermission="manage_roles"><RoleConfig /></ProtectedRoute>} />
             <Route path='/admin/payroll' element={<ProtectedRoute role="admin"><DoctorPayroll /></ProtectedRoute>} />
+            <Route path='/admin/payroll/:id' element={<ProtectedRoute role="admin"><PayrollDetail /></ProtectedRoute>} />
             <Route path='/admin/incentives' element={<ProtectedRoute role="admin"><IncentivesOverview /></ProtectedRoute>} />
             <Route path='/add-doctor' element={<ProtectedRoute role="admin" requiredPermission="manage_users"><AddDoctor /></ProtectedRoute>} />
             <Route path='/doctor-list' element={<ProtectedRoute role="admin"><DoctorsList /></ProtectedRoute>} />

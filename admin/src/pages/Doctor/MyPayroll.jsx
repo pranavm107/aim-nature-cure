@@ -76,6 +76,11 @@ const MyPayroll = () => {
                   }`}>
                     {currentMonth.status}
                   </span>
+                  {currentMonth.status === 'Paid' && currentMonth.paidAt && (
+                    <span className="text-xs text-slate-500 font-medium ml-3">
+                      Paid on: {new Date(currentMonth.paidAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="pt-2">
@@ -241,6 +246,15 @@ const MyPayroll = () => {
                   <span className="text-emerald-800 font-bold text-lg">Gross Earnings</span>
                   <span className="text-emerald-800 font-bold text-xl">₹{(selectedPayroll.grossEarnings || 0).toLocaleString('en-IN')}</span>
                 </div>
+                
+                {selectedPayroll.status === 'Paid' && selectedPayroll.paidAt && (
+                  <div className="flex justify-between items-center text-sm mt-3 pt-3 border-t border-slate-100">
+                    <span className="text-slate-600 font-medium">Payment Date</span>
+                    <span className="text-slate-800 font-semibold">
+                      {new Date(selectedPayroll.paidAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
