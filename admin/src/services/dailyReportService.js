@@ -88,13 +88,31 @@ export const dailyReportService = {
       };
     });
 
+    const consultationDetails = consults.map(c => {
+      const patient = mockPatients.find(mp => mp._id === c.patientId);
+      
+      let type = 'Consultation';
+      if (c.chiefComplaint && c.chiefComplaint.toLowerCase().includes('follow up')) {
+        type = 'Follow-up Consultation';
+      }
+
+      return {
+        _id: c._id,
+        patientName: patient ? patient.name : 'Unknown Patient',
+        type: type,
+        status: 'Completed',
+        time: new Date(c.date).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+      };
+    });
+
     return {
       patientsSeen: patientActivities.filter(p => p.consultationStatus !== '—' || p.totalTherapySessions > 0).length,
       consultations: consults.length,
       therapySessions: therapies.length,
       followUps: followUps.length,
       socialMediaActivities: socialActivities.length,
-      patientActivities 
+      patientActivities,
+      consultationDetails 
     };
   },
 
