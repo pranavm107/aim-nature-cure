@@ -37,16 +37,24 @@ const DataTable = ({
           ))}
         </div>
         <div className="bg-white">
-          {data.map((item, index) => renderRow(item, index))}
+          {data.map((item, index) => (
+            <React.Fragment key={item[keyField] || index}>
+              {renderRow(item, index)}
+            </React.Fragment>
+          ))}
         </div>
       </div>
 
       {/* Mobile Card View */}
       <div className='sm:hidden flex flex-col gap-4 p-4 bg-slate-50/50 min-h-[50vh]'>
-        {data.map((item, index) => renderMobileCard ? renderMobileCard(item, index) : (
-          <div key={item[keyField] || index} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 relative overflow-hidden">
-             {renderRow(item, index)}
-          </div>
+        {data.map((item, index) => (
+          <React.Fragment key={item[keyField] || index}>
+            {renderMobileCard ? renderMobileCard(item, index) : (
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 relative overflow-hidden">
+                 {renderRow(item, index)}
+              </div>
+            )}
+          </React.Fragment>
         ))}
       </div>
     </div>

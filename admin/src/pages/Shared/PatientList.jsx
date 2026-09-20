@@ -1,26 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { patientService } from '../../services/patientService';
 import DataTable from '../../components/common/DataTable';
 import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search } from 'lucide-react';
-
-import { useTableFeatures } from '../../hooks/useTableFeatures';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const PatientList = () => {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const fetchPatients = async () => {
+  // Search and Filter State
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+
+  // Pagination State
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+      setPage(0); // Reset page on new search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // Handle filter change
+  const handleFilterChange = (newStatus) => {
+    setStatusFilter(newStatus);
+    setPage(0); // Reset page on filter change
+  };
+
+  const fetchPatients = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await patientService.getPatients();
+      const data = await patientService.getPatients({
+        search: debouncedSearch,
+        page,
+        size
+      });
       if (data.success) {
-        setPatients(data.patients);
+        let fetchedPatients = data.patients;
+        
+        // Apply frontend filter if backend doesn't support status filtering out of the box
+        // (Since the instruction only mentioned search, page, size query parameters)
+        if (statusFilter !== 'All') {
+          fetchedPatients = fetchedPatients.filter(p => p.status === statusFilter);
+        }
+
+        setPatients(fetchedPatients);
+        setTotalPages(data.pagination.totalPages);
+        setTotalElements(data.pagination.totalElements);
       } else {
         toast.error(data.message || 'Failed to fetch patients');
       }
@@ -30,37 +67,23 @@ const PatientList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [debouncedSearch, page, size, statusFilter]);
 
   useEffect(() => {
     fetchPatients();
-  }, []);
-
-  const {
-    searchTerm, setSearchTerm,
-    filters, handleFilterChange,
-    sortConfig, handleSort,
-    processedData
-  } = useTableFeatures(patients, ['name', 'phone', 'email'], { key: 'name', direction: 'asc' });
-
-  const renderSortIcon = (key) => {
-    if (sortConfig?.key === key) {
-      return sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3 ml-1 inline" /> : <ArrowDown className="w-3 h-3 ml-1 inline" />;
-    }
-    return <ArrowUpDown className="w-3 h-3 ml-1 inline text-slate-300" />;
-  };
+  }, [fetchPatients]);
 
   const columns = [
     { label: '#' },
-    { label: <div className="cursor-pointer" onClick={() => handleSort('name')}>Patient Name {renderSortIcon('name')}</div> },
+    { label: 'Patient Name' },
     { label: 'Contact' },
-    { label: <div className="cursor-pointer" onClick={() => handleSort('status')}>Status {renderSortIcon('status')}</div> },
+    { label: 'Status' },
     { label: 'Action', className: 'text-right' }
   ];
 
   const renderRow = (item, index) => (
     <div key={item._id} className="grid grid-cols-[0.5fr_2fr_2fr_1fr_1fr] sm:grid-cols-[0.5fr_2fr_2fr_1fr_1fr] grid-flow-col py-3 px-6 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
-      <p className="text-slate-500">{index + 1}</p>
+      <p className="text-slate-500">{page * size + index + 1}</p>
       <div className="flex items-center gap-2">
         <p className="font-medium text-slate-800">{item.name}</p>
       </div>
@@ -88,7 +111,7 @@ const PatientList = () => {
     <div key={item._id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-3">
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-xs text-slate-400 mb-1">#{item.patientId || `P${(index+1).toString().padStart(3,'0')}`}</p>
+          <p className="text-xs text-slate-400 mb-1">#{item.patientId || `P${(page * size + index + 1).toString().padStart(3,'0')}`}</p>
           <p className="font-semibold text-slate-800 text-lg">{item.name}</p>
         </div>
         <span className={`px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider ${item.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
@@ -139,14 +162,14 @@ const PatientList = () => {
             <input 
               type="text"
               placeholder="Search by name or phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="border border-slate-200 rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-sm"
             />
           </div>
           <select
-            value={filters.status || 'All'}
-            onChange={(e) => handleFilterChange('status', e.target.value)}
+            value={statusFilter}
+            onChange={(e) => handleFilterChange(e.target.value)}
             className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           >
             <option value="All">All Statuses</option>
@@ -159,13 +182,41 @@ const PatientList = () => {
 
       <DataTable
         columns={columns}
-        data={processedData}
+        data={patients}
         loading={loading}
         renderRow={renderRow}
         renderMobileCard={renderMobileCard}
         emptyMessage="No patients found."
         gridColsClass="grid-cols-[0.5fr_2fr_2fr_1fr_1fr]"
       />
+      
+      {/* Pagination Controls */}
+      {!loading && totalPages > 1 && (
+        <div className="flex justify-between items-center bg-white px-4 py-3 border border-slate-200 rounded-xl mt-4 shadow-sm">
+          <div className="text-sm text-slate-500">
+            Showing <span className="font-medium">{totalElements === 0 ? 0 : page * size + 1}</span> to <span className="font-medium">{Math.min((page + 1) * size, totalElements)}</span> of <span className="font-medium">{totalElements}</span> results
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="p-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="px-4 py-2 text-sm font-medium text-slate-700">
+              Page {page + 1} of {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+              disabled={page >= totalPages - 1}
+              className="p-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </PageContainer>
   );
 };

@@ -1,127 +1,168 @@
-import { mockPatients, mockConsultations, mockTherapySessions } from '../mocks/mockData';
+import apiClient from './apiClient';
+import { mockConsultations, mockTherapySessions } from '../mocks/mockData';
 import { getStore, setStore } from '../utils/mockStore';
 
-let state = {
-  patients: getStore('mockPatients', mockPatients)
+const mapPatientToFrontend = (backendPatient) => {
+  return {
+    ...backendPatient,
+    _id: backendPatient.uuid || backendPatient.id || backendPatient._id,
+    phone: backendPatient.phoneNumber,
+    dob: backendPatient.dateOfBirth,
+    status: backendPatient.active ? 'Active' : 'Inactive',
+  };
 };
 
-const saveState = () => setStore('mockPatients', state.patients);
-
-const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
+const mapPatientToBackend = (frontendPatient) => {
+  return {
+    uuid: frontendPatient._id || frontendPatient.uuid,
+    name: frontendPatient.name,
+    email: frontendPatient.email,
+    phoneNumber: frontendPatient.phone,
+    dateOfBirth: frontendPatient.dob,
+    gender: frontendPatient.gender,
+    occupation: frontendPatient.occupation,
+    address: frontendPatient.address,
+    leadSource: frontendPatient.leadSource,
+    assignedDoctor: frontendPatient.assignedDoctor,
+    active: frontendPatient.status === 'Active'
+  };
+};
 
 export const patientService = {
-  getPatients: async () => {
-    await delay();
-    const role = localStorage.getItem('userRole');
-    // Assuming doc1 for mock doctor session based on mock Credentials
-    const docId = 'doc1'; 
-    
-    // BR-02: Doctor sees only assigned patients
-    const patients = role === 'doctor' 
-      ? state.patients.filter(p => p.assignedDoctor === docId)
-      : state.patients;
+  getPatients: async (params = {}) => {
+    try {
+      const { search = '', page = 0, size = 10 } = params;
+      const response = await apiClient.get('/patients/all', {
+        params: { search, page, size }
+      });
+      const data = response.data;
       
-    return { success: true, patients };
-  },
-  
-  searchPatients: async (query) => {
-    await delay();
-    const q = query.toLowerCase();
-    const role = localStorage.getItem('userRole');
-    const docId = 'doc1';
-    
-    let patients = state.patients.filter(p => 
-      p.name.toLowerCase().includes(q) || p.phone.includes(q)
-    );
-    
-    if (role === 'doctor') {
-      patients = patients.filter(p => p.assignedDoctor === docId);
+      let patientsList = [];
+      if (data.content) {
+        patientsList = data.content; // Spring Boot Page object
+      } else if (data.patients) {
+        patientsList = data.patients; // Custom wrapper
+      } else if (data.result) {
+        patientsList = data.result; // Custom wrapper
+      } else if (Array.isArray(data)) {
+        patientsList = data; // Direct array
+      }
+
+      const patients = patientsList.map(mapPatientToFrontend);
+      return { 
+        success: true, 
+        patients, 
+        pagination: {
+          totalElements: data.totalElements || patients.length,
+          totalPages: data.totalPages || 1,
+          number: data.number || 0,
+          size: data.size || 10
+        } 
+      };
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      return { success: false, message: error.response?.data?.message || 'Failed to fetch patients' };
     }
-    
-    return { success: true, patients };
-  },
-  
-  createPatient: async (patientData) => {
-    await delay();
-    const newPatient = { 
-      _id: "pat" + Date.now(), 
-      sessionCount: 0,
-      periodOfDays: patientData.periodOfDays || 14,
-      ...patientData, 
-      date: Date.now() 
-    };
-    state.patients.push(newPatient);
-    saveState();
-    return { success: true, patient: newPatient };
-  },
-  
-  getPatientById: async (id) => {
-    await delay();
-    const patient = state.patients.find(p => p._id === id);
-    if (!patient) throw new Error("Patient not found");
-    return { success: true, patient };
-  },
-  
-  updatePatient: async (id, patientData) => {
-    await delay();
-    const idx = state.patients.findIndex(p => p._id === id);
-    if (idx === -1) throw new Error("Patient not found");
-    
-    state.patients[idx] = { ...state.patients[idx], ...patientData };
-    saveState();
-    return { success: true, patient: state.patients[idx] };
-  },
-  
-  setPatientStatus: async (id, status) => {
-    await delay();
-    const idx = state.patients.findIndex(p => p._id === id);
-    if (idx === -1) throw new Error("Patient not found");
-    
-    state.patients[idx].status = status;
-    saveState();
-    return { success: true, patient: state.patients[idx] };
   },
 
-  incrementSessionCount: async (id) => {
-    await delay();
-    const idx = state.patients.findIndex(p => p._id === id);
-    if (idx === -1) throw new Error("Patient not found");
-    
-    // Increment the sessionsAttended property (instead of sessionCount)
-    const newCount = (state.patients[idx].sessionsAttended || 0) + 1;
-    state.patients[idx].sessionsAttended = newCount;
-    
-    // Logic requirement: If 3 sessions are completed, automatically push to Follow-up
-    if (newCount === 3) {
-      const followUps = getStore('mockFollowUps', []);
-      followUps.push({
-        _id: 'fu_auto_' + Date.now(),
-        patientId: id,
-        doctorId: state.patients[idx].assignedDoctor,
-        dueDate: new Date(Date.now() + (86400000 * 7)).toISOString().split('T')[0], // 7 days from now
-        reason: '3 therapy sessions completed',
-        status: 'Pending',
-        type: 'Routine',
-        notes: ''
-      });
-      setStore('mockFollowUps', followUps);
+  createPatient: async (patientData) => {
+    try {
+      const payload = mapPatientToBackend(patientData);
+      const response = await apiClient.post('/patients/create', payload);
+      return { success: true, patient: mapPatientToFrontend(response.data) };
+    } catch (error) {
+      console.error('Error creating patient:', error);
+      return { success: false, message: error.response?.data?.message || 'Failed to create patient' };
     }
-    
-    saveState();
-    return { success: true, patient: state.patients[idx] };
+  },
+
+  getPatientById: async (id) => {
+    try {
+      const response = await apiClient.get(`/patients/${id}`);
+      return { success: true, patient: mapPatientToFrontend(response.data) };
+    } catch (error) {
+      console.error('Error fetching patient:', error);
+      return { success: false, message: error.response?.data?.message || 'Patient not found' };
+    }
+  },
+
+  updatePatient: async (id, patientData) => {
+    try {
+      const payload = mapPatientToBackend({ ...patientData, _id: id });
+      const response = await apiClient.put('/patients/update', payload);
+      return { success: true, patient: mapPatientToFrontend(response.data) };
+    } catch (error) {
+      console.error('Error updating patient:', error);
+      return { success: false, message: error.response?.data?.message || 'Failed to update patient' };
+    }
+  },
+
+  setPatientStatus: async (id, status) => {
+    try {
+      const active = status === 'Active';
+      const response = await apiClient.patch(`/patients/update/status/${id}/${active}`);
+      return { success: true, patient: mapPatientToFrontend(response.data) };
+    } catch (error) {
+      console.error('Error updating status:', error);
+      return { success: false, message: error.response?.data?.message || 'Failed to update patient status' };
+    }
   },
   
-  assignDoctor: async (id, doctorId) => {
+  deletePatient: async (id) => {
+    try {
+      await apiClient.delete(`/patients/${id}`);
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting patient:', error);
+      return { success: false, message: error.response?.data?.message || 'Failed to delete patient' };
+    }
+  },
+
+  // Retain these methods for other integrations (mocks or separate updates)
+  incrementSessionCount: async (id) => {
+    const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
     await delay();
-    const idx = state.patients.findIndex(p => p._id === id);
-    if (idx === -1) throw new Error("Patient not found");
     
-    state.patients[idx].assignedDoctor = doctorId;
-    saveState();
-    return { success: true, patient: state.patients[idx] };
+    const statePatients = getStore('mockPatients', []);
+    const idx = statePatients.findIndex(p => p._id === id || p.uuid === id);
+    if (idx !== -1) {
+      const newCount = (statePatients[idx].sessionsAttended || 0) + 1;
+      statePatients[idx].sessionsAttended = newCount;
+      if (newCount === 3) {
+        const followUps = getStore('mockFollowUps', []);
+        followUps.push({
+          _id: 'fu_auto_' + Date.now(),
+          patientId: id,
+          doctorId: statePatients[idx].assignedDoctor,
+          dueDate: new Date(Date.now() + (86400000 * 7)).toISOString().split('T')[0],
+          reason: '3 therapy sessions completed',
+          status: 'Pending',
+          type: 'Routine',
+          notes: ''
+        });
+        setStore('mockFollowUps', followUps);
+      }
+      setStore('mockPatients', statePatients);
+    }
+    return { success: true };
   },
-  
+
+  assignDoctor: async (id, doctorId) => {
+    try {
+      const patientRes = await patientService.getPatientById(id);
+      if (patientRes.success) {
+        const updatedPatient = { ...patientRes.patient, assignedDoctor: doctorId };
+        return await patientService.updatePatient(id, updatedPatient);
+      }
+      return { success: false, message: 'Patient not found' };
+    } catch (error) {
+      console.error('Error assigning doctor:', error);
+      return { success: false, message: 'Failed to assign doctor' };
+    }
+  },
+
   getPatientTimeline: async (id) => {
+    const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
     await delay();
     const consultations = getStore('mockConsultations', mockConsultations);
     const sessions = getStore('mockTherapySessions', mockTherapySessions);
@@ -132,13 +173,13 @@ export const patientService = {
       .filter(s => s.patientId === id && s.status === 'Completed')
       .map(s => ({
         ...s,
-        date: s.date || Date.now(), // Fallback if no date
+        date: s.date || Date.now(),
       }));
       
     const timeline = [
       ...patientConsultations.map(c => ({ type: 'consultation', date: c.date, data: c })),
       ...completedSessions.map(s => ({ type: 'therapy_session', date: s.date, data: s }))
-    ].sort((a, b) => b.date - a.date); // Descending
+    ].sort((a, b) => b.date - a.date);
     
     return { success: true, timeline };
   }

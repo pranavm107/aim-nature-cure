@@ -7,7 +7,7 @@ import axios from 'axios';
 export const USE_MOCK = true; // Hardcoded to true for pure mock UI mode
 
 const apiClient = axios.create({
-  baseURL: '/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8088/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },

@@ -16,7 +16,7 @@ import PageHeader from '../../components/layout/PageHeader';
 import { toast } from 'react-toastify';
 import { AdminContext } from '../../context/AdminContext';
 import { DoctorContext } from '../../context/DoctorContext';
-import { Plus, FileText, Edit, UserCheck } from 'lucide-react';
+import { Plus, FileText, Edit, UserCheck, Trash2 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 
 const PatientDetail = () => {
@@ -211,6 +211,22 @@ const PatientDetail = () => {
     }
   };
 
+  const handleDeletePatient = async () => {
+    if (window.confirm("Are you sure you want to delete this patient? This action cannot be undone.")) {
+      try {
+        const res = await patientService.deletePatient(id);
+        if (res.success) {
+          toast.success("Patient deleted successfully");
+          navigate('/patients');
+        } else {
+          toast.error(res.message || "Failed to delete patient");
+        }
+      } catch (err) {
+        toast.error("Error deleting patient");
+      }
+    }
+  };
+
   if (loading) return <div className="flex h-screen items-center justify-center"><p className="text-slate-500 font-medium">Loading patient details...</p></div>;
   if (!patient) return null;
 
@@ -238,9 +254,14 @@ const PatientDetail = () => {
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
             <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-2">
               <h2 className="text-lg font-semibold text-slate-800">Profile Information</h2>
-              <button onClick={openEditModal} className="text-slate-500 hover:text-primary transition-colors">
-                <Edit className="w-4 h-4" />
-              </button>
+              <div className="flex gap-3">
+                <button onClick={openEditModal} className="text-slate-500 hover:text-primary transition-colors" title="Edit Patient">
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button onClick={handleDeletePatient} className="text-slate-500 hover:text-red-600 transition-colors" title="Delete Patient">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
             <div className="flex flex-col gap-3 text-sm">
               <p><span className="text-slate-500 w-24 inline-block">Phone:</span> <span className="font-medium text-slate-800">{patient.phone}</span></p>
