@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { assets } from '../../assets/assets'
 import { toast } from 'react-toastify'
 import { adminService } from '../../services/adminService';
@@ -11,58 +12,48 @@ const AddDoctor = () => {
     const [docImg, setDocImg] = useState(false)
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
+    const [phone, setPhone] = useState('')
     const [experience, setExperience] = useState('1 Year')
     const [fees, setFees] = useState('')
+    const [salary, setSalary] = useState('')
     const [about, setAbout] = useState('')
     const [speciality, setSpeciality] = useState('General physician')
     const [degree, setDegree] = useState('')
     const [address1, setAddress1] = useState('')
     const [address2, setAddress2] = useState('')
     const [loading, setLoading] = useState(false)
-
-    const { } = useContext(AppContext)
-    const { aToken } = useContext(AdminContext)
+    
+    const navigate = useNavigate();
 
     const onSubmitHandler = async (event) => {
         event.preventDefault()
         setLoading(true)
 
         try {
-            if (!docImg) {
-                toast.error('Image Not Selected')
-                setLoading(false)
-                return
-            }
+            const doctorData = {
+                name,
+                email,
+                phone,
+                experience,
+                fees: Number(fees),
+                salary: Number(salary),
+                about,
+                speciality,
+                degree,
+                address1,
+                address2,
+                photo: "" // No image upload API yet
+            };
 
-            const formData = new FormData();
-            formData.append('image', docImg)
-            formData.append('name', name)
-            formData.append('email', email)
-            formData.append('experience', experience)
-            formData.append('fees', Number(fees))
-            formData.append('about', about)
-            formData.append('speciality', speciality)
-            formData.append('degree', degree)
-            formData.append('address', JSON.stringify({ line1: address1, line2: address2 }))
-
-            const data = await adminService.addDoctor(formData);
+            const data = await adminService.addDoctor(doctorData);
             if (data.success) {
                 toast.success(
                   <div>
                     {data.message} <br/>
-                    <strong>Temp Password: {data.generatedPassword}</strong> <br/>
-                    <span className="text-xs text-yellow-100">Simulated email sent to {email}</span>
-                  </div>, 
-                  { autoClose: false } // Keep open so they can copy it
+                    {data.generatedPassword && <strong>Temp Password: {data.generatedPassword}</strong>}
+                  </div>
                 )
-                setDocImg(false)
-                setName('')
-                setEmail('')
-                setAddress1('')
-                setAddress2('')
-                setDegree('')
-                setAbout('')
-                setFees('')
+                navigate('/admin/doctors-list');
             } else {
                 toast.error(data.message)
             }
@@ -102,18 +93,20 @@ const AddDoctor = () => {
             <div className='bg-white px-8 py-8 border border-slate-200 shadow-sm rounded-xl w-full max-w-4xl max-h-[80vh] overflow-y-auto custom-scrollbar'>
                 
                 <ImageUploadField 
-                    label={<span>Upload doctor <br /> picture</span>}
+                    label={<span>Upload doctor <br /> picture (Coming soon)</span>}
                     image={docImg}
                     onChange={setDocImg}
                     placeholderImg={assets.upload_area}
                 />
 
-                <div className='flex flex-col lg:flex-row items-start gap-10 text-slate-600'>
+                <div className='flex flex-col lg:flex-row items-start gap-10 text-slate-600 mt-4'>
                     <div className='w-full lg:flex-1 flex flex-col gap-4'>
-                        <InputField label="Your name" value={name} onChange={e => setName(e.target.value)} placeholder="Name" required />
+                        <InputField label="Doctor Name" value={name} onChange={e => setName(e.target.value)} placeholder="Name" required />
                         <InputField label="Doctor Email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
+                        <InputField label="Phone" type="text" value={phone} onChange={e => setPhone(e.target.value)} placeholder="Phone" required />
                         <SelectField label="Experience" value={experience} onChange={e => setExperience(e.target.value)} options={experienceOptions} />
                         <InputField label="Fees" type="number" value={fees} onChange={e => setFees(e.target.value)} placeholder="Doctor fees" required />
+                        <InputField label="Salary" type="number" value={salary} onChange={e => setSalary(e.target.value)} placeholder="Monthly salary" required />
                     </div>
 
                     <div className='w-full lg:flex-1 flex flex-col gap-4'>

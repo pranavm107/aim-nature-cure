@@ -12,6 +12,12 @@ const mapPatientToFrontend = (backendPatient) => {
   };
 };
 
+const isValidUUID = (str) => {
+  if (!str) return false;
+  const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+  return uuidRegex.test(str);
+};
+
 const mapPatientToBackend = (frontendPatient) => {
   return {
     uuid: frontendPatient._id || frontendPatient.uuid,
@@ -23,7 +29,7 @@ const mapPatientToBackend = (frontendPatient) => {
     occupation: frontendPatient.occupation,
     address: frontendPatient.address,
     leadSource: frontendPatient.leadSource,
-    assignedDoctor: frontendPatient.assignedDoctor,
+    assignedDoctor: isValidUUID(frontendPatient.assignedDoctor) ? frontendPatient.assignedDoctor : null,
     active: frontendPatient.status === 'Active'
   };
 };
@@ -36,7 +42,7 @@ export const patientService = {
         params: { search, page, size }
       });
       const data = response.data;
-      
+
       let patientsList = [];
       if (data.content) {
         patientsList = data.content; // Spring Boot Page object
@@ -49,15 +55,15 @@ export const patientService = {
       }
 
       const patients = patientsList.map(mapPatientToFrontend);
-      return { 
-        success: true, 
-        patients, 
+      return {
+        success: true,
+        patients,
         pagination: {
           totalElements: data.totalElements || patients.length,
           totalPages: data.totalPages || 1,
           number: data.number || 0,
           size: data.size || 10
-        } 
+        }
       };
     } catch (error) {
       console.error('Error fetching patients:', error);
@@ -79,7 +85,9 @@ export const patientService = {
   getPatientById: async (id) => {
     try {
       const response = await apiClient.get(`/patients/${id}`);
-      return { success: true, patient: mapPatientToFrontend(response.data) };
+      let result = response.data;
+      if (result.result) result = result.result;
+      return { success: true, patient: mapPatientToFrontend(result) };
     } catch (error) {
       console.error('Error fetching patient:', error);
       return { success: false, message: error.response?.data?.message || 'Patient not found' };
@@ -107,7 +115,7 @@ export const patientService = {
       return { success: false, message: error.response?.data?.message || 'Failed to update patient status' };
     }
   },
-  
+
   deletePatient: async (id) => {
     try {
       await apiClient.delete(`/patients/${id}`);
@@ -122,7 +130,7 @@ export const patientService = {
   incrementSessionCount: async (id) => {
     const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
     await delay();
-    
+
     const statePatients = getStore('mockPatients', []);
     const idx = statePatients.findIndex(p => p._id === id || p.uuid === id);
     if (idx !== -1) {
@@ -166,21 +174,21 @@ export const patientService = {
     await delay();
     const consultations = getStore('mockConsultations', mockConsultations);
     const sessions = getStore('mockTherapySessions', mockTherapySessions);
-    
+
     const patientConsultations = consultations.filter(c => c.patientId === id);
-    
+
     const completedSessions = sessions
       .filter(s => s.patientId === id && s.status === 'Completed')
       .map(s => ({
         ...s,
         date: s.date || Date.now(),
       }));
-      
+
     const timeline = [
       ...patientConsultations.map(c => ({ type: 'consultation', date: c.date, data: c })),
       ...completedSessions.map(s => ({ type: 'therapy_session', date: s.date, data: s }))
     ].sort((a, b) => b.date - a.date);
-    
+
     return { success: true, timeline };
   }
 };

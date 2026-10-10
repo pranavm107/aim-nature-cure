@@ -5,6 +5,7 @@ import { authService } from '../services/authService';
 import { InputField, PrimaryButton } from '../components/common/FormFields';
 
 const ForcePasswordReset = () => {
+  const [email, setEmail] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -12,26 +13,30 @@ const ForcePasswordReset = () => {
   
   const navigate = useNavigate();
 
+  // Try to pre-fill email if they just logged in
+  React.useEffect(() => {
+    const savedEmail = localStorage.getItem('userEmail');
+    if (savedEmail) setEmail(savedEmail);
+  }, []);
+
   const handleReset = async (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       toast.error("Passwords don't match");
       return;
     }
-
-    const email = localStorage.getItem('userEmail');
     if (!email) {
-      toast.error("Session expired, please login again");
-      navigate('/login');
+      toast.error("Email is required");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await authService.firstLoginPasswordReset(email, oldPassword, newPassword);
+      const res = await authService.resetPassword(email, oldPassword, newPassword, confirmPassword);
       if (res.success) {
         toast.success(res.message);
         // Clean up session and redirect to login
+        localStorage.removeItem('token');
         localStorage.removeItem('aToken');
         localStorage.removeItem('dToken');
         localStorage.removeItem('userRole');
@@ -57,13 +62,23 @@ const ForcePasswordReset = () => {
     <div className='min-h-[80vh] flex items-center justify-center bg-slate-50'>
       <div className='flex flex-col gap-5 items-start p-8 min-w-[340px] sm:min-w-96 border border-slate-200 rounded-xl text-slate-600 text-sm shadow-xl bg-white'>
         <p className='text-2xl font-semibold m-auto text-primary text-center'>
-          Welcome to AIM Nature Cure
+          Reset Password
         </p>
         <p className="text-center text-slate-500 mb-2">
-          For security reasons, you must change your auto-generated password before accessing the system.
+          Please enter your details to reset your password.
         </p>
         
         <form onSubmit={handleReset} className="w-full flex flex-col gap-4">
+          <InputField 
+            label="Email" 
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            required 
+            className="w-full"
+            placeholder="Your email address"
+          />
+
           <InputField 
             label="Current Password" 
             type="password" 
@@ -71,7 +86,7 @@ const ForcePasswordReset = () => {
             onChange={(e) => setOldPassword(e.target.value)} 
             required 
             className="w-full"
-            placeholder="The password you just used to login"
+            placeholder="Current password"
           />
           
           <InputField 
@@ -99,7 +114,7 @@ const ForcePasswordReset = () => {
             className='w-full py-2 rounded-md text-base px-0 mt-2' 
             disabled={loading}
           >
-            {loading ? 'Updating...' : 'Set Password'}
+            {loading ? 'Resetting...' : 'Reset Password'}
           </PrimaryButton>
         </form>
 

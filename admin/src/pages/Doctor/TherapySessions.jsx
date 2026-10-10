@@ -24,11 +24,11 @@ const TherapySessions = () => {
     try {
       const [sessRes, therRes, patRes] = await Promise.all([
         therapySessionService.getAllSessions(),
-        therapyService.getAllTherapies(),
+        therapyService.getAllTherapies('', 0, 1000),
         patientService.getPatients()
       ]);
       setSessions(sessRes);
-      setTherapies(therRes);
+      setTherapies(therRes?.success ? therRes.therapies : []);
       setPatients(patRes.patients);
     } catch (err) {
       toast.error('Failed to load sessions');
@@ -42,7 +42,7 @@ const TherapySessions = () => {
   }, []);
 
   const getTherapyName = (id) => {
-    const th = therapies.find(t => t._id === id);
+    const th = therapies.find(t => (t.uuid || t.id || t._id) === id);
     return th ? th.name : 'Unknown';
   };
 

@@ -31,26 +31,31 @@ const PatientRegistration = () => {
   });
 
   useEffect(() => {
-    // If admin, fetch doctors list for assignment
-    if (aToken) {
-      const fetchDoctors = async () => {
-        try {
-          const res = await adminService.getAllDoctors();
-          if (res.success) {
-            setDoctors(res.doctors);
-            if (res.doctors.length > 0) {
-              setFormData(prev => ({...prev, assignedDoctor: res.doctors[0]._id}));
+    const fetchDoctors = async () => {
+      try {
+        const res = await adminService.getDoctorsDropdown();
+        if (res.success) {
+          setDoctors(res.doctors);
+          
+          // Set initial value based on role
+          if (dToken && profileData) {
+            // Find doctor in real API response by name to get their actual UUID
+            // since profileData currently comes from mock data with "doc1"
+            const matchingDoc = res.doctors.find(d => d.name === profileData.name);
+            if (matchingDoc) {
+              setFormData(prev => ({ ...prev, assignedDoctor: matchingDoc._id }));
+            } else if (res.doctors.length > 0) {
+              setFormData(prev => ({ ...prev, assignedDoctor: res.doctors[0]._id }));
             }
+          } else if (aToken && res.doctors.length > 0) {
+            setFormData(prev => ({...prev, assignedDoctor: res.doctors[0]._id}));
           }
-        } catch (error) {
-          console.error('Error fetching doctors:', error);
         }
-      };
-      fetchDoctors();
-    } else if (dToken && profileData) {
-      // If doctor, auto-assign to themselves
-      setFormData(prev => ({ ...prev, assignedDoctor: profileData._id }));
-    }
+      } catch (error) {
+        console.error('Error fetching doctors dropdown:', error);
+      }
+    };
+    fetchDoctors();
   }, [aToken, dToken, profileData]);
 
   const calculateAge = (dobString) => {
@@ -182,23 +187,14 @@ const PatientRegistration = () => {
             onChange={handleChange} 
             placeholder="e.g. Google, Referral" 
           />
-          {aToken ? (
-            <SelectField 
-              label="Assigned Doctor" 
-              name="assignedDoctor"
-              value={formData.assignedDoctor} 
-              onChange={handleChange} 
-              options={doctors.map(d => ({ label: d.name, value: d._id }))}
-              required
-            />
-          ) : (
-            <InputField 
-              label="Assigned Doctor" 
-              value={profileData?.name || ''} 
-              disabled
-              className="bg-gray-50"
-            />
-          )}
+          <SelectField 
+            label="Assigned Doctor" 
+            name="assignedDoctor"
+            value={formData.assignedDoctor} 
+            onChange={handleChange} 
+            options={doctors.map(d => ({ label: d.name, value: d._id }))}
+            required
+          />
           <SelectField 
             label="Status" 
             name="status"

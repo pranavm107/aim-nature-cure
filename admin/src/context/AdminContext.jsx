@@ -16,25 +16,28 @@ const AdminContextProvider = (props) => {
         'view_reports', 'manage_billing'
     ]);
 
-    const getAllDoctors = async () => {
+    const getAllDoctors = async (params = {}) => {
         try {
-            const data = await adminService.getAllDoctors();
+            const data = await adminService.getAllDoctors(params);
             if (data.success) {
                 setDoctors(data.doctors);
+                return data;
             } else {
                 toast.error(data.message);
+                return null;
             }
         } catch (error) {
             toast.error(error.message);
+            return null;
         }
     };
 
-    const changeAvailability = async (docId) => {
+    const changeAvailability = async (docId, available) => {
         try {
-            const data = await adminService.changeAvailability(docId);
+            const data = await adminService.changeAvailability(docId, available);
             if (data.success) {
                 toast.success(data.message);
-                getAllDoctors();
+                // The caller can re-fetch doctors or we can just fetch default page 0 here if needed
             } else {
                 toast.error(data.message);
             }
@@ -60,7 +63,7 @@ const AdminContextProvider = (props) => {
 
     const cancelAppointment = async (appointmentId) => {
         try {
-            const data = await appointmentService.updateAppointmentStatus(appointmentId, 'Cancelled');
+            const data = await appointmentService.cancelAppointment(appointmentId, "Cancelled from dashboard");
             if (data.success) {
                 toast.success("Appointment Cancelled");
                 getAllAppointments();

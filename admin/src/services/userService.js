@@ -1,110 +1,114 @@
-import { getStore, setStore } from '../utils/mockStore';
-
-const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
-
-const generatePassword = () => {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-  let password = '';
-  for (let i = 0; i < 10; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return password;
-};
+import apiClient from './apiClient';
 
 export const userService = {
   getUsers: async () => {
-    await delay();
-    const users = getStore('mockUsers');
-    // Map them to look like what the UI expects
-    const formattedUsers = users.map(u => ({
-      _id: u._id,
-      name: u.name,
-      email: u.email,
-      role: u.role,
-      status: u.status,
-      lastActive: Date.now() - Math.random() * 86400000
-    }));
+    try {
+      const response = await apiClient.get('/users');
+      let users = response.data;
+      if (users.result) users = users.result;
+      if (users.users) users = users.users;
+      
+      if (!Array.isArray(users)) {
+        users = [users];
+      }
 
-    return {
-      success: true,
-      users: formattedUsers
-    };
+      const formattedUsers = users.map(u => ({
+        _id: u.uuid || u.id || u._id,
+        name: u.name,
+        email: u.email,
+        phone: u.phone,
+        role: u.role,
+        photo: u.photo,
+        status: u.active ? 'Active' : 'Inactive',
+        lastActive: Date.now() - Math.random() * 86400000 // mock lastActive since backend might not have it
+      }));
+
+      return { success: true, users: formattedUsers };
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to load users' };
+    }
   },
 
-  addUser: async (name, email, role) => {
-    await delay();
-    const generatedPassword = generatePassword();
-    
-    // Simulate email send
-    console.log(`[SIMULATED EMAIL] To: ${email} | Subject: Your new Account | Body: Your password is ${generatedPassword}`);
-
-    const users = getStore('mockUsers');
-    users.push({
-      _id: 'u_' + Date.now(),
-      name,
-      email,
-      password: generatedPassword,
-      role: role || 'admin',
-      mustChangePassword: true,
-      status: 'Active'
-    });
-    setStore('mockUsers', users);
-
-    return { success: true, message: 'User added successfully', generatedPassword };
+  addUser: async (name, email, role, phone, password) => {
+    try {
+      const payload = {
+        name,
+        email,
+        phone,
+        password,
+        role: role.toUpperCase(),
+        photo: null
+      };
+      
+      const response = await apiClient.post('/users/create', payload);
+      return { success: true, message: response.data?.message || 'User created successfully', generatedPassword: password };
+    } catch (error) {
+      console.error("Failed to add user:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to create user' };
+    }
   },
 
   updateUserStatus: async (userId, newStatus) => {
-    await delay();
-    const users = getStore('mockUsers');
-    const userIndex = users.findIndex(u => u._id === userId);
-    if (userIndex !== -1) {
-      users[userIndex].status = newStatus;
-      setStore('mockUsers', users);
-      return { success: true, message: 'Status updated' };
+    try {
+      const active = newStatus === 'Active';
+      const response = await apiClient.patch(`/users/update/status/${userId}/${active}`);
+      return { success: true, message: response.data?.message || 'Status updated successfully' };
+    } catch (error) {
+      console.error("Failed to update user status:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to update status' };
     }
-    return { success: false, message: 'User not found' };
   },
 
   getUserById: async (userId) => {
-    await delay();
-    const users = getStore('mockUsers');
-    const user = users.find(u => u._id === userId);
-    if (user) {
+    try {
+      const response = await apiClient.get(`/users/${userId}`);
+      let user = response.data;
+      if (user.result) user = user.result;
+      if (user.user) user = user.user;
+
       const formattedUser = {
-        _id: user._id,
+        _id: user.uuid || user.id || user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         role: user.role,
-        status: user.status,
+        photo: user.photo,
+        status: user.active ? 'Active' : 'Inactive',
       };
       return { success: true, user: formattedUser };
+    } catch (error) {
+      console.error("Failed to get user by ID:", error);
+      return { success: false, message: error.response?.data?.message || 'User not found' };
     }
-    return { success: false, message: 'User not found' };
   },
 
   updateUser: async (userId, updateData) => {
-    await delay();
-    const users = getStore('mockUsers');
-    const idx = users.findIndex(u => u._id === userId);
-    if (idx !== -1) {
-      // Email is locked, ignore it if passed
-      const { email, role, ...allowedUpdates } = updateData; 
-      users[idx] = { ...users[idx], ...allowedUpdates };
-      setStore('mockUsers', users);
-      return { success: true, message: 'User updated successfully' };
+    try {
+      const payload = {
+        uuid: userId,
+        name: updateData.name,
+        email: updateData.email,
+        phone: updateData.phone,
+        role: updateData.role?.toUpperCase(),
+        photo: updateData.photo || null
+      };
+
+      const response = await apiClient.put('/users/update', payload);
+      return { success: true, message: response.data?.message || 'User updated successfully' };
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to update user' };
     }
-    return { success: false, message: 'User not found' };
   },
 
-  updateUserRole: async (userId, newRole) => {
-    await delay();
-    const users = getStore('mockUsers');
-    const idx = users.findIndex(u => u._id === userId);
-    if (idx !== -1) {
-      users[idx].role = newRole;
-      setStore('mockUsers', users);
-      return { success: true, message: 'User role updated' };
+  deleteUser: async (userId) => {
+    try {
+      const response = await apiClient.delete(`/users/${userId}`);
+      return { success: true, message: response.data?.message || 'User deleted successfully' };
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to delete user' };
     }
-    return { success: false, message: 'User not found' };
   }
 };

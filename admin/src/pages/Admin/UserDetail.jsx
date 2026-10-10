@@ -3,8 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import { userService } from '../../services/userService';
+import { rolesService } from '../../services/rolesService';
 import { toast } from 'react-toastify';
-import { Edit } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import { InputField, SelectField } from '../../components/common/FormFields';
 import Badge from '../../components/common/Badge';
 
@@ -13,34 +14,52 @@ const UserDetail = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  const [roles, setRoles] = useState([]);
+  const [permissions, setPermissions] = useState([]);
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({});
 
-  const fetchUser = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await userService.getUserById(id);
-      if (res.success) {
-        setUser(res.user);
+      const [userRes, rolesRes, permsRes] = await Promise.all([
+        userService.getUserById(id),
+        rolesService.getRoles(),
+        rolesService.getPermissionsByUser(id)
+      ]);
+      
+      if (userRes.success) {
+        setUser(userRes.user);
       } else {
         toast.error("User not found");
         navigate('/admin/users');
+        return;
+      }
+      
+      if (rolesRes.success) {
+        setRoles(rolesRes.roles || []);
+      }
+      
+      if (permsRes.success) {
+        setPermissions(permsRes.permissions || []);
       }
     } catch (err) {
-      toast.error("Error loading user");
+      toast.error("Error loading user details");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUser();
+    fetchData();
   }, [id]);
 
   const openEditModal = () => {
     setEditFormData({
       name: user.name,
+      phone: user.phone || '',
       role: user.role
     });
     setEditModalOpen(true);
@@ -54,12 +73,28 @@ const UserDetail = () => {
       if (res.success) {
         toast.success("User updated successfully");
         setEditModalOpen(false);
-        fetchUser();
+        fetchData();
       } else {
         toast.error(res.message || "Failed to update user");
       }
     } catch (err) {
       toast.error("Error updating user");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      try {
+        const res = await userService.deleteUser(id);
+        if (res.success) {
+          toast.success("User deleted successfully");
+          navigate('/admin/users');
+        } else {
+          toast.error(res.message || "Failed to delete user");
+        }
+      } catch (err) {
+        toast.error("Error deleting user");
+      }
     }
   };
 
@@ -73,9 +108,14 @@ const UserDetail = () => {
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-2xl">
         <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-2">
           <h2 className="text-lg font-semibold text-slate-800">User Details</h2>
-          <button onClick={openEditModal} className="text-slate-500 hover:text-primary transition-colors">
-            <Edit className="w-4 h-4" />
-          </button>
+          <div className="flex gap-4">
+            <button onClick={openEditModal} className="text-slate-500 hover:text-primary transition-colors">
+              <Edit className="w-5 h-5" />
+            </button>
+            <button onClick={handleDelete} className="text-red-400 hover:text-red-600 transition-colors">
+              <Trash2 className="w-5 h-5" />
+            </button>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
@@ -86,6 +126,10 @@ const UserDetail = () => {
           <div>
             <p className="text-slate-500 mb-1">Email</p>
             <p className="font-medium text-slate-800">{user.email} <span className="text-xs text-slate-400 ml-2">(Locked)</span></p>
+          </div>
+          <div>
+            <p className="text-slate-500 mb-1">Phone</p>
+            <p className="font-medium text-slate-800">{user.phone || 'N/A'}</p>
           </div>
           <div>
             <p className="text-slate-500 mb-1">Role</p>
@@ -106,6 +150,22 @@ const UserDetail = () => {
             <p className="font-medium text-slate-800">{user.lastActive ? new Date(user.lastActive).toLocaleDateString() : 'N/A'}</p>
           </div>
         </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-2xl mt-6">
+        <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 pb-2">User Permissions</h2>
+        {permissions.length === 0 ? (
+          <p className="text-sm text-slate-500 italic">No permissions assigned to this user.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {permissions.map(perm => (
+              <div key={perm.uuid || perm.id || perm._id} className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary/70"></div>
+                <span className="text-sm font-medium text-slate-700">{perm.permissionName || perm.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {editModalOpen && (
@@ -134,15 +194,22 @@ const UserDetail = () => {
                   />
                 </div>
 
+                <InputField 
+                  label="Phone" 
+                  value={editFormData.phone} 
+                  onChange={e => setEditFormData({...editFormData, phone: e.target.value})} 
+                  required 
+                />
+
                 <SelectField 
                   label="Role" 
                   value={editFormData.role} 
                   onChange={e => setEditFormData({...editFormData, role: e.target.value})} 
-                  options={[
-                    { value: 'admin', label: 'Admin' },
-                    { value: 'doctor', label: 'Doctor' },
-                    { value: 'receptionist', label: 'Receptionist' }
-                  ]}
+                  options={
+                    roles.length > 0 
+                      ? roles.map(r => ({ value: r.roleName || r.name, label: r.roleName || r.name }))
+                      : [{ value: 'ADMIN', label: 'Admin' }, { value: 'DOCTOR', label: 'Doctor' }]
+                  }
                 />
               </div>
               <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">

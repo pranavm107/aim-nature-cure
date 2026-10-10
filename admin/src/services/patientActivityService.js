@@ -49,22 +49,21 @@ export const patientActivityService = {
     });
 
     // 3. Follow-ups
-    const { followUps } = await followUpService.getPatientFollowUps(patientId);
+    const res = await followUpService.getFollowUps('', 0, 1000);
+    const followUps = res.success ? res.followUps.filter(f => f.patientId === patientId) : [];
     followUps.forEach(f => {
       activities.push({
-        _id: 'act_f_' + f._id,
+        _id: 'act_f_' + (f.uuid || f.id || f._id),
         type: 'FOLLOW-UP',
-        title: `${f.type} - ${f.status}`,
+        title: `${f.type || 'Standard'} - ${f.status || 'Pending'}`,
         description: f.notes || 'No description',
-        date: f.createdAt, // Record creation date as the activity
-        performedBy: f.doctorId,
+        date: f.createdAt ? new Date(f.createdAt).getTime() : Date.now(), // Record creation date as the activity
+        performedBy: f.doctorName || f.doctorId,
         details: {
-          TargetDate: new Date(f.date).toLocaleDateString(),
-          Priority: f.priority,
-          CompletionNotes: f.completionNotes,
-          RescheduleReason: f.rescheduleReason
+          TargetDate: f.dueDate ? new Date(f.dueDate).toLocaleDateString() : 'N/A',
+          Priority: f.priority || 'Normal',
         },
-        rawDate: f.createdAt
+        rawDate: f.createdAt ? new Date(f.createdAt).getTime() : Date.now()
       });
     });
 

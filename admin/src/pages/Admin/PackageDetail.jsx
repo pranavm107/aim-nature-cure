@@ -19,12 +19,12 @@ const PackageDetail = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [packageData, thers] = await Promise.all([
+      const [packageData, thersRes] = await Promise.all([
         packageService.getPackageById(id),
-        therapyService.getAllTherapies()
+        therapyService.getAllTherapies('', 0, 1000)
       ]);
       setPkg(packageData);
-      setAvailableTherapies(thers);
+      setAvailableTherapies(thersRes?.success ? thersRes.therapies : []);
     } catch (err) {
       toast.error('Failed to load package details');
       navigate('/admin/packages');
@@ -38,33 +38,33 @@ const PackageDetail = () => {
   }, [id]);
 
   const getTherapyName = (thId) => {
-    const th = availableTherapies.find(t => t._id === thId);
+    const th = availableTherapies.find(t => (t.uuid || t.id || t._id) === thId);
     return th ? th.name : 'Unknown Therapy';
   };
 
   const getTherapyDuration = (thId) => {
-    const th = availableTherapies.find(t => t._id === thId);
+    const th = availableTherapies.find(t => (t.uuid || t.id || t._id) === thId);
     return th ? th.duration : 0;
   };
 
   if (loading) return <PageContainer><p>Loading...</p></PageContainer>;
   if (!pkg) return null;
 
-  const totalSessions = pkg.therapies.reduce((sum, t) => sum + t.count, 0);
-  const totalDuration = pkg.therapies.reduce((sum, t) => sum + (getTherapyDuration(t.therapyId) * t.count), 0);
+  const totalSessions = pkg.therapies.reduce((sum, t) => sum + (t.quantity || t.count || 1), 0);
+  const totalDuration = pkg.therapies.reduce((sum, t) => sum + (getTherapyDuration(t.therapyId) * (t.quantity || t.count || 1)), 0);
 
   return (
     <PageContainer>
       <PageHeader 
-        title={`Package: ${pkg.name}`} 
+        title={`Package: ${pkg.packageName || pkg.name}`} 
         subtitle="View package details and contents" 
       />
       
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-3xl">
         <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-bold text-slate-800">{pkg.name}</h2>
-            {pkg.status ? <Badge variant="success">Active</Badge> : <Badge variant="neutral">Inactive</Badge>}
+            <h2 className="text-xl font-bold text-slate-800">{pkg.packageName || pkg.name}</h2>
+            {(pkg.active !== undefined ? pkg.active : pkg.status) ? <Badge variant="success">Active</Badge> : <Badge variant="neutral">Inactive</Badge>}
           </div>
           <button onClick={() => navigate(`/admin/packages/${id}/edit`)} className="text-slate-500 hover:text-primary transition-colors flex items-center gap-1 text-sm font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-primary/30">
             <Edit className="w-4 h-4" /> Edit Package
@@ -109,7 +109,7 @@ const PackageDetail = () => {
                     <tr key={idx} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
                       <td className="p-3 text-sm font-medium text-slate-800">{getTherapyName(t.therapyId)}</td>
                       <td className="p-3 text-sm text-slate-600">{getTherapyDuration(t.therapyId)} mins</td>
-                      <td className="p-3 text-sm font-bold text-slate-800 text-right">x{t.count}</td>
+                      <td className="p-3 text-sm font-bold text-slate-800 text-right">x{t.quantity || t.count || 1}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -13,9 +13,9 @@ const DoctorContextProvider = (props) => {
 
     const getAppointments = async () => {
         try {
-            const data = await appointmentService.getDoctorAppointments();
+            const data = await appointmentService.getAppointments();
             if (data.success) {
-                setAppointments(data.appointments.reverse());
+                setAppointments(data.appointments);
             } else {
                 toast.error(data.message);
             }
@@ -47,7 +47,7 @@ const DoctorContextProvider = (props) => {
 
     const cancelAppointment = async (appointmentId) => {
         try {
-            const data = await appointmentService.updateAppointmentStatus(appointmentId, 'Cancelled');
+            const data = await appointmentService.cancelAppointment(appointmentId, 'Cancelled from dashboard');
             if (data.success) {
                 toast.success("Appointment Cancelled");
                 getAppointments();
@@ -63,7 +63,7 @@ const DoctorContextProvider = (props) => {
 
     const completeAppointment = async (appointmentId) => {
         try {
-            const data = await appointmentService.updateAppointmentStatus(appointmentId, 'Completed');
+            const data = await appointmentService.completeAppointment(appointmentId);
             if (data.success) {
                 toast.success("Appointment Completed");
                 getAppointments();

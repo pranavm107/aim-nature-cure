@@ -5,8 +5,8 @@ import PageHeader from '../../components/layout/PageHeader';
 import { adminService } from '../../services/adminService';
 import { salaryService } from '../../services/salaryService';
 import { toast } from 'react-toastify';
-import { Edit } from 'lucide-react';
-import { InputField, TextareaField } from '../../components/common/FormFields';
+import { Edit, Trash2 } from 'lucide-react';
+import { InputField, TextareaField, SelectField } from '../../components/common/FormFields';
 
 const DoctorDetail = () => {
   const { id } = useParams();
@@ -45,7 +45,7 @@ const DoctorDetail = () => {
         await fetchSalaryAndIncentive();
       } else {
         toast.error("Doctor not found");
-        navigate('/doctor-list');
+        navigate('/admin/doctors-list');
       }
     } catch (err) {
       toast.error("Error loading doctor");
@@ -66,6 +66,7 @@ const DoctorDetail = () => {
       fees: doctor.fees,
       about: doctor.about,
       degree: doctor.degree,
+      phone: doctor.phone || '',
       address1: doctor.address?.line1 || '',
       address2: doctor.address?.line2 || ''
     });
@@ -82,6 +83,8 @@ const DoctorDetail = () => {
         fees: Number(editFormData.fees),
         about: editFormData.about,
         degree: editFormData.degree,
+        phone: editFormData.phone || doctor.phone,
+        salary: doctor.salary || 0,
         address: { line1: editFormData.address1, line2: editFormData.address2 }
       };
       const res = await adminService.updateDoctor(id, updateData);
@@ -122,6 +125,37 @@ const DoctorDetail = () => {
     }
   };
 
+  const toggleStatus = async () => {
+    const newStatus = !doctor.active;
+    try {
+      const res = await adminService.changeStatus(id, newStatus);
+      if (res.success) {
+        toast.success(`Doctor marked as ${newStatus ? 'Active' : 'Inactive'}`);
+        fetchDoctor();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err) {
+      toast.error("Failed to change status");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this doctor? This action cannot be undone.")) {
+      try {
+        const res = await adminService.deleteDoctor(id);
+        if (res.success) {
+          toast.success("Doctor deleted successfully");
+          navigate('/admin/doctors-list');
+        } else {
+          toast.error(res.message);
+        }
+      } catch (err) {
+        toast.error("Failed to delete doctor");
+      }
+    }
+  };
+
   const experienceOptions = [
       { value: '1 Year', label: '1 Year' },
       { value: '2 Year', label: '2 Years' },
@@ -145,7 +179,15 @@ const DoctorDetail = () => {
 
   return (
     <PageContainer>
-      <PageHeader title={`Doctor: ${doctor.name}`} subtitle="View and manage doctor profile" />
+      <PageHeader 
+        title={`Doctor: ${doctor.name}`} 
+        subtitle="View and manage doctor profile" 
+        actions={
+          <button onClick={handleDelete} className="bg-red-50 text-red-600 px-4 py-2.5 rounded-lg shadow-sm hover:bg-red-100 transition-colors flex items-center gap-2 text-sm font-medium">
+            <Trash2 className="w-4 h-4" /> Delete Doctor
+          </button>
+        }
+      />
       
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-3xl">
         <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-2">
@@ -157,11 +199,14 @@ const DoctorDetail = () => {
         
         <div className="flex flex-col md:flex-row gap-6">
           <div className="w-full md:w-1/3">
-            <img src={doctor.image} alt={doctor.name} className="w-full rounded-lg bg-slate-50 border border-slate-200" />
-            <div className="mt-4 text-center">
+            <img src={doctor.image || "https://placehold.co/400x400?text=No+Photo"} alt={doctor.name} className="w-full h-auto rounded-lg bg-slate-50 border border-slate-200 object-cover" />
+            <div className="mt-4 text-center flex flex-col gap-2">
               <span className={`px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider ${doctor.available ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
                 {doctor.available ? 'Available' : 'Unavailable'}
               </span>
+              <button onClick={toggleStatus} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${doctor.active ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' : 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100'}`}>
+                {doctor.active ? 'Mark Inactive' : 'Mark Active'}
+              </button>
             </div>
           </div>
           
@@ -173,6 +218,10 @@ const DoctorDetail = () => {
             <div>
               <p className="text-slate-500 mb-1">Email</p>
               <p className="font-medium text-slate-800">{doctor.email}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 mb-1">Phone</p>
+              <p className="font-medium text-slate-800">{doctor.phone}</p>
             </div>
             <div>
               <p className="text-slate-500 mb-1">Speciality</p>

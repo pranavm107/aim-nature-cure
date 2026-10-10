@@ -1,54 +1,77 @@
-import { mockProfile, mockCredentials } from '../mocks/mockData';
-import { getStore, setStore } from '../utils/mockStore';
+import apiClient from './apiClient';
 
 export const authService = {
-  loginAdmin: async (email, password) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const users = getStore('mockUsers');
-    const user = users.find(u => u.email === email && u.password === password && u.role === 'admin' && u.status === 'Active');
-    
-    if (user) {
-      return { success: true, token: 'mock-admin-token', mustChangePassword: user.mustChangePassword };
+  login: async (email, password) => {
+    try {
+      const response = await apiClient.post('/auth/login', { email, password });
+      let data = response.data;
+      if (data.result) data = data.result;
+
+      const token = data.token || data.jwt || data.accessToken || response.data;
+      return { success: true, token };
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false, message: error.response?.data?.message || 'Invalid credentials' };
     }
-    // Fallback to legacy mockCredentials if not in store
-    if (email === mockCredentials.admin.email && password === mockCredentials.admin.password) {
-      return { success: true, token: 'mock-admin-token', mustChangePassword: false };
-    }
-    return { success: false, message: 'Invalid credentials' };
   },
 
-  loginDoctor: async (email, password) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const users = getStore('mockUsers');
-    const user = users.find(u => u.email === email && u.password === password && u.role === 'doctor' && u.status === 'Active');
-    
-    if (user) {
-      return { success: true, token: 'mock-doctor-token', mustChangePassword: user.mustChangePassword };
-    }
-    // Fallback to legacy mockCredentials if not in store
-    if (email === mockCredentials.doctor.email && password === mockCredentials.doctor.password) {
-      return { success: true, token: 'mock-doctor-token', mustChangePassword: false };
-    }
-    return { success: false, message: 'Invalid credentials' };
-  },
+  getCurrentUser: async (email) => {
+    try {
+      const response = await apiClient.get(`/auth/me/${email}`);
+      let data = response.data;
 
-  firstLoginPasswordReset: async (email, oldPassword, newPassword) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const users = getStore('mockUsers');
-    const userIndex = users.findIndex(u => u.email === email && u.password === oldPassword);
-    
-    if (userIndex !== -1) {
-      users[userIndex].password = newPassword;
-      users[userIndex].mustChangePassword = false;
-      setStore('mockUsers', users);
-      return { success: true, message: 'Password updated successfully. Please log in again.' };
+      // Keep unwrapping until we find the actual user object with role or name
+      if (data.user) data = data.user;
+      if (data.result) data = data.result;
+      if (data.user) data = data.user; // In case it's double nested
+
+      const role = data.role || data.roleName || data.type;
+
+      return { success: true, user: data, role: role };
+    } catch (error) {
+      console.error("Get current user error:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to fetch user' };
     }
-    return { success: false, message: 'Invalid credentials' };
   },
 
   getProfile: async (role) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    // Usually we would fetch profile from mockStore using the token, but we'll keep it simple
-    return { success: true, data: mockProfile[role] };
+    try {
+      const email = localStorage.getItem('userEmail');
+      if (!email) return { success: false, message: 'No user email found in local storage' };
+      
+      const response = await authService.getCurrentUser(email);
+      if (response.success) {
+        return { success: true, data: response.user };
+      }
+      return response;
+    } catch (error) {
+      console.error("Get profile error:", error);
+      return { success: false, message: 'Failed to fetch profile' };
+    }
+  },
+
+  forgotPassword: async (email) => {
+    try {
+      const response = await apiClient.post('/auth/forgot-password', { email });
+      return { success: true, message: response.data?.message || 'Password reset link sent successfully' };
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to send reset link' };
+    }
+  },
+
+  resetPassword: async (email, oldPassword, newPassword, confirmPassword) => {
+    try {
+      const response = await apiClient.post('/auth/reset-password', {
+        email,
+        oldPassword,
+        newPassword,
+        confirmPassword
+      });
+      return { success: true, message: response.data?.message || 'Password reset successfully' };
+    } catch (error) {
+      console.error("Reset password error:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to reset password' };
+    }
   }
 };

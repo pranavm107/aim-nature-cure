@@ -16,21 +16,27 @@ const PackageForm = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   
-  const [formData, setFormData] = useState({ name: '', price: '', status: true, therapies: [] });
+  const [formData, setFormData] = useState({ packageName: '', price: '', active: true, therapies: [] });
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const thers = await therapyService.getAllTherapies();
-      setAvailableTherapies(thers.filter(t => t.status === true));
+      const thersRes = await therapyService.getAllTherapies('', 0, 1000);
+      const thers = thersRes?.success ? thersRes.therapies : [];
+      setAvailableTherapies(thers.filter(t => (t.active !== undefined ? t.active : t.status) === true));
       
       if (isEditMode) {
         const pkg = await packageService.getPackageById(id);
+        const mappedTherapies = pkg.therapies.map(t => ({
+          therapyId: t.therapyId,
+          quantity: t.quantity || t.count || 1
+        }));
+        
         setFormData({ 
-          name: pkg.name, 
+          packageName: pkg.packageName || pkg.name, 
           price: pkg.price, 
-          status: pkg.status, 
-          therapies: JSON.parse(JSON.stringify(pkg.therapies)) 
+          active: pkg.active !== undefined ? pkg.active : pkg.status, 
+          therapies: mappedTherapies 
         });
       }
     } catch (err) {
@@ -51,10 +57,20 @@ const PackageForm = () => {
       return toast.error("Please add at least one therapy to the package.");
     }
     
+    // Prevent duplicate therapy selection
+    const therapyIds = formData.therapies.map(t => t.therapyId);
+    if (new Set(therapyIds).size !== therapyIds.length) {
+      return toast.error("Duplicate therapies selected. Please combine quantities or remove duplicates.");
+    }
+
     setSubmitting(true);
     try {
       if (isEditMode) {
-        await packageService.updatePackage(id, formData);
+        const payload = {
+          uuid: id,
+          ...formData
+        };
+        await packageService.updatePackage(payload);
         toast.success('Package updated successfully');
         navigate(`/admin/packages/${id}`);
       } else {
@@ -72,7 +88,7 @@ const PackageForm = () => {
   const addTherapyToPackage = () => {
     setFormData({
       ...formData,
-      therapies: [...formData.therapies, { therapyId: '', count: 1 }]
+      therapies: [...formData.therapies, { therapyId: '', quantity: 1 }]
     });
   };
 
@@ -99,12 +115,12 @@ const PackageForm = () => {
       
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-3xl">
         <form onSubmit={handleSubmit}>
-          <div className="flex flex-col md:flex-row gap-6 mb-8">
+          <div className="flex flex-col md:flex-row gap-6 mb-6">
             <div className="flex-[2]">
               <InputField 
                 label="Package Name" 
-                value={formData.name} 
-                onChange={e => setFormData({...formData, name: e.target.value})} 
+                value={formData.packageName} 
+                onChange={e => setFormData({...formData, packageName: e.target.value})} 
                 required 
               />
             </div>
@@ -112,11 +128,24 @@ const PackageForm = () => {
               <InputField 
                 label="Price ($)" 
                 type="number" 
+                min="0" step="0.01"
                 value={formData.price} 
                 onChange={e => setFormData({...formData, price: Number(e.target.value)})} 
                 required 
               />
             </div>
+          </div>
+          
+          <div className="mb-8">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                className="w-4 h-4 text-primary rounded border-slate-300 focus:ring-primary/20"
+                checked={formData.active}
+                onChange={(e) => setFormData({...formData, active: e.target.checked})}
+              />
+              <span className="text-sm font-bold text-slate-700">Active</span>
+            </label>
           </div>
 
           <div className="mb-8">
@@ -144,7 +173,7 @@ const PackageForm = () => {
                     >
                       <option value="">Select Therapy...</option>
                       {availableTherapies.map(th => (
-                        <option key={th._id} value={th._id}>{th.name}</option>
+                        <option key={th.uuid || th.id || th._id} value={th.uuid || th.id || th._id}>{th.name}</option>
                       ))}
                     </select>
                   </div>
@@ -154,8 +183,8 @@ const PackageForm = () => {
                       type="number" 
                       min="1" required
                       className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      value={tItem.count}
-                      onChange={(e) => updateTherapyItem(index, 'count', Number(e.target.value))}
+                      value={tItem.quantity}
+                      onChange={(e) => updateTherapyItem(index, 'quantity', Number(e.target.value))}
                     />
                   </div>
                   <div className="pt-5">

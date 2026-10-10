@@ -1,105 +1,107 @@
-const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Available screens in the system
-export const AVAILABLE_SCREENS = [
-  'Dashboard',
-  'Doctors',
-  'Patients',
-  'Appointments',
-  'Therapies',
-  'Packages',
-  'Follow-Ups',
-  'Reports'
-];
-
-// Helper to generate the default permissions object (View: false, Edit: false for all)
-const generateDefaultPermissions = () => {
-  const perms = {};
-  AVAILABLE_SCREENS.forEach(screen => {
-    perms[screen] = { view: false, edit: false };
-  });
-  return perms;
-};
-
-// Seed mock roles
-let mockRoles = [
-  { 
-    _id: 'role1', 
-    name: 'Super Admin', 
-    permissions: AVAILABLE_SCREENS.reduce((acc, screen) => {
-      acc[screen] = { view: true, edit: true };
-      return acc;
-    }, {}),
-    isSystem: true
-  },
-  { 
-    _id: 'role2', 
-    name: 'Receptionist', 
-    permissions: AVAILABLE_SCREENS.reduce((acc, screen) => {
-      // Example restricted permissions
-      if (['Dashboard', 'Patients', 'Appointments'].includes(screen)) {
-        acc[screen] = { view: true, edit: true };
-      } else if (screen === 'Doctors' || screen === 'Therapies' || screen === 'Packages') {
-        acc[screen] = { view: true, edit: false };
-      } else {
-        acc[screen] = { view: false, edit: false };
-      }
-      return acc;
-    }, {}),
-    isSystem: false
-  }
-];
+import apiClient from './apiClient';
 
 export const rolesService = {
+  getRoles: async () => {
+    try {
+      const response = await apiClient.get('/roles/all');
+      let roles = response.data;
+      if (roles.result) roles = roles.result;
+      if (roles.roles) roles = roles.roles;
+
+      if (!Array.isArray(roles)) {
+        roles = [roles];
+      }
+      return { success: true, roles };
+    } catch (error) {
+      console.error("Failed to fetch roles:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to load roles' };
+    }
+  },
+
   getAllRoles: async () => {
-    await delay();
-    return { success: true, roles: [...mockRoles] };
+    // Alias for backward compatibility if any components use it
+    return rolesService.getRoles();
   },
 
-  getRoleById: async (id) => {
-    await delay();
-    const role = mockRoles.find(r => r._id === id);
-    if (!role) throw new Error("Role not found");
-    return { success: true, role };
-  },
-
-  createRole: async (roleData) => {
-    await delay();
-    const newRole = {
-      _id: 'role_' + Date.now(),
-      name: roleData.name,
-      permissions: roleData.permissions || generateDefaultPermissions(),
-      isSystem: false
-    };
-    mockRoles.push(newRole);
-    return { success: true, role: newRole };
-  },
-
-  updateRole: async (id, roleData) => {
-    await delay();
-    const idx = mockRoles.findIndex(r => r._id === id);
-    if (idx > -1) {
-      if (mockRoles[idx].isSystem && roleData.name !== mockRoles[idx].name) {
-        // Can only update permissions of system roles, not name
-        mockRoles[idx].permissions = roleData.permissions;
-      } else {
-        mockRoles[idx] = { ...mockRoles[idx], ...roleData, _id: id };
-      }
-      return { success: true, role: mockRoles[idx] };
+  getRoleById: async (roleId) => {
+    try {
+      const response = await apiClient.get(`/roles/${roleId}`);
+      let role = response.data;
+      if (role.result) role = role.result;
+      if (role.role) role = role.role;
+      return { success: true, role };
+    } catch (error) {
+      console.error("Failed to get role by ID:", error);
+      return { success: false, message: error.response?.data?.message || 'Role not found' };
     }
-    throw new Error("Role not found");
   },
 
-  deleteRole: async (id) => {
-    await delay();
-    const idx = mockRoles.findIndex(r => r._id === id);
-    if (idx > -1) {
-      if (mockRoles[idx].isSystem) {
-        throw new Error("Cannot delete a system role");
-      }
-      mockRoles.splice(idx, 1);
-      return { success: true };
+  createRole: async (payload) => {
+    try {
+      const response = await apiClient.post('/roles/create', payload);
+      let role = response.data;
+      if (role.result) role = role.result;
+      return { success: true, role, message: response.data?.message || 'Role created successfully' };
+    } catch (error) {
+      console.error("Failed to create role:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to create role' };
     }
-    throw new Error("Role not found");
+  },
+
+  updateRole: async (payload) => {
+    try {
+      const response = await apiClient.put('/roles/update', payload);
+      let role = response.data;
+      if (role.result) role = role.result;
+      return { success: true, role, message: response.data?.message || 'Role updated successfully' };
+    } catch (error) {
+      console.error("Failed to update role:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to update role' };
+    }
+  },
+
+  getScreensWithPermissions: async () => {
+    try {
+      const response = await apiClient.get('/screens/all-with-permissions');
+      let screens = response.data;
+      if (screens.result) screens = screens.result;
+      if (!Array.isArray(screens)) {
+        screens = screens ? [screens] : [];
+      }
+      return { success: true, screens };
+    } catch (error) {
+      console.error("Failed to fetch screens and permissions:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to load permissions' };
+    }
+  },
+
+  getPermissionsByRole: async (roleId) => {
+    try {
+      const response = await apiClient.get(`/permissions/role/${roleId}`);
+      let permissions = response.data;
+      if (permissions.result) permissions = permissions.result;
+      if (!Array.isArray(permissions)) {
+        permissions = permissions ? [permissions] : [];
+      }
+      return { success: true, permissions };
+    } catch (error) {
+      console.error("Failed to fetch role permissions:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to load assigned permissions' };
+    }
+  },
+
+  getPermissionsByUser: async (userId) => {
+    try {
+      const response = await apiClient.get(`/permissions/user/${userId}`);
+      let permissions = response.data;
+      if (permissions.result) permissions = permissions.result;
+      if (!Array.isArray(permissions)) {
+        permissions = permissions ? [permissions] : [];
+      }
+      return { success: true, permissions };
+    } catch (error) {
+      console.error("Failed to fetch user permissions:", error);
+      return { success: false, message: error.response?.data?.message || 'Failed to load user permissions' };
+    }
   }
 };

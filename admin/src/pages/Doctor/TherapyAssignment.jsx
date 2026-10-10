@@ -22,13 +22,17 @@ const TherapyAssignment = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [patRes, thers, pkgs] = await Promise.all([
+        const [patRes, thersRes, pkgsRes] = await Promise.all([
           patientService.getPatients(),
-          therapyService.getAllTherapies(),
+          therapyService.getTherapiesDropdown(),
           packageService.getAllPackages()
         ]);
-        setPatients(patRes.patients);
-        setTherapies(thers.filter(t => t.status === true));
+        setPatients(patRes.patients || []);
+        
+        const thers = thersRes?.success ? thersRes.therapies : [];
+        setTherapies(thers);
+        
+        const pkgs = pkgsRes?.success ? pkgsRes.packages : [];
         setPackages(pkgs.filter(p => p.status === true));
       } catch (error) {
         toast.error('Failed to load data for assignment');
@@ -78,7 +82,7 @@ const TherapyAssignment = () => {
             >
               <option value="">-- Select Patient --</option>
               {patients.map(p => (
-                <option key={p._id} value={p._id}>{p.name} (ID: {p._id})</option>
+                <option key={p._id} value={p._id}>{p.name}</option>
               ))}
             </select>
           </div>
@@ -121,7 +125,7 @@ const TherapyAssignment = () => {
             >
               <option value="">-- Select {formData.assignmentType === 'therapy' ? 'Therapy' : 'Package'} --</option>
               {formData.assignmentType === 'therapy' && therapies.map(t => (
-                <option key={t._id} value={t._id}>{t.name} (${t.price})</option>
+                <option key={t._id} value={t._id}>{t.name}</option>
               ))}
               {formData.assignmentType === 'package' && packages.map(p => (
                 <option key={p._id} value={p._id}>{p.name} (${p.price})</option>

@@ -3,17 +3,33 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { InputField, PrimaryButton } from '../../components/common/FormFields';
 
+import { authService } from '../../services/authService';
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const onSubmitHandler = (event) => {
+  const onSubmitHandler = async (event) => {
     event.preventDefault();
-    // Mock functionality
-    toast.success('Password reset link sent to ' + email);
-    setTimeout(() => {
-      navigate('/login');
-    }, 2000);
+    setLoading(true);
+    
+    try {
+      const res = await authService.forgotPassword(email);
+      if (res.success) {
+        toast.success(res.message);
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } else {
+        toast.error(res.message || 'Failed to send reset link');
+      }
+    } catch (error) {
+      toast.error('An error occurred');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -29,8 +45,12 @@ const ForgotPassword = () => {
           required 
           className="w-full"
         />
-        <PrimaryButton type="submit" className='w-full py-2.5 rounded-md text-base mt-2'>
-          Send Reset Link
+        <PrimaryButton 
+          type="submit" 
+          className='w-full py-2.5 rounded-md text-base mt-2'
+          disabled={loading}
+        >
+          {loading ? 'Sending...' : 'Send Reset Link'}
         </PrimaryButton>
         <p className='mt-2 m-auto text-sm'>Remember your password? <span onClick={() => navigate('/login')} className='text-primary underline cursor-pointer hover:text-primary/80'>Login here</span></p>
       </div>

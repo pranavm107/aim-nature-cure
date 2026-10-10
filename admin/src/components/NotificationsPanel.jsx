@@ -16,11 +16,15 @@ const NotificationsPanel = ({ isOpen, onClose }) => {
         try {
           let followUps = [];
           if (dToken && profileData) {
-            const res = await followUpService.getDoctorFollowUps(profileData._id);
-            followUps = res.followUps;
+            const res = await followUpService.getFollowUps('', 0, 1000);
+            if (res.success) {
+              followUps = res.followUps.filter(f => f.doctorId === profileData._id);
+            }
           } else if (aToken) {
-            const res = await followUpService.getAllFollowUps();
-            followUps = res.followUps;
+            const res = await followUpService.getFollowUps('', 0, 1000);
+            if (res.success) {
+              followUps = res.followUps;
+            }
           }
 
           // Filter for pending follow-ups that are due soon (within 3 days) or overdue
@@ -66,7 +70,7 @@ const NotificationsPanel = ({ isOpen, onClose }) => {
             <ul className="divide-y divide-slate-100">
               {notifications.map(n => (
                 <li 
-                  key={n._id} 
+                  key={n.uuid || n.id || n._id} 
                   className="p-4 hover:bg-slate-50 transition-colors cursor-pointer"
                   onClick={() => {
                     navigate(dToken ? '/doctor/follow-ups' : '/admin/follow-ups');

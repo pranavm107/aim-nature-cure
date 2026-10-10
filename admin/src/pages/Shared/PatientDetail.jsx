@@ -69,9 +69,12 @@ const PatientDetail = () => {
         setTimeline(timelineRes.timeline);
       }
       
-      const apptRes = await appointmentService.getPatientAppointments(id);
+      const apptRes = await appointmentService.getAppointments('', 0, 100);
       if (apptRes.success) {
-        setAppointments(apptRes.appointments);
+        const patAppts = (apptRes.appointments || []).filter(a => 
+          a.patientId === id || a.userData?.id === id || a.uuid === id || (a.userData && a.userData._id === id)
+        );
+        setAppointments(patAppts);
       }
       
       const docRes = await documentService.getPatientDocuments(id);
@@ -389,16 +392,16 @@ const PatientDetail = () => {
                 {appointments.map(appt => (
                   <div key={appt._id} className="flex justify-between items-center p-3 border border-slate-200 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
                     <div>
-                      <p className="font-medium text-slate-800 text-sm">{slotDateFormat(appt.slotDate)}, {appt.slotTime}</p>
-                      <p className="text-xs text-slate-500 mt-1">Doctor: {appt.docData?.name}</p>
+                      <p className="font-medium text-slate-800 text-sm">{appt.appointmentDate || slotDateFormat(appt.slotDate)}, {appt.appointmentTime || appt.slotTime}</p>
+                      <p className="text-xs text-slate-500 mt-1">Doctor: {appt.doctorName || appt.docData?.name}</p>
                     </div>
                     <div>
-                      {appt.cancelled ? (
+                      {(appt.status === 'CANCELLED' || appt.cancelled) ? (
                         <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-red-100 text-red-700">Cancelled</span>
-                      ) : appt.isCompleted ? (
+                      ) : (appt.status === 'COMPLETED' || appt.isCompleted) ? (
                         <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-emerald-100 text-emerald-700">Completed</span>
                       ) : (
-                        <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-blue-100 text-blue-700">Upcoming</span>
+                        <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-blue-100 text-blue-700">{appt.status || 'Upcoming'}</span>
                       )}
                     </div>
                   </div>
