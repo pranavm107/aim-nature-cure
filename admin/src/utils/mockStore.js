@@ -1,5 +1,26 @@
 import * as mockSeed from '../mocks/mockData';
 
+// Automatically purge legacy mock data stored in localStorage so no dummy data remains
+const mockKeys = [
+  'mockPatients', 'mockDoctors', 'mockAppointments', 'mockConsultations',
+  'mockTherapies', 'mockPackages', 'mockTherapyAssignments', 'mockTherapySessions',
+  'mockFollowUps', 'mockTasks', 'mockInvoices', 'mockPayments',
+  'mockSocialSubmissions', 'mockDailyReports', 'mockDoctorNotes',
+  'mockPatientDocuments', 'mockLeads', 'mockCaseSheets', 'mockSalaries',
+  'mockPayrollStatements', 'mockIncentiveRules', 'mockFollowUpActivities',
+  'mockSocialMediaActivities'
+];
+
+try {
+  mockKeys.forEach(k => {
+    if (localStorage.getItem(k)) {
+      localStorage.removeItem(k);
+    }
+  });
+} catch (e) {
+  // Ignore in non-browser env
+}
+
 export const getStore = (key, fallback) => {
   try {
     const data = localStorage.getItem(key);
@@ -19,10 +40,10 @@ export const setStore = (key, data) => {
 };
 
 export const resetMockData = () => {
-  // Clear only mock store keys to not log out if possible, 
-  // or just clear everything and force relogin
-  localStorage.clear();
-  window.location.href = '/login';
+  mockKeys.forEach(k => localStorage.removeItem(k));
+  window.location.reload();
 };
 
-window.resetMockData = resetMockData;
+if (typeof window !== 'undefined') {
+  window.resetMockData = resetMockData;
+}

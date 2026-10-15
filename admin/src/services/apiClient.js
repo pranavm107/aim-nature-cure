@@ -23,10 +23,15 @@ apiClient.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   
-  // Automatically pass doctorId for all doctor API requests if available
+  // Automatically pass doctorId and userId
   const doctorId = localStorage.getItem('doctorId');
   if (doctorId) {
     config.headers['doctorId'] = doctorId;
+  }
+
+  const userId = localStorage.getItem('userId');
+  if (userId) {
+    config.headers['userId'] = userId;
   }
   
   return config;

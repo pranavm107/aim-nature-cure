@@ -1,5 +1,4 @@
 import apiClient from './apiClient';
-import { mockConsultations, mockTherapySessions } from '../mocks/mockData';
 import { getStore, setStore } from '../utils/mockStore';
 
 const mapPatientToFrontend = (backendPatient) => {
@@ -30,7 +29,8 @@ const mapPatientToBackend = (frontendPatient) => {
     address: frontendPatient.address,
     leadSource: frontendPatient.leadSource,
     assignedDoctor: isValidUUID(frontendPatient.assignedDoctor) ? frontendPatient.assignedDoctor : null,
-    active: frontendPatient.status === 'Active'
+    active: frontendPatient.status === 'Active',
+    userId: localStorage.getItem('userId') || ''
   };
 };
 
@@ -38,8 +38,12 @@ export const patientService = {
   getPatients: async (params = {}) => {
     try {
       const { search = '', page = 0, size = 10 } = params;
-      const response = await apiClient.get('/patients/all', {
-        params: { search, page, size }
+      const userId = localStorage.getItem('userId') || '';
+      const response = await apiClient.post('/patients/all', {
+        searchKey: search,
+        pageNo: page,
+        pageSize: size,
+        userId: userId
       });
       const data = response.data;
 
@@ -55,6 +59,12 @@ export const patientService = {
       }
 
       const patients = patientsList.map(mapPatientToFrontend);
+      patients.sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.registrationDate || 0).getTime();
+        const dateB = new Date(b.createdAt || b.registrationDate || 0).getTime();
+        if (dateB !== dateA) return dateB - dateA;
+        return (b.idNumber || '').localeCompare(a.idNumber || '');
+      });
       return {
         success: true,
         patients,
@@ -170,25 +180,55 @@ export const patientService = {
   },
 
   getPatientTimeline: async (id) => {
-    const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
-    await delay();
-    const consultations = getStore('mockConsultations', mockConsultations);
-    const sessions = getStore('mockTherapySessions', mockTherapySessions);
+    try {
+      let patientConsultations = [];
+      try {
+        const cRes = await apiClient.get('/consultations/all', { params: { patientId: id } });
+        const cList = Array.isArray(cRes.data?.result)
+          ? cRes.data.result
+          : (Array.isArray(cRes.data?.content)
+              ? cRes.data.content
+              : (Array.isArray(cRes.data) ? cRes.data : []));
+        patientConsultations = cList.filter(c => c.patientId === id || c.patient_id === id);
+      } catch (e) {
+        console.warn("Could not fetch consultations for timeline:", e);
+      }
 
-    const patientConsultations = consultations.filter(c => c.patientId === id);
+      let completedSessions = [];
+      try {
+        const sRes = await apiClient.get('/therapy-sessions/all', { params: { patientId: id } });
+        const sList = Array.isArray(sRes.data?.result)
+          ? sRes.data.result
+          : (Array.isArray(sRes.data?.content)
+              ? sRes.data.content
+              : (Array.isArray(sRes.data) ? sRes.data : []));
+        completedSessions = sList
+          .filter(s => (s.patientId === id || s.patient_id === id) && s.status === 'Completed')
+          .map(s => ({
+            ...s,
+            date: new Date(s.createdAt || s.sessionDate || Date.now()).getTime(),
+          }));
+      } catch (e) {
+        console.warn("Could not fetch therapy sessions for timeline:", e);
+      }
 
-    const completedSessions = sessions
-      .filter(s => s.patientId === id && s.status === 'Completed')
-      .map(s => ({
-        ...s,
-        date: s.date || Date.now(),
-      }));
+      const timeline = [
+        ...patientConsultations.map(c => ({
+          type: 'consultation',
+          date: new Date(c.createdAt || c.date || Date.now()).getTime(),
+          data: c
+        })),
+        ...completedSessions.map(s => ({
+          type: 'therapy_session',
+          date: s.date,
+          data: s
+        }))
+      ].sort((a, b) => b.date - a.date);
 
-    const timeline = [
-      ...patientConsultations.map(c => ({ type: 'consultation', date: c.date, data: c })),
-      ...completedSessions.map(s => ({ type: 'therapy_session', date: s.date, data: s }))
-    ].sort((a, b) => b.date - a.date);
-
-    return { success: true, timeline };
+      return { success: true, timeline };
+    } catch (error) {
+      console.error('Error fetching patient timeline:', error);
+      return { success: false, timeline: [] };
+    }
   }
 };

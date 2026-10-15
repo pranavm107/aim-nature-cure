@@ -60,7 +60,7 @@ const DoctorDashboard = () => {
             <IndianRupee className="w-8 h-8" />
           </div>
           <div>
-            <p className='text-xl font-semibold text-slate-800'>{currency}{dashData.earnings}</p>
+            <p className='text-xl font-semibold text-slate-800'>₹{(Number(dashData.earnings) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             <p className='text-slate-500 text-sm'>Today's Revenue</p>
           </div>
         </div>
@@ -71,9 +71,9 @@ const DoctorDashboard = () => {
         <div className='bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center cursor-pointer hover:shadow-lg transition-shadow' onClick={() => navigate('/doctor/revenue')}>
           <div>
             <p className='text-slate-500 text-sm font-medium'>Monthly Revenue</p>
-            <p className='text-2xl font-bold text-slate-800 mt-1'>{currency}{dashData.monthlyRevenue.toLocaleString()}</p>
+            <p className='text-2xl font-bold text-slate-800 mt-1'>₹{(Number(dashData.monthlyRevenue) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
-          <div className="bg-emerald-50 text-emerald-600 p-2 rounded-lg font-semibold text-sm">+12%</div>
+          <div className="bg-emerald-50 text-emerald-600 p-2 rounded-lg font-semibold text-xs">This Month</div>
         </div>
 
         <div className='bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center cursor-pointer hover:shadow-lg transition-shadow' onClick={() => navigate('/doctor/tasks')}>

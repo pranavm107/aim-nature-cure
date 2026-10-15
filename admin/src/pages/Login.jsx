@@ -4,6 +4,7 @@ import { AdminContext } from '../context/AdminContext';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { adminService } from '../services/adminService';
 import { InputField, PrimaryButton } from '../components/common/FormFields';
 
 const Login = () => {
@@ -33,9 +34,10 @@ const Login = () => {
         if (userRes.success) {
           let { role, user } = userRes;
 
+          const possibleUser = user?.result || user?.user || user;
+
           // Fallback deep unwrap if authService failed to unwrap
           if (!role || typeof role === 'object') {
-            const possibleUser = user?.result || user?.user || user;
             role = possibleUser?.role || possibleUser?.roleName || possibleUser?.type || role;
           }
 
@@ -45,6 +47,12 @@ const Login = () => {
           }
 
           const normalizedRole = role ? String(role).toUpperCase() : 'UNDEFINED';
+
+          const userId = possibleUser?.uuid || possibleUser?.id || user?.uuid || user?.id || '';
+          if (userId) {
+            localStorage.setItem('userId', userId);
+            document.cookie = `userId=${userId}; path=/; max-age=86400`;
+          }
 
           if (normalizedRole === 'ADMIN') {
             setAToken(loginRes.token);
@@ -60,10 +68,30 @@ const Login = () => {
             localStorage.setItem('dToken', loginRes.token);
             localStorage.setItem('userRole', 'doctor');
             localStorage.setItem('userEmail', email);
-            const doctorUuid = possibleUser?.uuid || possibleUser?.id || '';
-            if (doctorUuid) {
-              localStorage.setItem('doctorId', doctorUuid);
-              document.cookie = `doctorId=${doctorUuid}; path=/; max-age=86400`;
+            // Resolve real Doctor UUID from /doctors/all mapping
+            try {
+              const docRes = await adminService.getAllDoctors();
+              if (docRes.success && Array.isArray(docRes.doctors)) {
+                const matchedDoc = docRes.doctors.find(d => 
+                  (email && d.email && d.email.toLowerCase() === email.toLowerCase()) ||
+                  (userId && (d.userId === userId || d.uuid === userId))
+                );
+                if (matchedDoc && matchedDoc.uuid) {
+                  localStorage.setItem('doctorId', matchedDoc.uuid);
+                  document.cookie = `doctorId=${matchedDoc.uuid}; path=/; max-age=86400`;
+                } else if (userId) {
+                  localStorage.setItem('doctorId', userId);
+                  document.cookie = `doctorId=${userId}; path=/; max-age=86400`;
+                }
+              } else if (userId) {
+                localStorage.setItem('doctorId', userId);
+                document.cookie = `doctorId=${userId}; path=/; max-age=86400`;
+              }
+            } catch (docErr) {
+              if (userId) {
+                localStorage.setItem('doctorId', userId);
+                document.cookie = `doctorId=${userId}; path=/; max-age=86400`;
+              }
             }
             localStorage.removeItem('token'); // clean up generic token
 

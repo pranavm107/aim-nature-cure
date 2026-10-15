@@ -21,9 +21,10 @@ export const authService = {
       let data = response.data;
 
       // Keep unwrapping until we find the actual user object with role or name
-      if (data.user) data = data.user;
-      if (data.result) data = data.result;
-      if (data.user) data = data.user; // In case it's double nested
+      while (data && (data.user || data.result)) {
+        if (data.user) data = data.user;
+        else if (data.result) data = data.result;
+      }
 
       const role = data.role || data.roleName || data.type;
 

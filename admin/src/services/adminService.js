@@ -1,7 +1,4 @@
-import { mockDoctors, mockAppointments, mockPatients } from '../mocks/mockData';
-import { getStore, setStore } from '../utils/mockStore';
-
-const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
+import apiClient from './apiClient';
 
 const generatePassword = () => {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
@@ -11,8 +8,6 @@ const generatePassword = () => {
   }
   return password;
 };
-
-import apiClient from './apiClient';
 
 const mapDoctorToFrontend = (backendDoctor) => {
   if (!backendDoctor) return null;
@@ -189,14 +184,36 @@ export const adminService = {
   },
 
   getDashData: async () => {
-    await delay();
-    const dashData = {
-      doctors: mockDoctors.length,
-      appointments: mockAppointments.length,
-      patients: mockPatients.length,
-      latestAppointments: [...mockAppointments].reverse().slice(0, 5),
-      earnings: 1250,
+    try {
+      const response = await apiClient.get('/dashboard/admin');
+      const data = response.data?.result || response.data;
+      if (data) {
+        return {
+          success: true,
+          dashData: {
+            doctors: Number(data.totalDoctors || 0),
+            appointments: 0,
+            patients: Number(data.totalPatients || 0),
+            latestAppointments: [],
+            earnings: Number(data.totalRevenue || 0),
+            todaysConsultations: Number(data.todaysConsultations || 0),
+            pendingPayments: Number(data.pendingPayments || 0),
+            raw: data
+          }
+        };
+      }
+    } catch (e) {
+      console.warn("Could not fetch backend admin dashboard metrics:", e);
+    }
+    return {
+      success: true,
+      dashData: {
+        doctors: 0,
+        appointments: 0,
+        patients: 0,
+        latestAppointments: [],
+        earnings: 0
+      }
     };
-    return { success: true, dashData };
   }
 };

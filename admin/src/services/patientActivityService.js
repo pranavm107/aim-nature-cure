@@ -1,7 +1,9 @@
-import { mockConsultations, mockTherapies, mockAppointments, mockPatientDocuments, mockInvoices } from '../mocks/mockData';
+import { consultationService } from './consultationService';
+import therapySessionService from './therapySessionService';
 import { documentService } from './documentService';
 import { followUpService } from './followUpService';
 import { caseSheetService } from './caseSheetService';
+import { invoiceService } from './invoiceService';
 
 const delay = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -11,42 +13,52 @@ export const patientActivityService = {
     let activities = [];
 
     // 1. Consultations
-    const consultations = mockConsultations.filter(c => c.patientId === patientId);
-    consultations.forEach(c => {
-      activities.push({
-        _id: 'act_c_' + c._id,
-        type: 'CONSULTATION',
-        title: 'Consultation Recorded',
-        description: `Diagnosis: ${c.diagnosis || 'Pending'}`,
-        date: c.date,
-        performedBy: c.doctorId || 'System',
-        details: {
-          ChiefComplaint: c.chiefComplaint,
-          Observations: c.observations,
-          TreatmentPlan: c.treatmentPlan,
-          Notes: c.notes
-        },
-        rawDate: c.date
+    try {
+      const cRes = await consultationService.getConsultations({ patientId });
+      const consultations = Array.isArray(cRes?.result)
+        ? cRes.result
+        : (Array.isArray(cRes?.content) ? cRes.content : (Array.isArray(cRes) ? cRes : []));
+      consultations.filter(c => c.patientId === patientId || c.patient_id === patientId).forEach(c => {
+        activities.push({
+          _id: 'act_c_' + (c.uuid || c.id || c._id),
+          type: 'CONSULTATION',
+          title: 'Consultation Recorded',
+          description: `Diagnosis: ${c.diagnosis || 'Pending'}`,
+          date: new Date(c.createdAt || c.date || Date.now()).getTime(),
+          performedBy: c.doctorName || c.doctorId || 'System',
+          details: {
+            ChiefComplaint: c.chiefComplaint,
+            Observations: c.observations,
+            TreatmentPlan: c.treatmentPlan,
+            Notes: c.notes
+          },
+          rawDate: new Date(c.createdAt || c.date || Date.now()).getTime()
+        });
       });
-    });
+    } catch (e) {
+      console.warn("Could not fetch consultations for activity:", e);
+    }
 
     // 2. Therapies
-    const therapies = mockTherapies.filter(t => t.patientId === patientId);
-    therapies.forEach(t => {
-      activities.push({
-        _id: 'act_t_' + t._id,
-        type: 'THERAPY',
-        title: `Therapy Session: ${t.type}`,
-        description: `Status: ${t.status}`,
-        date: t.date,
-        performedBy: t.therapistId || 'System',
-        details: {
-          Notes: t.notes,
-          Outcome: t.outcome
-        },
-        rawDate: t.date
+    try {
+      const sessions = await therapySessionService.getAllSessions(patientId);
+      sessions.forEach(t => {
+        activities.push({
+          _id: 'act_t_' + (t.uuid || t._id),
+          type: 'THERAPY',
+          title: `Therapy Session: ${t.therapyName || 'Therapy'}`,
+          description: `Status: ${t.status}`,
+          date: t.date || Date.now(),
+          performedBy: t.doctorName || 'System',
+          details: {
+            Notes: t.notes || ''
+          },
+          rawDate: t.date || Date.now()
+        });
       });
-    });
+    } catch (e) {
+      console.warn("Could not fetch sessions for activity:", e);
+    }
 
     // 3. Follow-ups
     const res = await followUpService.getFollowUps('', 0, 1000);
@@ -86,7 +98,8 @@ export const patientActivityService = {
     });
 
     // 5. Invoices (Financial)
-    const invoices = mockInvoices.filter(i => i.patientId === patientId);
+    const invRes = await invoiceService.getPatientInvoices(patientId);
+    const invoices = invRes?.invoices || [];
     invoices.forEach(i => {
       activities.push({
         _id: 'act_i_' + i._id,

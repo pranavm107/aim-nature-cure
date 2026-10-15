@@ -107,3 +107,6 @@ export const DangerButton = ({ type = "button", children, onClick, className = "
     {children}
   </button>
 );
+
+export { default as MultiSelect } from './MultiSelect';
+
