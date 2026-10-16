@@ -6,7 +6,8 @@ import axios from 'axios';
 
 export const USE_MOCK = true; // Hardcoded to true for pure mock UI mode
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8088';
+const rawBackendUrl = import.meta.env.VITE_BACKEND_URL || 'https://erp-system-backend-cx5w.onrender.com';
+const backendUrl = rawBackendUrl.replace(/\/+$/, '');
 
 const apiClient = axios.create({
   baseURL: `${backendUrl}/api/v1`,
