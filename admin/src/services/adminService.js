@@ -51,7 +51,8 @@ const mapDoctorToBackend = (frontendDoctor) => {
     about: frontendDoctor.about,
     photo: frontendDoctor.image || frontendDoctor.photo || '',
     active: frontendDoctor.active !== undefined ? frontendDoctor.active : (frontendDoctor.status === 'Active'),
-    available: frontendDoctor.available !== undefined ? frontendDoctor.available : true
+    available: frontendDoctor.available !== undefined ? frontendDoctor.available : true,
+    userId: frontendDoctor.userId || localStorage.getItem('userId') || null
   };
 };
 
@@ -73,8 +74,8 @@ export const adminService = {
       } else if (Array.isArray(data)) {
         doctorsList = data.map(mapDoctorToFrontend);
       }
-      return { 
-        success: true, 
+      return {
+        success: true,
         doctors: doctorsList,
         pagination: {
           page: data.number || page,
@@ -109,9 +110,9 @@ export const adminService = {
       let newDoc = response.data;
       if (newDoc.result) newDoc = newDoc.result;
       if (newDoc.doctor) newDoc = newDoc.doctor;
-      return { 
-        success: true, 
-        message: 'Doctor added successfully', 
+      return {
+        success: true,
+        message: 'Doctor added successfully',
         doctor: mapDoctorToFrontend(newDoc),
         generatedPassword: response.data?.generatedPassword
       };
@@ -171,7 +172,7 @@ export const adminService = {
       const response = await apiClient.get('/doctors/dropdown');
       let data = response.data;
       if (data.result) data = data.result;
-      
+
       const doctorsList = (Array.isArray(data) ? data : []).map(d => ({
         ...d,
         _id: d.uuid || d.id || d._id // Map backend uuid to frontend _id
