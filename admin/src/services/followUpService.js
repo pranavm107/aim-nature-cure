@@ -43,9 +43,13 @@ export const followUpService = {
     }
   },
 
-  updateFollowUpStatus: async (followUpId, status) => {
+  updateFollowUpStatus: async (followUpId, status, description) => {
     try {
-      const response = await apiClient.put(`/follow-ups/${followUpId}/status`, { status });
+      const payload = { status };
+      if (description !== undefined) {
+        payload.description = description;
+      }
+      const response = await apiClient.put(`/follow-ups/${followUpId}/status`, payload);
       return {
         success: true,
         message: response.data?.message || 'Follow-up status updated successfully'
