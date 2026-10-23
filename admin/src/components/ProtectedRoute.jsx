@@ -7,6 +7,10 @@ const ProtectedRoute = ({ role, requiredPermission, children }) => {
   const { aToken, adminPermissions } = useContext(AdminContext);
   const { dToken } = useContext(DoctorContext);
 
+  if ((role === 'shared' || role === 'any' || role === 'authenticated') && !aToken && !dToken) {
+    return <Navigate to="/" />;
+  }
+
   if (role === 'admin' && !aToken) {
     return <Navigate to="/" />;
   }

@@ -18,10 +18,12 @@ const CaseSheet = () => {
   const { dToken, docData } = useContext(DoctorContext);
   
   const isDoctor = !!dToken;
+  const canEdit = isDoctor || !!aToken;
   
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState(null);
   const [caseSheet, setCaseSheet] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Add Protocol State
   const [addProtocolModalOpen, setAddProtocolModalOpen] = useState(false);
@@ -37,15 +39,14 @@ const CaseSheet = () => {
       const pRes = await patientService.getPatientById(id);
       if (pRes.success) {
          setPatient(pRes.patient);
+         const csRes = await caseSheetService.getCaseSheetByPatientId(pRes.patient._id || id, pRes.patient.patientId);
+         if (csRes.success) {
+            setCaseSheet(csRes.caseSheet);
+         }
       } else {
          toast.error("Failed to load patient");
          navigate('/patients');
          return;
-      }
-
-      const csRes = await caseSheetService.getCaseSheetByPatientId(id);
-      if (csRes.success) {
-         setCaseSheet(csRes.caseSheet);
       }
     } catch (err) {
       console.error(err);
@@ -57,15 +58,34 @@ const CaseSheet = () => {
 
   const handleCreateCaseSheet = async (caseSheetData) => {
      try {
-       const res = await caseSheetService.createCaseSheet(id, caseSheetData, docData?._id);
+       const patientKey = patient?._id || id;
+       const res = await caseSheetService.createCaseSheet(patientKey, caseSheetData, docData?._id || 'admin');
        if (res.success) {
-         toast.success("Case Sheet finalized successfully");
+         toast.success("Case Sheet saved successfully");
          setCaseSheet(res.caseSheet);
+         setIsEditing(false);
        } else {
-         toast.error(res.message || "Failed to create Case Sheet");
+         toast.error(res.message || "Failed to save Case Sheet");
        }
      } catch (err) {
-       toast.error("Error creating Case Sheet");
+       toast.error("Error saving Case Sheet");
+       console.error(err);
+     }
+  };
+
+  const handleUpdateCaseSheet = async (caseSheetData) => {
+     try {
+       const targetId = caseSheet?._id || ('cs_' + (patient?._id || id));
+       const res = await caseSheetService.updateCaseSheet(targetId, caseSheetData, docData?._id || 'admin');
+       if (res.success) {
+         toast.success("Case Sheet updated successfully");
+         setCaseSheet(res.caseSheet);
+         setIsEditing(false);
+       } else {
+         toast.error(res.message || "Failed to update Case Sheet");
+       }
+     } catch (err) {
+       toast.error("Error updating Case Sheet");
        console.error(err);
      }
   };
@@ -73,7 +93,7 @@ const CaseSheet = () => {
   const handleAddProtocol = async () => {
      if(!protocolNotes.trim()) return toast.warn("Protocol notes cannot be empty");
      try {
-       const res = await caseSheetService.appendProtocol(caseSheet._id, protocolNotes, docData?._id);
+       const res = await caseSheetService.appendProtocol(caseSheet._id, protocolNotes, docData?._id || 'admin');
        if(res.success) {
           toast.success("Protocol appended");
           setAddProtocolModalOpen(false);
@@ -91,18 +111,32 @@ const CaseSheet = () => {
   if (loading) return <div className="flex h-screen items-center justify-center"><p className="text-gray-500 font-medium">Loading Case Sheet...</p></div>;
   if (!patient) return null;
 
+  const patientBackUrl = `/patient/${patient.patientId || patient.idNumber || id}`;
+
   return (
     <PageContainer>
       <PageHeader 
         title={`Case Sheet: ${patient.name}`} 
-        subtitle="Complete intake evaluation and treatment protocols" 
-        onBack={() => navigate(`/patient/${id}`)}
+        subtitle={`Patient ID: ${patient.patientId || patient.idNumber || 'N/A'} • Intake evaluation and treatment protocols`} 
+        onBack={() => navigate(patientBackUrl)}
       />
 
       <div className="max-w-5xl mx-auto pb-12">
-        {!caseSheet ? (
-          isDoctor ? (
-            <CaseSheetForm patient={patient} onSubmit={handleCreateCaseSheet} onCancel={() => navigate(`/patient/${id}`)} />
+        {isEditing ? (
+          <CaseSheetForm 
+            patient={patient} 
+            initialData={caseSheet} 
+            isEditMode={true} 
+            onSubmit={handleUpdateCaseSheet} 
+            onCancel={() => setIsEditing(false)} 
+          />
+        ) : !caseSheet ? (
+          canEdit ? (
+            <CaseSheetForm 
+              patient={patient} 
+              onSubmit={handleCreateCaseSheet} 
+              onCancel={() => navigate(patientBackUrl)} 
+            />
           ) : (
              <div className="bg-gray-50 rounded border border-dashed border-gray-300 p-12 text-center">
                 <h3 className="text-lg font-medium text-gray-700 mb-2">No Case Sheet Found</h3>
@@ -111,10 +145,15 @@ const CaseSheet = () => {
           )
         ) : (
           <div>
-            <CaseSheetView caseSheet={caseSheet} />
+            <CaseSheetView 
+              caseSheet={caseSheet} 
+              patient={patient}
+              canEdit={canEdit}
+              onEdit={() => setIsEditing(true)}
+            />
             <TreatmentProtocolList 
                protocols={caseSheet.treatmentProtocols || []} 
-               isDoctor={isDoctor} 
+               isDoctor={canEdit} 
                onAddProtocol={() => setAddProtocolModalOpen(true)} 
             />
           </div>
@@ -126,7 +165,7 @@ const CaseSheet = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-xl">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Add Treatment Protocol</h3>
-            <p className="text-sm text-gray-500 mb-4">Append a new treatment protocol entry. This action is immutable.</p>
+            <p className="text-sm text-gray-500 mb-4">Append a new treatment protocol entry to the patient's clinical record.</p>
             <textarea 
               value={protocolNotes}
               onChange={(e) => setProtocolNotes(e.target.value)}

@@ -1,21 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const initialPulseState = { lu: '', li: '', st: '', sp: '', tw: '', pc: '', ht: '', si: '', liv: '', gb: '', ub: '', kid: '' };
 const initialVitals = { height: '', weight: '', bp: '', heartRate: '', respiratoryRate: '', temperature: '' };
 const initialPersonal = { appetite: '', sleep: '', bowel: '', micturition: '', thirst: '', addiction: '' };
 
-const CaseSheetForm = ({ patient, onSubmit, onCancel }) => {
+const CaseSheetForm = ({ patient, onSubmit, onCancel, initialData = null, isEditMode = false }) => {
   const [formData, setFormData] = useState({
-    presentComplaints: '',
-    vitals: initialVitals,
-    obgHistory: '',
-    personalHistory: initialPersonal,
-    gpe: '',
-    systemicExamination: '',
-    pulseDiagnosis: initialPulseState,
-    finalDiagnosis: ''
+    presentComplaints: initialData?.presentComplaints || '',
+    vitals: initialData?.vitals ? { ...initialVitals, ...initialData.vitals } : initialVitals,
+    obgHistory: initialData?.obgHistory || '',
+    personalHistory: initialData?.personalHistory ? { ...initialPersonal, ...initialData.personalHistory } : initialPersonal,
+    gpe: initialData?.gpe || '',
+    systemicExamination: initialData?.systemicExamination || '',
+    generalDiagnosis: initialData?.generalDiagnosis || '',
+    pulseDiagnosis: initialData?.pulseDiagnosis ? { ...initialPulseState, ...initialData.pulseDiagnosis } : initialPulseState,
+    finalDiagnosis: initialData?.finalDiagnosis || ''
   });
-  const [showConfirm, setShowConfirm] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        presentComplaints: initialData.presentComplaints || '',
+        vitals: initialData.vitals ? { ...initialVitals, ...initialData.vitals } : initialVitals,
+        obgHistory: initialData.obgHistory || '',
+        personalHistory: initialData.personalHistory ? { ...initialPersonal, ...initialData.personalHistory } : initialPersonal,
+        gpe: initialData.gpe || '',
+        systemicExamination: initialData.systemicExamination || '',
+        generalDiagnosis: initialData.generalDiagnosis || '',
+        pulseDiagnosis: initialData.pulseDiagnosis ? { ...initialPulseState, ...initialData.pulseDiagnosis } : initialPulseState,
+        finalDiagnosis: initialData.finalDiagnosis || ''
+      });
+    }
+  }, [initialData]);
 
   const handleNestedChange = (category, field, value) => {
     setFormData(prev => ({
@@ -31,23 +47,19 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setShowConfirm(true);
-  };
-
-  const handleConfirmSubmit = () => {
     const caseSheetData = {
       ...formData,
       headerSnapshot: {
-        idNumber: patient._id,
+        idNumber: patient.patientId || patient.idNumber || patient._id,
+        patientId: patient.patientId || patient.idNumber || '',
         name: patient.name,
         phone: patient.phone,
-        age: patient.dob || 'Unknown', 
+        age: patient.age != null ? `${patient.age}` : (patient.dob || 'Unknown'), 
         gender: patient.gender,
-        occupation: 'N/A',
+        occupation: patient.occupation || 'N/A',
         address: patient.address
       }
     };
-    setShowConfirm(false);
     onSubmit(caseSheetData);
   };
 
@@ -55,8 +67,8 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel }) => {
     <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
       <div className="p-6 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">New Case Sheet Intake</h2>
-          <p className="text-sm text-red-500 font-medium mt-1">Warning: Case Sheets cannot be modified after submission.</p>
+          <h2 className="text-2xl font-bold text-slate-800">{isEditMode ? 'Edit Case Sheet' : 'New Case Sheet Intake'}</h2>
+          <p className="text-sm text-slate-500 mt-1">Record clinical examinations, diagnosis, and treatment plan.</p>
         </div>
       </div>
       
@@ -64,7 +76,14 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel }) => {
         {/* Present Complaints */}
         <div>
           <label className="block text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Present Complaints</label>
-          <textarea name="presentComplaints" value={formData.presentComplaints} onChange={handleChange} rows="3" className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Enter patient complaints..."></textarea>
+          <textarea 
+            name="presentComplaints" 
+            value={formData.presentComplaints} 
+            onChange={handleChange} 
+            rows="3" 
+            className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" 
+            placeholder="Enter patient complaints..."
+          />
         </div>
 
         {/* Vitals */}
@@ -74,7 +93,12 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel }) => {
             {Object.keys(initialVitals).map(key => (
               <div key={key}>
                 <label className="block text-xs text-slate-500 mb-1 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
-                <input type={key==='bp'?'text':'number'} className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" value={formData.vitals[key]} onChange={(e) => handleNestedChange('vitals', key, e.target.value)} />
+                <input 
+                  type={key==='bp'?'text':'number'} 
+                  className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" 
+                  value={formData.vitals[key]} 
+                  onChange={(e) => handleNestedChange('vitals', key, e.target.value)} 
+                />
               </div>
             ))}
           </div>
@@ -88,7 +112,12 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel }) => {
                {Object.keys(initialPersonal).map(key => (
                  <div key={key} className="flex items-center gap-3">
                    <label className="w-24 text-sm text-slate-600 capitalize">{key}:</label>
-                   <input type="text" className="flex-1 border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" value={formData.personalHistory[key]} onChange={(e) => handleNestedChange('personalHistory', key, e.target.value)} />
+                   <input 
+                     type="text" 
+                     className="flex-1 border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" 
+                     value={formData.personalHistory[key]} 
+                     onChange={(e) => handleNestedChange('personalHistory', key, e.target.value)} 
+                   />
                  </div>
                ))}
             </div>
@@ -96,17 +125,48 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel }) => {
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">OBG History</label>
-              <textarea name="obgHistory" value={formData.obgHistory} onChange={handleChange} rows="2" className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"></textarea>
+              <textarea 
+                name="obgHistory" 
+                value={formData.obgHistory} 
+                onChange={handleChange} 
+                rows="2" 
+                className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              />
             </div>
             <div>
               <label className="block text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">General Physical Exam</label>
-              <textarea name="gpe" value={formData.gpe} onChange={handleChange} rows="2" className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"></textarea>
+              <textarea 
+                name="gpe" 
+                value={formData.gpe} 
+                onChange={handleChange} 
+                rows="2" 
+                className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              />
             </div>
             <div>
               <label className="block text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Systemic Exam</label>
-              <textarea name="systemicExamination" value={formData.systemicExamination} onChange={handleChange} rows="2" className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"></textarea>
+              <textarea 
+                name="systemicExamination" 
+                value={formData.systemicExamination} 
+                onChange={handleChange} 
+                rows="2" 
+                className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              />
             </div>
           </div>
+        </div>
+
+        {/* General Diagnosis */}
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">General Diagnosis</label>
+          <textarea 
+            name="generalDiagnosis" 
+            value={formData.generalDiagnosis} 
+            onChange={handleChange} 
+            rows="2" 
+            className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" 
+            placeholder="Enter general diagnosis..."
+          />
         </div>
 
         {/* Pulse Diagnosis */}
@@ -116,7 +176,13 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel }) => {
              {Object.keys(initialPulseState).map(meridian => (
                 <div key={meridian}>
                   <label className="block text-xs text-slate-500 font-bold uppercase mb-1">{meridian}</label>
-                  <input type="text" className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="e.g. deep" value={formData.pulseDiagnosis[meridian]} onChange={(e) => handleNestedChange('pulseDiagnosis', meridian, e.target.value)} />
+                  <input 
+                    type="text" 
+                    className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" 
+                    placeholder="e.g. deep" 
+                    value={formData.pulseDiagnosis[meridian]} 
+                    onChange={(e) => handleNestedChange('pulseDiagnosis', meridian, e.target.value)} 
+                  />
                 </div>
              ))}
           </div>
@@ -125,39 +191,32 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel }) => {
         {/* Final Diagnosis */}
         <div>
           <label className="block text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Final Diagnosis</label>
-          <textarea name="finalDiagnosis" value={formData.finalDiagnosis} onChange={handleChange} rows="2" className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Final assessment..."></textarea>
+          <textarea 
+            name="finalDiagnosis" 
+            value={formData.finalDiagnosis} 
+            onChange={handleChange} 
+            rows="2" 
+            className="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" 
+            placeholder="Final assessment..."
+          />
         </div>
       </div>
 
       <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-4">
-        <button type="button" onClick={onCancel} className="px-5 py-2.5 border border-slate-300 rounded-lg text-slate-700 bg-white hover:bg-slate-50 font-medium transition">Cancel</button>
-        <button type="submit" className="px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 font-medium transition shadow-sm">Finalize & Submit</button>
+        <button 
+          type="button" 
+          onClick={onCancel} 
+          className="px-5 py-2.5 border border-slate-300 rounded-lg text-slate-700 bg-white hover:bg-slate-50 font-medium transition"
+        >
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          className="px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 font-medium transition shadow-sm"
+        >
+          {isEditMode ? 'Save Changes' : 'Save Case Sheet'}
+        </button>
       </div>
-
-      {showConfirm && (
-        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Finalize Case Sheet?</h3>
-            <p className="text-slate-600 mb-6">Are you sure you want to finalize the Case Sheet? This action is immutable and cannot be undone.</p>
-            <div className="flex justify-end gap-3">
-              <button 
-                type="button"
-                onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium transition-colors"
-              >
-                Cancel
-              </button>
-              <button 
-                type="button"
-                onClick={handleConfirmSubmit}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors"
-              >
-                Confirm Finalize
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </form>
   );
 };

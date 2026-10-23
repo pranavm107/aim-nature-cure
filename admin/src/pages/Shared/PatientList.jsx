@@ -75,17 +75,27 @@ const PatientList = () => {
 
   const columns = [
     { label: '#' },
+    { label: 'Patient ID' },
     { label: 'Patient Name' },
+    { label: 'Assigned Doctor' },
     { label: 'Contact' },
     { label: 'Status' },
     { label: 'Action', className: 'text-right' }
   ];
 
   const renderRow = (item, index) => (
-    <div key={item._id} className="grid grid-cols-[0.5fr_2fr_2fr_1fr_1fr] sm:grid-cols-[0.5fr_2fr_2fr_1fr_1fr] grid-flow-col py-3 px-6 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
+    <div key={item._id} className="grid grid-cols-[0.5fr_1.2fr_2fr_1.5fr_1.5fr_1fr_1fr] sm:grid-cols-[0.5fr_1.2fr_2fr_1.5fr_1.5fr_1fr_1fr] grid-flow-col py-3 px-6 border-b border-slate-100 hover:bg-slate-50 items-center transition-colors">
       <p className="text-slate-500">{page * size + index + 1}</p>
+      <div>
+        <span className="text-xs font-semibold font-mono text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-md">
+          {item.patientId || item.idNumber || 'N/A'}
+        </span>
+      </div>
       <div className="flex items-center gap-2">
         <p className="font-medium text-slate-800">{item.name}</p>
+      </div>
+      <div className="text-slate-600 text-sm">
+        <p className="font-medium">{item.doctorName || item.assignedDoctorName || item.assignedDoctor?.name || 'Unassigned'}</p>
       </div>
       <div className="text-slate-500 text-sm">
         <p>{item.phone}</p>
@@ -98,7 +108,7 @@ const PatientList = () => {
       </p>
       <div className="text-right">
         <button 
-          onClick={() => navigate(`/patient/${item._id}`)}
+          onClick={() => navigate(`/patient/${item.patientId || item.idNumber || item._id}`)}
           className="text-primary hover:underline text-sm font-medium"
         >
           View Details
@@ -111,7 +121,7 @@ const PatientList = () => {
     <div key={item._id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-3">
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-xs text-slate-400 mb-1">#{item.patientId || `P${(page * size + index + 1).toString().padStart(3,'0')}`}</p>
+          <p className="text-xs text-slate-400 mb-1">#{item.patientId || item.idNumber || `P${(page * size + index + 1).toString().padStart(3,'0')}`}</p>
           <p className="font-semibold text-slate-800 text-lg">{item.name}</p>
         </div>
         <span className={`px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider ${item.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
@@ -126,12 +136,12 @@ const PatientList = () => {
         </div>
         <div>
           <p className="text-xs text-slate-400">Doctor</p>
-          <p className="font-medium">{item.assignedDoctor?.name || 'Unassigned'}</p>
+          <p className="font-medium">{item.doctorName || item.assignedDoctorName || item.assignedDoctor?.name || 'Unassigned'}</p>
         </div>
       </div>
       
       <button 
-        onClick={() => navigate(`/patient/${item._id}`)}
+        onClick={() => navigate(`/patient/${item.patientId || item.idNumber || item._id}`)}
         className="w-full mt-1 py-2 text-primary font-medium text-sm border border-primary/20 rounded-lg hover:bg-primary hover:text-white transition-colors"
       >
         View Patient Profile
@@ -187,7 +197,7 @@ const PatientList = () => {
         renderRow={renderRow}
         renderMobileCard={renderMobileCard}
         emptyMessage="No patients found."
-        gridColsClass="grid-cols-[0.5fr_2fr_2fr_1fr_1fr]"
+        gridColsClass="grid-cols-[0.5fr_1.2fr_2fr_1.5fr_1.5fr_1fr_1fr]"
       />
       
       {/* Pagination Controls */}

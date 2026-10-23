@@ -55,6 +55,15 @@ const NewConsultation = () => {
     fetchData();
   }, [profileData]);
 
+  useEffect(() => {
+    if (id && patients.length > 0) {
+      const match = patients.find(p => p._id === id || p.patientId === id || p.idNumber === id);
+      if (match) {
+        setFormData(prev => ({ ...prev, patientId: match._id }));
+      }
+    }
+  }, [id, patients]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
@@ -98,7 +107,7 @@ const NewConsultation = () => {
               name="patientId"
               value={formData.patientId}
               onChange={handleChange}
-              options={[{ label: "-- Select Patient --", value: "" }, ...patients.map(p => ({ label: p.name, value: p._id }))]}
+              options={[{ label: "-- Select Patient --", value: "" }, ...patients.map(p => ({ label: `${p.name} (${p.patientId || p.idNumber || 'N/A'})`, value: p._id }))]}
               required
             />
             <SelectField

@@ -2,11 +2,22 @@ import apiClient from './apiClient';
 import { getStore, setStore } from '../utils/mockStore';
 
 const mapPatientToFrontend = (backendPatient) => {
+  if (!backendPatient) return backendPatient;
+  const docName = backendPatient.doctorName || backendPatient.assignedDoctorName || (backendPatient.assignedDoctor && typeof backendPatient.assignedDoctor === 'object' ? backendPatient.assignedDoctor.name : null) || 'Unassigned';
+  const assignedDoctorObj = (backendPatient.assignedDoctor && typeof backendPatient.assignedDoctor === 'object')
+    ? backendPatient.assignedDoctor
+    : { _id: backendPatient.assignedDoctor, name: docName };
+
   return {
     ...backendPatient,
     _id: backendPatient.uuid || backendPatient.id || backendPatient._id,
+    patientId: backendPatient.patientId || backendPatient.idNumber,
     phone: backendPatient.phoneNumber,
     dob: backendPatient.dateOfBirth,
+    age: backendPatient.age,
+    doctorName: docName,
+    assignedDoctorName: docName,
+    assignedDoctor: assignedDoctorObj,
     status: backendPatient.active ? 'Active' : 'Inactive',
   };
 };
@@ -18,17 +29,25 @@ const isValidUUID = (str) => {
 };
 
 const mapPatientToBackend = (frontendPatient) => {
+  const docId = (frontendPatient.assignedDoctor && typeof frontendPatient.assignedDoctor === 'object')
+    ? (frontendPatient.assignedDoctor._id || frontendPatient.assignedDoctor.uuid)
+    : frontendPatient.assignedDoctor;
+
   return {
     uuid: frontendPatient._id || frontendPatient.uuid,
+    patientId: frontendPatient.patientId ? frontendPatient.patientId.trim() : null,
     name: frontendPatient.name,
     email: frontendPatient.email,
     phoneNumber: frontendPatient.phone,
-    dateOfBirth: frontendPatient.dob,
+    dateOfBirth: frontendPatient.dob || null,
+    age: frontendPatient.age ? parseInt(frontendPatient.age, 10) : null,
     gender: frontendPatient.gender,
     occupation: frontendPatient.occupation,
     address: frontendPatient.address,
     leadSource: frontendPatient.leadSource,
-    assignedDoctor: isValidUUID(frontendPatient.assignedDoctor) ? frontendPatient.assignedDoctor : null,
+    assignedDoctor: isValidUUID(docId) ? docId : null,
+    numberOfSessions: frontendPatient.sessions ? parseInt(frontendPatient.sessions, 10) : (frontendPatient.numberOfSessions ? parseInt(frontendPatient.numberOfSessions, 10) : null),
+    followUpInterval: frontendPatient.periodOfDays ? parseInt(frontendPatient.periodOfDays, 10) : (frontendPatient.followUpInterval ? parseInt(frontendPatient.followUpInterval, 10) : null),
     active: frontendPatient.status === 'Active',
     userId: localStorage.getItem('userId') || ''
   };
@@ -94,12 +113,62 @@ export const patientService = {
 
   getPatientById: async (id) => {
     try {
-      const response = await apiClient.get(`/patients/${id}`);
-      let result = response.data;
-      if (result.result) result = result.result;
-      return { success: true, patient: mapPatientToFrontend(result) };
+      if (isValidUUID(id)) {
+        const response = await apiClient.get(`/patients/${id}`);
+        let result = response.data;
+        if (result.result) result = result.result;
+        return { success: true, patient: mapPatientToFrontend(result) };
+      }
+
+      // If id is not a UUID (e.g. "001" or custom patientId), query /patients/all
+      const response = await apiClient.post('/patients/all', {
+        searchKey: id,
+        pageNo: 0,
+        pageSize: 50,
+        userId: localStorage.getItem('userId') || ''
+      });
+      const data = response.data;
+      let patientsList = [];
+      if (data.content) patientsList = data.content;
+      else if (data.patients) patientsList = data.patients;
+      else if (data.result) patientsList = data.result;
+      else if (Array.isArray(data)) patientsList = data;
+
+      const mapped = patientsList.map(mapPatientToFrontend);
+      const match = mapped.find(p => 
+        (p.patientId && p.patientId.toLowerCase() === id.toLowerCase()) ||
+        (p.idNumber && p.idNumber.toLowerCase() === id.toLowerCase()) ||
+        p._id === id
+      );
+
+      if (match) {
+        return { success: true, patient: match };
+      }
+
+      // Fallback: check local mock store
+      const statePatients = getStore('mockPatients', []);
+      const localMatch = statePatients.find(p => 
+        (p.patientId && p.patientId.toLowerCase() === (id || '').toLowerCase()) ||
+        (p.idNumber && p.idNumber.toLowerCase() === (id || '').toLowerCase()) ||
+        p._id === id || p.uuid === id
+      );
+      if (localMatch) {
+        return { success: true, patient: mapPatientToFrontend(localMatch) };
+      }
+
+      return { success: false, message: 'Patient not found' };
     } catch (error) {
       console.error('Error fetching patient:', error);
+      // Fallback: check local mock store
+      const statePatients = getStore('mockPatients', []);
+      const localMatch = statePatients.find(p => 
+        (p.patientId && p.patientId.toLowerCase() === (id || '').toLowerCase()) ||
+        (p.idNumber && p.idNumber.toLowerCase() === (id || '').toLowerCase()) ||
+        p._id === id || p.uuid === id
+      );
+      if (localMatch) {
+        return { success: true, patient: mapPatientToFrontend(localMatch) };
+      }
       return { success: false, message: error.response?.data?.message || 'Patient not found' };
     }
   },

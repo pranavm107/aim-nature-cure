@@ -57,34 +57,37 @@ const PatientDetail = () => {
     try {
       const patientRes = await patientService.getPatientById(id);
       if (patientRes.success) {
-        setPatient(patientRes.patient);
+        const pat = patientRes.patient;
+        setPatient(pat);
+        const resolvedId = pat._id || id;
+        const patId = pat.patientId || pat.idNumber || '';
+
+        const timelineRes = await patientService.getPatientTimeline(resolvedId);
+        if (timelineRes.success) {
+          setTimeline(timelineRes.timeline);
+        }
+        
+        const apptRes = await appointmentService.getAppointments('', 0, 100);
+        if (apptRes.success) {
+          const patAppts = (apptRes.appointments || []).filter(a => 
+            a.patientId === resolvedId || a.patientId === patId || a.userData?.id === resolvedId || a.uuid === resolvedId || (a.userData && a.userData._id === resolvedId)
+          );
+          setAppointments(patAppts);
+        }
+        
+        const docRes = await documentService.getPatientDocuments(resolvedId);
+        if (docRes.success) {
+          setDocuments(docRes.documents);
+        }
+        
+        if (aToken) {
+          const docsRes = await adminService.getAllDoctors();
+          if (docsRes.success) setDoctorsList(docsRes.doctors);
+        }
       } else {
         toast.error("Failed to load patient");
         navigate('/patients');
         return;
-      }
-
-      const timelineRes = await patientService.getPatientTimeline(id);
-      if (timelineRes.success) {
-        setTimeline(timelineRes.timeline);
-      }
-      
-      const apptRes = await appointmentService.getAppointments('', 0, 100);
-      if (apptRes.success) {
-        const patAppts = (apptRes.appointments || []).filter(a => 
-          a.patientId === id || a.userData?.id === id || a.uuid === id || (a.userData && a.userData._id === id)
-        );
-        setAppointments(patAppts);
-      }
-      
-      const docRes = await documentService.getPatientDocuments(id);
-      if (docRes.success) {
-        setDocuments(docRes.documents);
-      }
-      
-      if (aToken) {
-        const docsRes = await adminService.getAllDoctors();
-        if (docsRes.success) setDoctorsList(docsRes.doctors);
       }
     } catch (error) {
       console.error(error);
@@ -100,7 +103,8 @@ const PatientDetail = () => {
 
   const handleIncrementSession = async () => {
     try {
-      const res = await patientService.incrementSessionCount(id);
+      const targetId = patient?._id || id;
+      const res = await patientService.incrementSessionCount(targetId);
       if (res.success) {
         setPatient(res.patient);
         toast.success("Session marked as attended");
@@ -142,7 +146,8 @@ const PatientDetail = () => {
       formData.append('file', uploadFile);
       formData.append('name', uploadName);
       
-      const res = await documentService.uploadDocument(id, formData);
+      const targetId = patient?._id || id;
+      const res = await documentService.uploadDocument(targetId, formData);
       if(res.success) {
         toast.success("Document uploaded successfully");
         setUploadModalOpen(false);
@@ -162,7 +167,8 @@ const PatientDetail = () => {
   const handleDeleteDocument = async (docId) => {
     if(window.confirm("Are you sure you want to delete this document?")) {
       try {
-        const res = await documentService.deleteDocument(id, docId);
+        const targetId = patient?._id || id;
+        const res = await documentService.deleteDocument(targetId, docId);
         if(res.success) {
           toast.success("Document deleted");
           fetchPatientData();
@@ -175,10 +181,12 @@ const PatientDetail = () => {
 
   const openEditModal = () => {
     setEditFormData({
+      patientId: patient.patientId || patient.idNumber || '',
       name: patient.name,
       phone: patient.phone,
       address: patient.address,
-      dob: patient.dob,
+      dob: patient.dob || '',
+      age: patient.age != null ? patient.age : '',
       gender: patient.gender,
       status: patient.status
     });
@@ -187,7 +195,8 @@ const PatientDetail = () => {
 
   const submitEdit = async () => {
     try {
-      const res = await patientService.updatePatient(id, editFormData);
+      const targetId = patient?._id || id;
+      const res = await patientService.updatePatient(targetId, editFormData);
       if (res.success) {
         toast.success("Patient updated");
         setEditModalOpen(false);
@@ -203,7 +212,8 @@ const PatientDetail = () => {
   const submitReassign = async () => {
     if (!newDocId) return toast.warn("Select a doctor");
     try {
-      const res = await patientService.assignDoctor(id, newDocId);
+      const targetId = patient?._id || id;
+      const res = await patientService.assignDoctor(targetId, newDocId);
       if (res.success) {
         toast.success("Doctor reassigned successfully");
         setReassignModalOpen(false);
@@ -217,7 +227,8 @@ const PatientDetail = () => {
   const handleDeletePatient = async () => {
     if (window.confirm("Are you sure you want to delete this patient? This action cannot be undone.")) {
       try {
-        const res = await patientService.deletePatient(id);
+        const targetId = patient?._id || id;
+        const res = await patientService.deletePatient(targetId);
         if (res.success) {
           toast.success("Patient deleted successfully");
           navigate('/patients');
@@ -235,14 +246,25 @@ const PatientDetail = () => {
 
   const timelineItems = timeline;
 
+  const activeId = patient._id || id;
+  const displayPatientId = patient.patientId || patient.idNumber || 'N/A';
+  const navPatientParam = patient.patientId || patient.idNumber || activeId;
+
   return (
     <PageContainer>
       <PageHeader 
-        title={`Patient Details: ${patient.name}`} 
-        subtitle="Manage patient profile and clinical timeline"
+        title={
+          <div className="flex flex-wrap items-center gap-3">
+            <span>Patient Details: {patient.name}</span>
+            <span className="text-xs font-bold px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg font-mono">
+              ID: {displayPatientId}
+            </span>
+          </div>
+        } 
+        subtitle={`Patient ID: ${displayPatientId} • Manage patient profile and clinical timeline`}
         actions={
           <button 
-            onClick={() => navigate(`/patient/${id}/new-consultation`)}
+            onClick={() => navigate(`/patient/${navPatientParam}/new-consultation`)}
             className="bg-primary text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-primary/90 transition-colors flex items-center gap-2 text-sm font-medium w-full sm:w-auto justify-center"
           >
             <Plus className="w-5 h-5" />
@@ -267,12 +289,15 @@ const PatientDetail = () => {
               </div>
             </div>
             <div className="flex flex-col gap-3 text-sm">
-              <p><span className="text-slate-500 w-24 inline-block">Phone:</span> <span className="font-medium text-slate-800">{patient.phone}</span></p>
-              <p><span className="text-slate-500 w-24 inline-block">Email:</span> <span className="font-medium text-slate-800">{patient.email || 'N/A'}</span></p>
-              <p><span className="text-slate-500 w-24 inline-block">DOB:</span> <span className="font-medium text-slate-800">{patient.dob}</span></p>
-              <p><span className="text-slate-500 w-24 inline-block">Gender:</span> <span className="font-medium text-slate-800">{patient.gender}</span></p>
-              <p><span className="text-slate-500 w-24 inline-block">Address:</span> <span className="font-medium text-slate-800">{patient.address}</span></p>
-              <p><span className="text-slate-500 w-24 inline-block">Lead Source:</span> <span className="font-medium text-slate-800">{patient.leadSource || 'N/A'}</span></p>
+              <p><span className="text-slate-500 w-28 inline-block">Patient ID:</span> <span className="font-medium text-slate-800">{patient.patientId || patient.idNumber || 'N/A'}</span></p>
+              <p><span className="text-slate-500 w-28 inline-block">Doctor:</span> <span className="font-medium text-slate-800">{patient.doctorName || patient.assignedDoctorName || (patient.assignedDoctor && patient.assignedDoctor.name) || 'Unassigned'}</span></p>
+              <p><span className="text-slate-500 w-28 inline-block">Phone:</span> <span className="font-medium text-slate-800">{patient.phone}</span></p>
+              <p><span className="text-slate-500 w-28 inline-block">Email:</span> <span className="font-medium text-slate-800">{patient.email || 'N/A'}</span></p>
+              <p><span className="text-slate-500 w-28 inline-block">DOB:</span> <span className="font-medium text-slate-800">{patient.dob || 'N/A'}</span></p>
+              <p><span className="text-slate-500 w-28 inline-block">Age:</span> <span className="font-medium text-slate-800">{patient.age != null ? patient.age : 'N/A'}</span></p>
+              <p><span className="text-slate-500 w-28 inline-block">Gender:</span> <span className="font-medium text-slate-800">{patient.gender}</span></p>
+              <p><span className="text-slate-500 w-28 inline-block">Address:</span> <span className="font-medium text-slate-800">{patient.address}</span></p>
+              <p><span className="text-slate-500 w-28 inline-block">Lead Source:</span> <span className="font-medium text-slate-800">{patient.leadSource || 'N/A'}</span></p>
               <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
                 <p className="text-slate-500">Status:</p>
                 <span className={`px-2 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${patient.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
@@ -323,7 +348,7 @@ const PatientDetail = () => {
                 <p className="text-sm text-slate-600 max-w-md">View and manage the patient's complete case sheet including physical examinations, diagnosis, and treatment protocols.</p>
               </div>
               <button 
-                onClick={() => navigate(`/patient/${id}/case-sheet`)}
+                onClick={() => navigate(`/patient/${navPatientParam}/case-sheet`)}
                 className="mt-3 sm:mt-0 bg-primary text-white px-5 py-2 rounded-lg shadow-sm hover:bg-primary/90 transition-colors whitespace-nowrap text-sm font-medium flex items-center gap-2"
               >
                 <FileText className="w-5 h-5" />
@@ -372,13 +397,13 @@ const PatientDetail = () => {
           </div>
 
           {/* Follow-ups Section */}
-          <FollowUpSection patientId={id} refreshTrigger={timeline} />
+          <FollowUpSection patientId={activeId} refreshTrigger={timeline} />
 
           {/* Therapy History */}
-          <TherapyHistory patientId={id} />
+          <TherapyHistory patientId={activeId} />
 
           {/* Master Patient Activity Timeline */}
-          <PatientActivityTimeline patientId={id} />
+          <PatientActivityTimeline patientId={activeId} />
 
           {/* Appointments */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
@@ -411,10 +436,10 @@ const PatientDetail = () => {
           </div>
 
           {/* Patient Documents Management */}
-          <PatientDocuments patientId={id} refreshTrigger={timeline} />
+          <PatientDocuments patientId={activeId} refreshTrigger={timeline} />
           
           {/* Patient Billing Summary (Admin Only) */}
-          {aToken && <PatientBillingSummary patientId={id} refreshTrigger={timeline} />}
+          {aToken && <PatientBillingSummary patientId={activeId} refreshTrigger={timeline} />}
           
         </div>
       </div>
@@ -456,6 +481,10 @@ const PatientDetail = () => {
             <h3 className="text-lg font-semibold text-slate-800 mb-4">Edit Patient Profile</h3>
             <div className="flex flex-col gap-4">
               <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Patient ID</label>
+                <input type="text" value={editFormData.patientId || ''} onChange={(e) => setEditFormData({...editFormData, patientId: e.target.value})} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" />
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
                 <input type="text" value={editFormData.name || ''} onChange={(e) => setEditFormData({...editFormData, name: e.target.value})} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" />
               </div>
@@ -466,6 +495,10 @@ const PatientDetail = () => {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Date of Birth</label>
                 <input type="date" value={editFormData.dob || ''} onChange={(e) => setEditFormData({...editFormData, dob: e.target.value})} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Age</label>
+                <input type="number" value={editFormData.age || ''} onChange={(e) => setEditFormData({...editFormData, age: e.target.value})} className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Gender</label>

@@ -18,10 +18,12 @@ const PatientRegistration = () => {
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
+    patientId: '',
     name: '',
     email: '',
     phone: '',
     dob: '',
+    age: '',
     gender: 'Male',
     address: '',
     leadSource: '',
@@ -74,7 +76,9 @@ const PatientRegistration = () => {
     const { name, value } = e.target;
     let updates = { [name]: value };
     if (name === 'dob') {
-      updates.age = calculateAge(value);
+      if (value) {
+        updates.age = calculateAge(value);
+      }
     }
     setFormData(prev => ({ ...prev, ...updates }));
   };
@@ -107,6 +111,13 @@ const PatientRegistration = () => {
         
         <div className='flex flex-col lg:flex-row gap-6'>
           <InputField 
+            label="Patient ID" 
+            name="patientId"
+            value={formData.patientId || ''} 
+            onChange={handleChange} 
+            placeholder="e.g. PAT001 (Optional)" 
+          />
+          <InputField 
             label="Full Name" 
             name="name"
             value={formData.name} 
@@ -137,17 +148,16 @@ const PatientRegistration = () => {
             label="Date of Birth" 
             type="date"
             name="dob"
-            value={formData.dob} 
+            value={formData.dob || ''} 
             onChange={handleChange} 
-            required 
           />
           <InputField 
-            label="Age (Derived)" 
+            label="Age" 
             type="number"
             name="age"
             value={formData.age || ''} 
-            disabled 
-            className="bg-slate-50"
+            onChange={handleChange} 
+            placeholder="e.g. 35"
           />
         </div>
 
