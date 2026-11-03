@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { analyticsService } from '../../services/analyticsService';
 import { revenueService } from '../../services/revenueService';
+import websiteEnquiryService from '../../services/websiteEnquiryService';
 import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import Card from '../../components/common/Card';
 import { toast } from 'react-toastify';
-import { IndianRupee, Clock, Users, Activity, TrendingUp, Calendar, RefreshCw, ArrowUpRight } from 'lucide-react';
+import { IndianRupee, Clock, Users, Activity, TrendingUp, Calendar, RefreshCw, ArrowUpRight, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const StatCard = ({ title, value, icon: Icon, colorClass, subtitle, onClick, loading }) => (
@@ -40,7 +41,28 @@ const Dashboard = () => {
   });
   const [revLoading, setRevLoading] = useState(true);
   const [revError, setRevError] = useState(false);
+  const [enquirySummary, setEnquirySummary] = useState({
+    total: 0,
+    newCount: 0,
+    contactedCount: 0,
+    confirmedCount: 0
+  });
+  const [enquiryLoading, setEnquiryLoading] = useState(true);
   const navigate = useNavigate();
+
+  const loadEnquiryData = useCallback(async () => {
+    setEnquiryLoading(true);
+    try {
+      const summary = await websiteEnquiryService.getEnquirySummary();
+      if (summary.success) {
+        setEnquirySummary(summary);
+      }
+    } catch (err) {
+      console.error("Dashboard enquiry load error:", err);
+    } finally {
+      setEnquiryLoading(false);
+    }
+  }, []);
 
   const loadRevenueData = useCallback(async () => {
     setRevLoading(true);
@@ -76,12 +98,14 @@ const Dashboard = () => {
   useEffect(() => {
     fetchDashboard();
     loadRevenueData();
-  }, [fetchDashboard, loadRevenueData]);
+    loadEnquiryData();
+  }, [fetchDashboard, loadRevenueData, loadEnquiryData]);
 
   const handleRefresh = () => {
     fetchDashboard();
     loadRevenueData();
-    toast.info("Refreshing revenue data...");
+    loadEnquiryData();
+    toast.info("Refreshing dashboard data...");
   };
 
   const formatINR = (val) => {
@@ -191,6 +215,61 @@ const Dashboard = () => {
             />
           </div>
         )}
+      </div>
+
+      {/* WEBSITE APPOINTMENT ENQUIRIES */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Globe className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-base font-semibold text-slate-800">Website Appointment Enquiries</h2>
+          </div>
+          <button 
+            onClick={() => navigate('/admin/website-enquiries')}
+            className="text-primary hover:underline font-medium inline-flex items-center gap-1 text-xs"
+          >
+            Manage Enquiries <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard 
+            title="Total Website Enquiries" 
+            value={enquirySummary.total} 
+            icon={Globe} 
+            colorClass="bg-indigo-500 text-indigo-600"
+            subtitle="All website submissions"
+            onClick={() => navigate('/admin/website-enquiries')}
+            loading={enquiryLoading}
+          />
+          <StatCard 
+            title="New Enquiries" 
+            value={enquirySummary.newCount} 
+            icon={Activity} 
+            colorClass="bg-blue-500 text-blue-600"
+            subtitle="Action required"
+            onClick={() => navigate('/admin/website-enquiries')}
+            loading={enquiryLoading}
+          />
+          <StatCard 
+            title="Contacted Enquiries" 
+            value={enquirySummary.contactedCount} 
+            icon={Clock} 
+            colorClass="bg-amber-500 text-amber-600"
+            subtitle="In communication"
+            onClick={() => navigate('/admin/website-enquiries')}
+            loading={enquiryLoading}
+          />
+          <StatCard 
+            title="Confirmed Enquiries" 
+            value={enquirySummary.confirmedCount} 
+            icon={Calendar} 
+            colorClass="bg-emerald-500 text-emerald-600"
+            subtitle="Ready for clinical visit"
+            onClick={() => navigate('/admin/website-enquiries')}
+            loading={enquiryLoading}
+          />
+        </div>
       </div>
 
       {/* OPERATIONAL & CLINICAL KPIS */}

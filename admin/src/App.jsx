@@ -8,6 +8,7 @@ import AppShell from './components/layout/AppShell';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Admin/Dashboard';
 import AllAppointments from './pages/Admin/AllAppointments';
+import WebsiteEnquiries from './pages/Admin/WebsiteEnquiries';
 import AddDoctor from './pages/Admin/AddDoctor';
 import DoctorsList from './pages/Admin/DoctorsList';
 import Login from './pages/Login';
@@ -95,6 +96,7 @@ const App = () => {
             <Route path='/admin/packages/:id' element={<ProtectedRoute role="admin"><PackageDetail /></ProtectedRoute>} />
             <Route path='/admin/packages/:id/edit' element={<ProtectedRoute role="admin"><PackageForm /></ProtectedRoute>} />
             <Route path='/all-appointments' element={<ProtectedRoute role="admin"><AllAppointments /></ProtectedRoute>} />
+            <Route path='/admin/website-enquiries' element={<ProtectedRoute role="admin"><WebsiteEnquiries /></ProtectedRoute>} />
             <Route path='/admin/appointments/:id' element={<ProtectedRoute role="admin"><AppointmentDetail /></ProtectedRoute>} />
             <Route path='/admin/invoices' element={<ProtectedRoute role="admin"><InvoiceList /></ProtectedRoute>} />
             <Route path='/admin/invoices/:id' element={<ProtectedRoute role="admin"><InvoiceDetail /></ProtectedRoute>} />

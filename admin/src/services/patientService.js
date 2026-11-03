@@ -84,14 +84,21 @@ export const patientService = {
         if (dateB !== dateA) return dateB - dateA;
         return (b.idNumber || '').localeCompare(a.idNumber || '');
       });
+      const totalElements = typeof data.totalElements === 'number' 
+        ? data.totalElements 
+        : (typeof data.noOfElements === 'number' ? data.noOfElements : patients.length);
+      const totalPages = typeof data.noOfPages === 'number' 
+        ? data.noOfPages 
+        : (data.totalPages || (totalElements > 0 ? Math.ceil(totalElements / size) : 1));
+
       return {
         success: true,
         patients,
         pagination: {
-          totalElements: data.totalElements || patients.length,
-          totalPages: data.totalPages || 1,
-          number: data.number || 0,
-          size: data.size || 10
+          totalElements,
+          totalPages,
+          number: typeof data.number === 'number' ? data.number : page,
+          size: data.size || size
         }
       };
     } catch (error) {

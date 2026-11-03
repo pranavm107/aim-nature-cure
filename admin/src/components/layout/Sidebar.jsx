@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { DoctorContext } from '../../context/DoctorContext';
 import { AdminContext } from '../../context/AdminContext';
 import { 
-  LayoutDashboard, Users, UserPlus, Calendar, Activity, 
+  LayoutDashboard, Globe, Users, UserPlus, Calendar, Activity, 
   Package, Clock, Receipt, IndianRupee, LineChart, 
   Settings, CheckCircle, BarChart, FileText, CheckSquare, 
   Stethoscope, BookOpen, ChevronDown, MoreHorizontal, Search,
@@ -118,6 +118,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       {hasPerm('manage_appointments') && (
         <SidebarSection title="Operations" isCollapsed={isCollapsed}>
           <SidebarLink to='/all-appointments' icon={Calendar} label='Appointments' isCollapsed={isCollapsed} onClick={onClose} />
+          <SidebarLink to='/admin/website-enquiries' icon={Globe} label='Website Enquiries' isCollapsed={isCollapsed} onClick={onClose} />
           {hasPerm('manage_therapies') && <SidebarLink to='/admin/therapies' icon={Activity} label='Therapies' isCollapsed={isCollapsed} onClick={onClose} />}
           {hasPerm('manage_therapies') && <SidebarLink to='/admin/packages' icon={Package} label='Packages' isCollapsed={isCollapsed} onClick={onClose} />}
           <SidebarLink to='/admin/follow-ups' icon={Clock} label='Follow-Ups' isCollapsed={isCollapsed} onClick={onClose} />
