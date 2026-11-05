@@ -4,6 +4,7 @@ import { patientService } from '../../services/patientService';
 import { consultationService } from '../../services/consultationService';
 import { appointmentService } from '../../services/appointmentService';
 import { documentService } from '../../services/documentService';
+import { caseSheetService } from '../../services/caseSheetService';
 import { AppContext } from '../../context/AppContext';
 // removed ConsultationHistory import
 import PatientDocuments from '../../components/patient/PatientDocuments';
@@ -30,6 +31,7 @@ const PatientDetail = () => {
   const [timeline, setTimeline] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [caseSheetInfo, setCaseSheetInfo] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Addendum state
@@ -78,6 +80,17 @@ const PatientDetail = () => {
         const docRes = await documentService.getPatientDocuments(resolvedId);
         if (docRes.success) {
           setDocuments(docRes.documents);
+        }
+
+        try {
+          const csRes = await caseSheetService.getCaseSheetByPatientId(resolvedId, patId);
+          if (csRes.success) {
+            setCaseSheetInfo(csRes.caseSheet);
+          } else {
+            setCaseSheetInfo(null);
+          }
+        } catch (csErr) {
+          console.warn("Could not load case sheet for patient:", csErr);
         }
         
         if (aToken) {
@@ -341,18 +354,40 @@ const PatientDetail = () => {
         <div className="lg:col-span-2 flex flex-col gap-6">
           {/* Clinical Records (Case Sheet) */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 pb-2">Clinical Records</h2>
+            <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
+              <h2 className="text-lg font-semibold text-slate-800">Clinical Records</h2>
+              {caseSheetInfo ? (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  Case Sheet Active
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                  No Case Sheet
+                </span>
+              )}
+            </div>
             <div className="flex flex-col sm:flex-row items-center justify-between bg-primary/5 border border-primary/20 p-4 rounded-lg">
               <div>
                 <h3 className="font-bold text-slate-800 mb-1">Complete Case Sheet</h3>
-                <p className="text-sm text-slate-600 max-w-md">View and manage the patient's complete case sheet including physical examinations, diagnosis, and treatment protocols.</p>
+                <p className="text-sm text-slate-600 max-w-md">
+                  {caseSheetInfo ? (
+                    <span>
+                      Intake Visit: <strong>{caseSheetInfo.visitDate || (caseSheetInfo.date ? new Date(caseSheetInfo.date).toLocaleDateString() : 'Recorded')}</strong>
+                      {caseSheetInfo.finalDiagnosis && (
+                        <span> • Diagnosis: <strong className="text-slate-800">{caseSheetInfo.finalDiagnosis}</strong></span>
+                      )}
+                    </span>
+                  ) : (
+                    "View and manage the patient's complete case sheet including physical examinations, diagnosis, and treatment protocols."
+                  )}
+                </p>
               </div>
               <button 
                 onClick={() => navigate(`/patient/${navPatientParam}/case-sheet`)}
                 className="mt-3 sm:mt-0 bg-primary text-white px-5 py-2 rounded-lg shadow-sm hover:bg-primary/90 transition-colors whitespace-nowrap text-sm font-medium flex items-center gap-2"
               >
                 <FileText className="w-5 h-5" />
-                Open Case Sheet
+                {caseSheetInfo ? 'View / Edit Case Sheet' : 'Create Case Sheet'}
               </button>
             </div>
           </div>

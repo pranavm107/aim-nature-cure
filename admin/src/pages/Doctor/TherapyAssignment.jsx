@@ -4,8 +4,9 @@ import therapyService from '../../services/therapyService';
 import packageService from '../../services/packageService';
 import therapyAssignmentService from '../../services/therapyAssignmentService';
 import MultiSelect from '../../components/common/MultiSelect';
+import PatientSelectDropdown from '../../components/common/PatientSelectDropdown';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Sparkles, 
   Package, 
@@ -22,15 +23,19 @@ import {
 } from 'lucide-react';
 
 const TherapyAssignment = () => {
-  const [patients, setPatients] = useState([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const initialPatientId = location.state?.patientId || searchParams.get('patientId') || '';
+
+  const [selectedPatientObj, setSelectedPatientObj] = useState(null);
   const [therapies, setTherapies] = useState([]);
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    patientId: '',
+    patientId: initialPatientId,
     assignmentType: 'therapy', // 'therapy' or 'package'
     selectedTherapyIds: [],
     packageId: '',
@@ -44,18 +49,23 @@ const TherapyAssignment = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [patRes, thersRes, pkgsRes] = await Promise.all([
-          patientService.getPatients(),
+        const [thersRes, pkgsRes] = await Promise.all([
           therapyService.getTherapiesDropdown(),
           packageService.getAllPackages()
         ]);
-        setPatients(patRes.patients || []);
         
         const thers = thersRes?.success ? thersRes.therapies : [];
         setTherapies(thers);
         
         const pkgs = pkgsRes?.success ? pkgsRes.packages : [];
         setPackages(pkgs.filter(p => p.status === true));
+
+        if (initialPatientId) {
+          const patRes = await patientService.getPatientById(initialPatientId);
+          if (patRes.success && patRes.patient) {
+            setSelectedPatientObj(patRes.patient);
+          }
+        }
       } catch (error) {
         toast.error('Failed to load data for assignment');
       } finally {
@@ -63,7 +73,7 @@ const TherapyAssignment = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [initialPatientId]);
 
   // Synchronize configuredItems whenever selectedTherapyIds changes
   const handleTherapySelectionChange = (newIds) => {
@@ -214,8 +224,6 @@ const TherapyAssignment = () => {
     );
   }
 
-  const selectedPatient = patients.find(p => p._id === formData.patientId || p.uuid === formData.patientId);
-
   return (
     <div className="m-5 max-w-3xl mx-auto pb-12">
       <div className="mb-6">
@@ -227,35 +235,53 @@ const TherapyAssignment = () => {
       
       <div className="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* SELECT PATIENT */}
+          {/* SELECT PATIENT WITH INFINITE SCROLL */}
           <div>
-            <label className="block text-slate-700 text-sm font-bold mb-2">
-              Select Patient <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <select 
-                className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
-                value={formData.patientId}
-                onChange={(e) => setFormData({...formData, patientId: e.target.value})}
-                required
-              >
-                <option value="">-- Select Patient --</option>
-                {patients.map(p => (
-                  <option key={p._id || p.uuid} value={p._id || p.uuid}>
-                    {p.name} {p.phoneNumber ? `(${p.phoneNumber})` : ''}
-                  </option>
-                ))}
-              </select>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-slate-700 text-sm font-bold">
+                Select Patient <span className="text-red-500">*</span>
+              </label>
+              <span className="text-xs text-slate-400">Search & scroll to browse all</span>
             </div>
-            {selectedPatient && (
-              <div className="mt-2.5 p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between text-xs text-slate-600">
-                <span className="flex items-center gap-1.5 font-medium">
-                  <User className="w-4 h-4 text-primary" />
-                  {selectedPatient.name}
-                </span>
-                <span className="text-slate-500">
-                  ID: <span className="font-mono text-slate-700">{selectedPatient.idNumber || selectedPatient._id?.slice(0, 8)}</span>
-                </span>
+            <PatientSelectDropdown
+              value={formData.patientId}
+              onChange={(patientId, patientObj) => {
+                setFormData(prev => ({ ...prev, patientId }));
+                setSelectedPatientObj(patientObj);
+              }}
+              required
+              placeholder="Search by name, ID (e.g. AIM...), or phone..."
+            />
+            {selectedPatientObj && (
+              <div className="mt-3 p-3.5 bg-slate-50/90 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                    {selectedPatientObj.name?.charAt(0) || 'P'}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-slate-850 text-sm flex items-center gap-2">
+                      <span>{selectedPatientObj.name}</span>
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">
+                        {selectedPatientObj.patientId || selectedPatientObj.idNumber}
+                      </span>
+                    </div>
+                    <div className="text-slate-500 flex items-center gap-3 mt-0.5">
+                      {selectedPatientObj.phone && (
+                        <span>📞 {selectedPatientObj.phone}</span>
+                      )}
+                      {selectedPatientObj.doctorName && (
+                        <span>Doctor: <strong className="text-slate-700">{selectedPatientObj.doctorName}</strong></span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {selectedPatientObj.status && (
+                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider self-start sm:self-center ${
+                    selectedPatientObj.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'
+                  }`}>
+                    {selectedPatientObj.status}
+                  </span>
+                )}
               </div>
             )}
           </div>

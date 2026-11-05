@@ -96,7 +96,8 @@ const App = () => {
             <Route path='/admin/packages/:id' element={<ProtectedRoute role="admin"><PackageDetail /></ProtectedRoute>} />
             <Route path='/admin/packages/:id/edit' element={<ProtectedRoute role="admin"><PackageForm /></ProtectedRoute>} />
             <Route path='/all-appointments' element={<ProtectedRoute role="admin"><AllAppointments /></ProtectedRoute>} />
-            <Route path='/admin/website-enquiries' element={<ProtectedRoute role="admin"><WebsiteEnquiries /></ProtectedRoute>} />
+            <Route path='/admin/website-enquiries' element={<ProtectedRoute role="shared"><WebsiteEnquiries /></ProtectedRoute>} />
+            <Route path='/website-enquiries' element={<Navigate to="/admin/website-enquiries" replace />} />
             <Route path='/admin/appointments/:id' element={<ProtectedRoute role="admin"><AppointmentDetail /></ProtectedRoute>} />
             <Route path='/admin/invoices' element={<ProtectedRoute role="admin"><InvoiceList /></ProtectedRoute>} />
             <Route path='/admin/invoices/:id' element={<ProtectedRoute role="admin"><InvoiceDetail /></ProtectedRoute>} />
@@ -125,6 +126,7 @@ const App = () => {
             <Route path='/doctor/payroll' element={<ProtectedRoute role="doctor"><MyPayroll /></ProtectedRoute>} />
 
             <Route path='/doctor/follow-ups' element={<ProtectedRoute role="doctor"><FollowUpList /></ProtectedRoute>} />
+            <Route path='/doctor/website-enquiries' element={<ProtectedRoute role="doctor"><WebsiteEnquiries /></ProtectedRoute>} />
             <Route path='/doctor/social-submission' element={<ProtectedRoute role="doctor"><SocialSubmission /></ProtectedRoute>} />
             <Route path='/doctor/notes' element={<ProtectedRoute role="doctor"><DoctorNotes /></ProtectedRoute>} />
             <Route path='/doctor/tasks' element={<ProtectedRoute role="doctor"><DoctorTasks /></ProtectedRoute>} />

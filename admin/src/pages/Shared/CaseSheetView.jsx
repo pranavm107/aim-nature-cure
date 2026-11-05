@@ -1,22 +1,23 @@
 import React from 'react';
-import { Edit } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 
-const CaseSheetView = ({ caseSheet, patient, canEdit, onEdit }) => {
+const CaseSheetView = ({ caseSheet, patient, canEdit, onEdit, onDelete }) => {
   if (!caseSheet) return null;
 
   const { headerSnapshot, vitals, personalHistory, pulseDiagnosis, generalDiagnosis, finalDiagnosis } = caseSheet;
   const displayPatientId = patient?.patientId || headerSnapshot?.patientId || headerSnapshot?.idNumber || patient?.idNumber || 'N/A';
+  const displayDate = caseSheet.visitDate || (caseSheet.date ? new Date(caseSheet.date).toLocaleDateString() : 'N/A');
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
       {/* Header Info */}
       <div className="p-6 border-b border-slate-200 bg-slate-50">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
             <h2 className="text-2xl font-bold text-slate-800">Case Sheet Intake Record</h2>
-            <p className="text-sm text-slate-500 mt-0.5">Clinical evaluation and intake record</p>
+            <p className="text-sm text-slate-500 mt-0.5">Clinical evaluation, diagnostic assessment & vitals</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full uppercase tracking-wide border border-emerald-200">
               Active Record
             </span>
@@ -24,19 +25,44 @@ const CaseSheetView = ({ caseSheet, patient, canEdit, onEdit }) => {
               <button
                 type="button"
                 onClick={onEdit}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
               >
                 <Edit className="w-4 h-4" />
-                Edit Case Sheet
+                Edit
+              </button>
+            )}
+            {canEdit && onDelete && (
+              <button
+                type="button"
+                onClick={onDelete}
+                className="flex items-center gap-1.5 px-3 py-2 border border-rose-200 text-rose-600 hover:bg-rose-50 text-sm font-medium rounded-lg transition-colors"
+                title="Delete Case Sheet"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
               </button>
             )}
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div><span className="text-slate-500 block text-xs">Date</span><span className="font-medium text-slate-800">{new Date(caseSheet.date).toLocaleDateString()}</span></div>
-          <div><span className="text-slate-500 block text-xs">Patient Name</span><span className="font-medium text-slate-800">{headerSnapshot?.name || patient?.name || 'N/A'}</span></div>
-          <div><span className="text-slate-500 block text-xs">Patient ID</span><span className="font-medium text-slate-800 font-mono">{displayPatientId}</span></div>
-          <div><span className="text-slate-500 block text-xs">Age / Gender</span><span className="font-medium text-slate-800">{headerSnapshot?.age || patient?.age != null ? `${patient?.age}` : (patient?.dob || '-')} / {headerSnapshot?.gender || patient?.gender || '-'}</span></div>
+          <div>
+            <span className="text-slate-500 block text-xs">Visit Date</span>
+            <span className="font-semibold text-slate-800">{displayDate}</span>
+          </div>
+          <div>
+            <span className="text-slate-500 block text-xs">Patient Name</span>
+            <span className="font-medium text-slate-800">{headerSnapshot?.name || patient?.name || 'N/A'}</span>
+          </div>
+          <div>
+            <span className="text-slate-500 block text-xs">Patient ID</span>
+            <span className="font-medium text-slate-800 font-mono">{displayPatientId}</span>
+          </div>
+          <div>
+            <span className="text-slate-500 block text-xs">Age / Gender</span>
+            <span className="font-medium text-slate-800">
+              {headerSnapshot?.age || (patient?.age != null ? `${patient?.age}` : (patient?.dob || '-'))} / {headerSnapshot?.gender || patient?.gender || '-'}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -44,36 +70,38 @@ const CaseSheetView = ({ caseSheet, patient, canEdit, onEdit }) => {
         {/* Present Complaints */}
         <div>
           <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Present Complaints</h3>
-          <p className="text-sm text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-200 whitespace-pre-wrap">{caseSheet.presentComplaints || 'None recorded'}</p>
+          <p className="text-sm text-slate-800 bg-slate-50 p-3.5 rounded-lg border border-slate-200 whitespace-pre-wrap leading-relaxed">
+            {caseSheet.presentComplaints || 'None recorded'}
+          </p>
         </div>
 
         {/* Vitals */}
         <div>
           <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Vitals</h3>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-            <div className="bg-primary/5 p-2 rounded-lg text-center border border-primary/20">
+            <div className="bg-primary/5 p-2.5 rounded-lg text-center border border-primary/20">
               <span className="block text-xs text-primary font-medium">Height</span>
-              <span className="text-sm font-bold text-slate-800">{vitals?.height || '-'} cm</span>
+              <span className="text-sm font-bold text-slate-800">{vitals?.height ? `${vitals.height} cm` : '-'}</span>
             </div>
-            <div className="bg-primary/5 p-2 rounded-lg text-center border border-primary/20">
+            <div className="bg-primary/5 p-2.5 rounded-lg text-center border border-primary/20">
               <span className="block text-xs text-primary font-medium">Weight</span>
-              <span className="text-sm font-bold text-slate-800">{vitals?.weight || '-'} kg</span>
+              <span className="text-sm font-bold text-slate-800">{vitals?.weight ? `${vitals.weight} kg` : '-'}</span>
             </div>
-            <div className="bg-primary/5 p-2 rounded-lg text-center border border-primary/20">
+            <div className="bg-primary/5 p-2.5 rounded-lg text-center border border-primary/20">
               <span className="block text-xs text-primary font-medium">BP</span>
-              <span className="text-sm font-bold text-slate-800">{vitals?.bp || '-'}</span>
+              <span className="text-sm font-bold text-slate-800">{vitals?.bp || vitals?.bloodPressure || '-'}</span>
             </div>
-            <div className="bg-primary/5 p-2 rounded-lg text-center border border-primary/20">
+            <div className="bg-primary/5 p-2.5 rounded-lg text-center border border-primary/20">
               <span className="block text-xs text-primary font-medium">Heart Rate</span>
-              <span className="text-sm font-bold text-slate-800">{vitals?.heartRate || '-'}</span>
+              <span className="text-sm font-bold text-slate-800">{vitals?.heartRate ? `${vitals.heartRate} bpm` : '-'}</span>
             </div>
-            <div className="bg-primary/5 p-2 rounded-lg text-center border border-primary/20">
+            <div className="bg-primary/5 p-2.5 rounded-lg text-center border border-primary/20">
               <span className="block text-xs text-primary font-medium">Resp. Rate</span>
-              <span className="text-sm font-bold text-slate-800">{vitals?.respiratoryRate || '-'}</span>
+              <span className="text-sm font-bold text-slate-800">{vitals?.respiratoryRate ? `${vitals.respiratoryRate}/min` : '-'}</span>
             </div>
-            <div className="bg-primary/5 p-2 rounded-lg text-center border border-primary/20">
+            <div className="bg-primary/5 p-2.5 rounded-lg text-center border border-primary/20">
               <span className="block text-xs text-primary font-medium">Temp</span>
-              <span className="text-sm font-bold text-slate-800">{vitals?.temperature || '-'} °F</span>
+              <span className="text-sm font-bold text-slate-800">{vitals?.temperature ? `${vitals.temperature} °F` : '-'}</span>
             </div>
           </div>
         </div>
@@ -82,7 +110,7 @@ const CaseSheetView = ({ caseSheet, patient, canEdit, onEdit }) => {
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Personal History</h3>
-            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2 text-sm">
+            <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-slate-500">Appetite:</span> <span className="font-medium text-slate-800">{personalHistory?.appetite || '-'}</span></div>
               <div className="flex justify-between"><span className="text-slate-500">Sleep:</span> <span className="font-medium text-slate-800">{personalHistory?.sleep || '-'}</span></div>
               <div className="flex justify-between"><span className="text-slate-500">Bowel:</span> <span className="font-medium text-slate-800">{personalHistory?.bowel || '-'}</span></div>
@@ -93,17 +121,17 @@ const CaseSheetView = ({ caseSheet, patient, canEdit, onEdit }) => {
           </div>
           <div>
              <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Examinations</h3>
-             <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-3 text-sm">
+             <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-3 text-sm">
                <div>
-                 <span className="text-slate-500 block mb-1">General Physical Exam:</span>
+                 <span className="text-slate-500 block mb-0.5 text-xs">General Physical Exam (GPE):</span>
                  <p className="font-medium text-slate-800">{caseSheet.gpe || '-'}</p>
                </div>
                <div className="border-t border-slate-200 pt-2">
-                 <span className="text-slate-500 block mb-1">Systemic Exam:</span>
+                 <span className="text-slate-500 block mb-0.5 text-xs">Systemic Examination:</span>
                  <p className="font-medium text-slate-800">{caseSheet.systemicExamination || '-'}</p>
                </div>
                <div className="border-t border-slate-200 pt-2">
-                 <span className="text-slate-500 block mb-1">OBG History:</span>
+                 <span className="text-slate-500 block mb-0.5 text-xs">OBG History:</span>
                  <p className="font-medium text-slate-800">{caseSheet.obgHistory || '-'}</p>
                </div>
              </div>
@@ -113,7 +141,7 @@ const CaseSheetView = ({ caseSheet, patient, canEdit, onEdit }) => {
         {/* General Diagnosis */}
         <div>
           <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">General Diagnosis</h3>
-          <p className="text-sm text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-200 font-medium whitespace-pre-wrap">
+          <p className="text-sm text-slate-800 bg-slate-50 p-3.5 rounded-lg border border-slate-200 font-medium whitespace-pre-wrap leading-relaxed">
             {caseSheet.generalDiagnosis || 'None recorded'}
           </p>
         </div>
@@ -121,11 +149,11 @@ const CaseSheetView = ({ caseSheet, patient, canEdit, onEdit }) => {
         {/* Pulse Diagnosis */}
         <div>
           <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Pulse Diagnosis</h3>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
              {['lu', 'li', 'st', 'sp', 'tw', 'pc', 'ht', 'si', 'liv', 'gb', 'ub', 'kid'].map(meridian => (
-                <div key={meridian} className="bg-slate-50 p-2 rounded-lg text-center border border-slate-200">
+                <div key={meridian} className="bg-slate-50 p-2.5 rounded-lg text-center border border-slate-200">
                   <span className="block text-xs text-primary font-bold uppercase">{meridian}</span>
-                  <span className="text-sm font-medium text-slate-800 truncate block" title={pulseDiagnosis?.[meridian] || '-'}>
+                  <span className="text-sm font-medium text-slate-800 truncate block mt-0.5" title={pulseDiagnosis?.[meridian] || '-'}>
                     {pulseDiagnosis?.[meridian] || '-'}
                   </span>
                 </div>
@@ -136,7 +164,23 @@ const CaseSheetView = ({ caseSheet, patient, canEdit, onEdit }) => {
         {/* Final Diagnosis */}
         <div>
           <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Final Diagnosis</h3>
-          <p className="text-sm text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-200 font-medium whitespace-pre-wrap">{caseSheet.finalDiagnosis || 'None recorded'}</p>
+          <p className="text-sm text-slate-800 bg-slate-50 p-3.5 rounded-lg border border-slate-200 font-medium whitespace-pre-wrap leading-relaxed">
+            {caseSheet.finalDiagnosis || 'None recorded'}
+          </p>
+        </div>
+
+        {/* Doctor Signature & Metadata Footer */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200 text-sm">
+          <div>
+            <span className="text-xs text-slate-500 block">Attending Doctor / Signature</span>
+            <span className="font-semibold text-slate-800">{caseSheet.doctorSignature || 'Dr. Assigned'}</span>
+          </div>
+          {caseSheet.modifiedAt && (
+            <div className="sm:text-right">
+              <span className="text-xs text-slate-500 block">Last Modified</span>
+              <span className="text-xs text-slate-600">{new Date(caseSheet.modifiedAt).toLocaleString()}</span>
+            </div>
+          )}
         </div>
 
       </div>

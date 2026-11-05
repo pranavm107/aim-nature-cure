@@ -4,8 +4,12 @@ const initialPulseState = { lu: '', li: '', st: '', sp: '', tw: '', pc: '', ht: 
 const initialVitals = { height: '', weight: '', bp: '', heartRate: '', respiratoryRate: '', temperature: '' };
 const initialPersonal = { appetite: '', sleep: '', bowel: '', micturition: '', thirst: '', addiction: '' };
 
+const getTodayDate = () => new Date().toISOString().split('T')[0];
+
 const CaseSheetForm = ({ patient, onSubmit, onCancel, initialData = null, isEditMode = false }) => {
   const [formData, setFormData] = useState({
+    visitDate: initialData?.visitDate || (initialData?.date ? String(initialData.date).split('T')[0] : getTodayDate()),
+    doctorSignature: initialData?.doctorSignature || '',
     presentComplaints: initialData?.presentComplaints || '',
     vitals: initialData?.vitals ? { ...initialVitals, ...initialData.vitals } : initialVitals,
     obgHistory: initialData?.obgHistory || '',
@@ -20,6 +24,8 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel, initialData = null, isEdit
   useEffect(() => {
     if (initialData) {
       setFormData({
+        visitDate: initialData.visitDate || (initialData.date ? String(initialData.date).split('T')[0] : getTodayDate()),
+        doctorSignature: initialData.doctorSignature || '',
         presentComplaints: initialData.presentComplaints || '',
         vitals: initialData.vitals ? { ...initialVitals, ...initialData.vitals } : initialVitals,
         obgHistory: initialData.obgHistory || '',
@@ -49,15 +55,17 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel, initialData = null, isEdit
     e.preventDefault();
     const caseSheetData = {
       ...formData,
+      uuid: initialData?.uuid,
+      _id: initialData?._id || initialData?.uuid,
       headerSnapshot: {
-        idNumber: patient.patientId || patient.idNumber || patient._id,
-        patientId: patient.patientId || patient.idNumber || '',
-        name: patient.name,
-        phone: patient.phone,
-        age: patient.age != null ? `${patient.age}` : (patient.dob || 'Unknown'), 
-        gender: patient.gender,
-        occupation: patient.occupation || 'N/A',
-        address: patient.address
+        idNumber: patient?.patientId || patient?.idNumber || patient?._id,
+        patientId: patient?.patientId || patient?.idNumber || '',
+        name: patient?.name,
+        phone: patient?.phone,
+        age: patient?.age != null ? `${patient.age}` : (patient?.dob || 'Unknown'), 
+        gender: patient?.gender,
+        occupation: patient?.occupation || 'N/A',
+        address: patient?.address
       }
     };
     onSubmit(caseSheetData);
@@ -73,6 +81,31 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel, initialData = null, isEdit
       </div>
       
       <div className="p-6 space-y-8">
+        {/* Visit Details & Attending Doctor */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/80 p-4 rounded-xl border border-slate-200">
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Visit Date</label>
+            <input 
+              type="date" 
+              name="visitDate" 
+              value={formData.visitDate} 
+              onChange={handleChange} 
+              className="w-full border border-slate-200 rounded-lg p-2.5 text-sm bg-white focus:ring-1 focus:ring-primary focus:border-primary outline-none" 
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Doctor Signature / Attending Doctor</label>
+            <input 
+              type="text" 
+              name="doctorSignature" 
+              value={formData.doctorSignature} 
+              onChange={handleChange} 
+              placeholder="e.g. Dr. Jane Doe"
+              className="w-full border border-slate-200 rounded-lg p-2.5 text-sm bg-white focus:ring-1 focus:ring-primary focus:border-primary outline-none" 
+            />
+          </div>
+        </div>
+
         {/* Present Complaints */}
         <div>
           <label className="block text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Present Complaints</label>
@@ -95,6 +128,7 @@ const CaseSheetForm = ({ patient, onSubmit, onCancel, initialData = null, isEdit
                 <label className="block text-xs text-slate-500 mb-1 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</label>
                 <input 
                   type={key==='bp'?'text':'number'} 
+                  step={key === 'temperature' || key === 'height' || key === 'weight' ? '0.1' : undefined}
                   className="w-full border border-slate-200 rounded-md p-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary" 
                   value={formData.vitals[key]} 
                   onChange={(e) => handleNestedChange('vitals', key, e.target.value)} 

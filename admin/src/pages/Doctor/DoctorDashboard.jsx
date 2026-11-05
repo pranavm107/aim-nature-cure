@@ -5,7 +5,7 @@ import { AppContext } from '../../context/AppContext';
 import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import { useNavigate } from 'react-router-dom';
-import { Users, FileText, Clock, IndianRupee, ListChecks, X, Check } from 'lucide-react';
+import { Users, FileText, Clock, IndianRupee, ListChecks, X, Check, Globe } from 'lucide-react';
 
 const DoctorDashboard = () => {
 
@@ -93,6 +93,28 @@ const DoctorDashboard = () => {
         </div>
       </div>
 
+      {/* Website Appointment Enquiries Quick Access */}
+      <div 
+        onClick={() => navigate('/doctor/website-enquiries')}
+        className='bg-gradient-to-r from-indigo-50/80 via-white to-primary/5 p-4 rounded-xl border border-indigo-100 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-all'
+      >
+        <div className="flex items-center gap-3">
+          <div className="bg-indigo-600 text-white p-2.5 rounded-lg shrink-0">
+            <Globe className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-slate-800">Website Appointment Enquiries</h4>
+            <p className="text-xs text-slate-500">Review prospective patient leads & appointment submissions from the hospital website</p>
+          </div>
+        </div>
+        <button 
+          onClick={() => navigate('/doctor/website-enquiries')}
+          className="text-xs font-semibold text-indigo-700 bg-white border border-indigo-200 px-3.5 py-1.5 rounded-lg hover:bg-indigo-50 transition-colors shadow-xs self-end sm:self-center shrink-0"
+        >
+          View Enquiries →
+        </button>
+      </div>
+
       <div className='bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden'>
         <div className='flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50'>
           <div className="flex items-center gap-2.5">
@@ -135,4 +157,4 @@ const DoctorDashboard = () => {
   )
 }
 
-export default DoctorDashboard
+export default DoctorDashboard

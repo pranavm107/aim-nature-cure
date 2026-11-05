@@ -162,6 +162,11 @@ const Sidebar = ({ isOpen, onClose }) => {
         <SidebarLink to='/doctor/therapy-sessions' icon={CheckCircle} label='Therapy Sessions' isCollapsed={isCollapsed} onClick={onClose} />
       </SidebarSection>
       
+      <SidebarSection title="Operations" isCollapsed={isCollapsed}>
+        <SidebarLink to='/doctor/appointments' icon={Calendar} label='Appointments' isCollapsed={isCollapsed} onClick={onClose} />
+        <SidebarLink to='/doctor/website-enquiries' icon={Globe} label='Website Enquiries' isCollapsed={isCollapsed} onClick={onClose} />
+      </SidebarSection>
+      
       <SidebarSection title="Follow-Ups" isCollapsed={isCollapsed}>
         <SidebarLink to='/doctor/follow-ups' icon={Clock} label='Follow-Up List' isCollapsed={isCollapsed} onClick={onClose} />
       </SidebarSection>

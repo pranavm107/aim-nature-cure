@@ -458,21 +458,23 @@ const WebsiteEnquiries = () => {
           <table className="w-full text-left border-collapse min-w-[1100px]">
             <thead>
               <tr className="bg-slate-50/90 border-b border-slate-200 text-slate-600 text-[11px] font-semibold uppercase tracking-wider">
-                <th className="py-3.5 px-4 text-center w-12">#</th>
-                <th className="py-3.5 px-4 min-w-[210px]">Visitor / Contact</th>
-                <th className="py-3.5 px-4 min-w-[150px]">Date & Slot</th>
-                <th className="py-3.5 px-4 min-w-[160px]">Service</th>
-                <th className="py-3.5 px-4 min-w-[210px]">Message</th>
-                <th className="py-3.5 px-4 min-w-[140px]">Status</th>
-                <th className="py-3.5 px-4 min-w-[140px]">WhatsApp</th>
-                <th className="py-3.5 px-4 min-w-[160px]">Received At</th>
-                <th className="py-3.5 px-4 w-28 text-right">Actions</th>
+                <th className="py-3.5 px-4 w-24">Enquiry ID</th>
+                <th className="py-3.5 px-4 min-w-[150px]">Name</th>
+                <th className="py-3.5 px-4 min-w-[130px]">Phone Number</th>
+                <th className="py-3.5 px-4 min-w-[130px]">Appointment Date</th>
+                <th className="py-3.5 px-4 min-w-[110px]">Preferred Time</th>
+                <th className="py-3.5 px-4 min-w-[130px]">Service</th>
+                <th className="py-3.5 px-4 min-w-[180px]">Message</th>
+                <th className="py-3.5 px-4 min-w-[130px]">Enquiry Status</th>
+                <th className="py-3.5 px-4 min-w-[130px]">WhatsApp Status</th>
+                <th className="py-3.5 px-4 min-w-[150px]">Created At</th>
+                <th className="py-3.5 px-4 w-24 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
                 <tr>
-                  <td colSpan="9" className="py-16 text-center text-slate-400">
+                  <td colSpan="11" className="py-16 text-center text-slate-400">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <RefreshCw className="w-6 h-6 animate-spin text-primary" />
                       <p className="text-sm font-medium text-slate-600">Loading website enquiries...</p>
@@ -481,7 +483,7 @@ const WebsiteEnquiries = () => {
                 </tr>
               ) : enquiries.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="py-16 text-center text-slate-400">
+                  <td colSpan="11" className="py-16 text-center text-slate-400">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Globe className="w-10 h-10 text-slate-300" />
                       <p className="font-semibold text-slate-700 text-sm">No website appointment enquiries found</p>
@@ -495,6 +497,7 @@ const WebsiteEnquiries = () => {
                   const isWhatsAppVerified = item.whatsappStatus === 'MESSAGE_RECEIVED';
                   const waPhone = sanitizePhoneForWhatsApp(item.phoneNumber);
                   const { email, cleanMessage } = extractEmailAndCleanMessage(item.message, item.email);
+                  const shortId = item.id ? item.id.slice(0, 8) : `#${(page * size) + index + 1}`;
 
                   return (
                     <tr
@@ -502,71 +505,66 @@ const WebsiteEnquiries = () => {
                       onClick={() => handleOpenDetails(item)}
                       className="hover:bg-slate-50/80 transition-colors cursor-pointer text-slate-700 group"
                     >
-                      {/* Serial Number # */}
-                      <td className="py-3.5 px-4 text-center text-slate-400 font-mono text-xs">
-                        {(page * size) + index + 1}
+                      {/* Enquiry ID */}
+                      <td className="py-3.5 px-4 font-mono text-xs whitespace-nowrap">
+                        <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium" title={item.id}>
+                          {shortId}
+                        </span>
                       </td>
 
-                      {/* Visitor & Contact */}
-                      <td className="py-3.5 px-4">
+                      {/* Name */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="font-semibold text-slate-900 text-sm group-hover:text-primary transition-colors">
                           {item.name || 'Anonymous'}
                         </div>
-                        <div className="flex flex-col gap-0.5 mt-1" onClick={(e) => e.stopPropagation()}>
-                          {item.phoneNumber && (
-                            <a
-                              href={`tel:${item.phoneNumber}`}
-                              className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-primary transition-colors font-medium"
-                              title="Call phone number"
-                            >
-                              <Phone className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                              <span>{item.phoneNumber}</span>
-                            </a>
-                          )}
-                          {email && (
-                            <a
-                              href={`mailto:${email}`}
-                              className="inline-flex items-center gap-1.5 text-[11px] text-slate-500 hover:text-primary transition-colors truncate max-w-[210px]"
-                              title={`Email: ${email}`}
-                            >
-                              <Mail className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                              <span className="truncate">{email}</span>
-                            </a>
-                          )}
-                        </div>
+                        {email && (
+                          <div className="text-[11px] text-slate-400 truncate max-w-[160px]">{email}</div>
+                        )}
                       </td>
 
-                      {/* Appointment Date & Preferred Time */}
+                      {/* Phone Number */}
+                      <td className="py-3.5 px-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                        {item.phoneNumber ? (
+                          <a
+                            href={`tel:${item.phoneNumber}`}
+                            className="inline-flex items-center gap-1.5 text-xs text-slate-700 hover:text-primary transition-colors font-medium"
+                            title="Call phone number"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span>{item.phoneNumber}</span>
+                          </a>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
+
+                      {/* Appointment Date */}
+                      <td className="py-3.5 px-4 whitespace-nowrap font-medium text-slate-800">
+                        {formatDate(item.appointmentDate)}
+                      </td>
+
+                      {/* Preferred Time */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="font-medium text-slate-800">
-                          {formatDate(item.appointmentDate)}
-                        </div>
-                        <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-semibold mt-1 uppercase tracking-wider whitespace-nowrap">
+                        <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-semibold uppercase tracking-wider">
                           {item.preferredTime || 'Any Time'}
                         </span>
                       </td>
 
                       {/* Service */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                           {item.service || 'General Enquiry'}
                         </span>
                       </td>
 
                       {/* Message preview */}
-                      <td className="py-3.5 px-4">
-                        <div className="max-w-[220px]" title={cleanMessage || item.message || 'No additional message'}>
-                          {cleanMessage ? (
-                            <p className="text-slate-600 truncate">{cleanMessage}</p>
-                          ) : item.message ? (
-                            <p className="text-slate-600 truncate">{item.message}</p>
-                          ) : (
-                            <span className="text-slate-400 italic">No notes</span>
-                          )}
-                        </div>
+                      <td className="py-3.5 px-4 max-w-[220px]">
+                        <p className="text-slate-600 truncate" title={cleanMessage || item.message || 'No additional message'}>
+                          {cleanMessage || item.message || <span className="text-slate-400 italic">No notes</span>}
+                        </p>
                       </td>
 
-                      {/* Status Dropdown */}
+                      {/* Enquiry Status Dropdown */}
                       <td className="py-3.5 px-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         <select
                           value={item.status || 'NEW'}
@@ -581,10 +579,10 @@ const WebsiteEnquiries = () => {
                         </select>
                       </td>
 
-                      {/* WhatsApp Verification */}
+                      {/* WhatsApp Status */}
                       <td className="py-3.5 px-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         {isWhatsAppVerified ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                             <span>Verified</span>
                           </span>
@@ -593,7 +591,7 @@ const WebsiteEnquiries = () => {
                             type="button"
                             onClick={() => handleRequestWhatsAppVerification(item)}
                             title="Click to manually verify WhatsApp message receipt"
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 border border-slate-200 transition-colors whitespace-nowrap"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 border border-slate-200 transition-colors"
                           >
                             <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
                             <span>Not Verified</span>
@@ -601,7 +599,7 @@ const WebsiteEnquiries = () => {
                         )}
                       </td>
 
-                      {/* Received At */}
+                      {/* Created At */}
                       <td className="py-3.5 px-4 whitespace-nowrap text-slate-500">
                         <span>{formatDateTime(item.createdAt)}</span>
                       </td>
@@ -613,7 +611,7 @@ const WebsiteEnquiries = () => {
                             type="button"
                             onClick={() => handleOpenDetails(item)}
                             className="p-1.5 text-slate-500 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
-                            title="View Enquiry Details"
+                            title="View Details"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
