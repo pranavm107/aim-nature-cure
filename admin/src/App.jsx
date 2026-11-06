@@ -57,6 +57,11 @@ import DoctorTasks from './pages/Doctor/DoctorTasks';
 import DoctorDailyReport from './pages/Doctor/DoctorDailyReport';
 import DoctorAppointments from './pages/Doctor/DoctorAppointments';
 import MyPayroll from './pages/Doctor/MyPayroll';
+import MedicineInventory from './pages/Admin/MedicineInventory';
+import MedicinePurchases from './pages/Admin/MedicinePurchases';
+import MedicineStockHistory from './pages/Admin/MedicineStockHistory';
+import MedicineIssuing from './pages/Admin/MedicineIssuing';
+import MedicineReports from './pages/Admin/MedicineReports';
 
 const App = () => {
   const { dToken } = useContext(DoctorContext)
@@ -106,6 +111,16 @@ const App = () => {
             <Route path='/admin/comparison' element={<ProtectedRoute role="admin"><DoctorComparison /></ProtectedRoute>} />
 
             <Route path='/admin/follow-ups' element={<ProtectedRoute role="admin"><AdminFollowUpOverview /></ProtectedRoute>} />
+            
+            {/* Pharmacy & Medicine Inventory Routes */}
+            <Route path='/admin/inventory/medicines' element={<ProtectedRoute role="admin"><MedicineInventory /></ProtectedRoute>} />
+            <Route path='/admin/medicines' element={<Navigate to="/admin/inventory/medicines" replace />} />
+            <Route path='/admin/inventory/purchases' element={<ProtectedRoute role="admin"><MedicinePurchases /></ProtectedRoute>} />
+            <Route path='/admin/medicine-purchases' element={<Navigate to="/admin/inventory/purchases" replace />} />
+            <Route path='/admin/inventory/stock-history' element={<ProtectedRoute role="admin"><MedicineStockHistory /></ProtectedRoute>} />
+            <Route path='/admin/inventory/issue' element={<ProtectedRoute role="shared"><MedicineIssuing /></ProtectedRoute>} />
+            <Route path='/admin/inventory/reports' element={<ProtectedRoute role="admin"><MedicineReports /></ProtectedRoute>} />
+            
             <Route path='/admin/leads' element={<ProtectedRoute role="admin"><Leads /></ProtectedRoute>} />
             <Route path='/admin/social-review' element={<ProtectedRoute role="admin"><SocialReview /></ProtectedRoute>} />
             <Route path='/admin/daily-reports' element={<ProtectedRoute role="admin"><AdminDailyReports /></ProtectedRoute>} />
@@ -126,6 +141,7 @@ const App = () => {
             <Route path='/doctor/payroll' element={<ProtectedRoute role="doctor"><MyPayroll /></ProtectedRoute>} />
 
             <Route path='/doctor/follow-ups' element={<ProtectedRoute role="doctor"><FollowUpList /></ProtectedRoute>} />
+            <Route path='/doctor/medicine-issues' element={<ProtectedRoute role="doctor"><MedicineIssuing /></ProtectedRoute>} />
             <Route path='/doctor/website-enquiries' element={<ProtectedRoute role="doctor"><WebsiteEnquiries /></ProtectedRoute>} />
             <Route path='/doctor/social-submission' element={<ProtectedRoute role="doctor"><SocialSubmission /></ProtectedRoute>} />
             <Route path='/doctor/notes' element={<ProtectedRoute role="doctor"><DoctorNotes /></ProtectedRoute>} />

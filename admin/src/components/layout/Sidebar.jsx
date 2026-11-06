@@ -8,7 +8,7 @@ import {
   Package, Clock, Receipt, IndianRupee, LineChart, 
   Settings, CheckCircle, BarChart, FileText, CheckSquare, 
   Stethoscope, BookOpen, ChevronDown, MoreHorizontal, Search,
-  Percent, X, CreditCard
+  Percent, X, CreditCard, Pill, ShoppingBag, Send, History
 } from 'lucide-react';
 
 // Helper component for expandable sections
@@ -124,6 +124,14 @@ const Sidebar = ({ isOpen, onClose }) => {
           <SidebarLink to='/admin/follow-ups' icon={Clock} label='Follow-Ups' isCollapsed={isCollapsed} onClick={onClose} />
         </SidebarSection>
       )}
+
+      <SidebarSection title="Pharmacy & Stock" isCollapsed={isCollapsed}>
+        <SidebarLink to='/admin/inventory/medicines' icon={Pill} label='Medicine Inventory' isCollapsed={isCollapsed} onClick={onClose} />
+        <SidebarLink to='/admin/inventory/purchases' icon={ShoppingBag} label='Purchases' isCollapsed={isCollapsed} onClick={onClose} />
+        <SidebarLink to='/admin/inventory/issue' icon={Send} label='Dispense Medicines' isCollapsed={isCollapsed} onClick={onClose} />
+        <SidebarLink to='/admin/inventory/stock-history' icon={History} label='Stock Audit Log' isCollapsed={isCollapsed} onClick={onClose} />
+        <SidebarLink to='/admin/inventory/reports' icon={BarChart} label='Medicine Reports' isCollapsed={isCollapsed} onClick={onClose} />
+      </SidebarSection>
       
       {hasPerm('manage_billing') && (
         <SidebarSection title="Financials" isCollapsed={isCollapsed}>
@@ -158,6 +166,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <SidebarLink to='/patients' icon={Users} label='My Patients' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/doctor/consultation' icon={Activity} label='New Consultation' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/doctor/history' icon={FileText} label='Consultation History' isCollapsed={isCollapsed} onClick={onClose} />
+        <SidebarLink to='/doctor/medicine-issues' icon={Pill} label='Dispense Medicines' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/doctor/therapy-assignment' icon={Package} label='Therapy Assignment' isCollapsed={isCollapsed} onClick={onClose} />
         <SidebarLink to='/doctor/therapy-sessions' icon={CheckCircle} label='Therapy Sessions' isCollapsed={isCollapsed} onClick={onClose} />
       </SidebarSection>

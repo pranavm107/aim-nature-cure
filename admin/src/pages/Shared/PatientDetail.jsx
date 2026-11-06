@@ -10,6 +10,7 @@ import { AppContext } from '../../context/AppContext';
 import PatientDocuments from '../../components/patient/PatientDocuments';
 import FollowUpSection from '../../components/patient/FollowUpSection';
 import TherapyHistory from '../../components/patient/TherapyHistory';
+import PatientMedicineHistory from '../../components/patient/PatientMedicineHistory';
 import PatientActivityTimeline from '../../components/patient/PatientActivityTimeline';
 import PatientBillingSummary from '../../components/patient/PatientBillingSummary';
 import PageContainer from '../../components/layout/PageContainer';
@@ -433,6 +434,9 @@ const PatientDetail = () => {
 
           {/* Follow-ups Section */}
           <FollowUpSection patientId={activeId} refreshTrigger={timeline} />
+
+          {/* Prescribed & Issued Medicines */}
+          <PatientMedicineHistory patientId={activeId} />
 
           {/* Therapy History */}
           <TherapyHistory patientId={activeId} />

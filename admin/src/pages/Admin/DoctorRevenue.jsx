@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { revenueService } from '../../services/revenueService';
 import { adminService } from '../../services/adminService';
 import PageContainer from '../../components/layout/PageContainer';
@@ -6,7 +7,7 @@ import PageHeader from '../../components/layout/PageHeader';
 import Card from '../../components/common/Card';
 import { toast } from 'react-toastify';
 import { SelectField } from '../../components/common/FormFields';
-import { IndianRupee, Users, CheckCircle2, AlertCircle, RefreshCw, Filter, Calendar } from 'lucide-react';
+import { IndianRupee, Users, CheckCircle2, AlertCircle, RefreshCw, Filter, Calendar, Pill, ArrowRight } from 'lucide-react';
 
 const DoctorRevenue = () => {
   const [doctors, setDoctors] = useState([]);
@@ -168,6 +169,26 @@ const DoctorRevenue = () => {
                 </div>
               </div>
             </Card>
+          </div>
+
+          {/* PHARMACY & MEDICINE REVENUE SHORTCUT BANNER */}
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200/80 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-purple-600 text-white rounded-lg shadow-sm">
+                <Pill className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-800">Pharmacy & Medicine Sales Revenue</h4>
+                <p className="text-xs text-slate-500">Track medicine sales margin, cost of goods sold (COGS), inventory valuation, and top selling drugs.</p>
+              </div>
+            </div>
+            <Link
+              to="/admin/inventory/reports"
+              className="px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm whitespace-nowrap"
+            >
+              <span>View Pharmacy Reports</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
           {/* DOCTOR BREAKDOWN TABLE */}

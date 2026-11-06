@@ -9,6 +9,9 @@ import PageContainer from '../../components/layout/PageContainer';
 import PageHeader from '../../components/layout/PageHeader';
 import { DoctorContext } from '../../context/DoctorContext';
 import { AppContext } from '../../context/AppContext';
+import { Pill, Plus, Trash2 } from 'lucide-react';
+import medicineService from '../../services/medicineService';
+import medicineIssueService from '../../services/medicineIssueService';
 
 const NewConsultation = () => {
   const { id } = useParams(); // patientId might be in URL
@@ -19,6 +22,8 @@ const NewConsultation = () => {
 
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [activeMedicines, setActiveMedicines] = useState([]);
+  const [prescribedMedicines, setPrescribedMedicines] = useState([]);
 
   const [formData, setFormData] = useState({
     patientId: id || '',
@@ -45,6 +50,9 @@ const NewConsultation = () => {
         const dRes = await adminService.getDoctorsDropdown();
         if (dRes.success) setDoctors(dRes.doctors);
 
+        const mRes = await medicineService.getActiveMedicines();
+        if (mRes.success) setActiveMedicines(mRes.medicines || []);
+
         if (profileData?._id) {
           setFormData(prev => ({ ...prev, doctorId: profileData._id }));
         }
@@ -69,6 +77,28 @@ const NewConsultation = () => {
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
   };
 
+  const handleAddPrescriptionItem = () => {
+    setPrescribedMedicines([
+      ...prescribedMedicines,
+      {
+        medicineId: '',
+        quantity: 1,
+        dosage: '1 tablet twice daily after food',
+        duration: '15 days'
+      }
+    ]);
+  };
+
+  const handlePrescriptionItemChange = (idx, field, val) => {
+    const list = [...prescribedMedicines];
+    list[idx][field] = val;
+    setPrescribedMedicines(list);
+  };
+
+  const handleRemovePrescriptionItem = (idx) => {
+    setPrescribedMedicines(prescribedMedicines.filter((_, i) => i !== idx));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.patientId || !formData.doctorId) {
@@ -78,13 +108,45 @@ const NewConsultation = () => {
 
     setLoading(true);
     try {
-      const payload = { ...formData };
+      // If medicines were prescribed, compile them into the treatment plan if not already there
+      let finalTreatmentPlan = formData.treatmentPlan || '';
+      const validMeds = prescribedMedicines.filter(m => m.medicineId);
+
+      if (validMeds.length > 0) {
+        const medLines = validMeds.map(m => {
+          const medObj = activeMedicines.find(x => (x.uuid || x._id) === m.medicineId);
+          return `- ${medObj?.medicineName || 'Medicine'} (Qty: ${m.quantity}): ${m.dosage || ''} for ${m.duration || ''}`;
+        }).join('\n');
+
+        finalTreatmentPlan = finalTreatmentPlan 
+          ? `${finalTreatmentPlan}\n\nPrescribed Medicines:\n${medLines}`
+          : `Prescribed Medicines:\n${medLines}`;
+      }
+
+      const payload = { ...formData, treatmentPlan: finalTreatmentPlan };
 
       // Axios will throw if the response status is not 2xx. 
       // So if we reach the next line, the request was successful even if the response body is empty.
       await consultationService.createConsultation(payload);
 
-      toast.success("Consultation created successfully");
+      // Issue prescribed medicines through pharmacy
+      if (validMeds.length > 0) {
+        try {
+          await medicineIssueService.issueMedicine({
+            patientId: formData.patientId,
+            items: validMeds.map(m => ({
+              medicineId: m.medicineId,
+              quantity: Number(m.quantity) || 1
+            })),
+            notes: 'Prescribed during clinical consultation',
+            createInvoice: true
+          });
+        } catch (issueErr) {
+          console.error("Auto issue error:", issueErr);
+        }
+      }
+
+      toast.success("Consultation and prescription saved successfully");
       navigate(id ? `/patient/${id}` : '/doctor/history');
     } catch (error) {
       toast.error(error.response?.data?.message || error.message || "Error creating consultation");
@@ -167,6 +229,86 @@ const NewConsultation = () => {
               placeholder="Prescribed therapies, diet, exercises..."
               rows={4}
             />
+          </div>
+
+          {/* Prescribe Medicines Section */}
+          <div className="flex flex-col gap-4 border-t border-slate-100 pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Pill className="w-5 h-5 text-primary" />
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+                  Prescribe Medicines & Herbal Formulations ({prescribedMedicines.length})
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddPrescriptionItem}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-xs font-semibold rounded-lg hover:bg-primary/20 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Medicine
+              </button>
+            </div>
+
+            {prescribedMedicines.length === 0 ? (
+              <p className="text-xs text-slate-400 bg-slate-50 p-3 rounded-lg border border-dashed border-slate-200">
+                No medicines prescribed for this consultation yet. Click "+ Add Medicine" to prescribe from pharmacy catalog.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {prescribedMedicines.map((item, idx) => (
+                  <div key={idx} className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+                    <div className="sm:col-span-2">
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">Select Medicine *</label>
+                      <select
+                        value={item.medicineId}
+                        onChange={(e) => handlePrescriptionItemChange(idx, 'medicineId', e.target.value)}
+                        className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary/20"
+                      >
+                        <option value="">-- Choose Medicine --</option>
+                        {activeMedicines.map(m => (
+                          <option key={m.uuid || m._id} value={m.uuid || m._id}>
+                            {m.medicineName} ({m.unit}) - Stock: {m.availableStock ?? 'N/A'}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">Quantity</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => handlePrescriptionItemChange(idx, 'quantity', e.target.value)}
+                        className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">Dosage / Frequency</label>
+                        <input
+                          type="text"
+                          value={item.dosage}
+                          onChange={(e) => handlePrescriptionItemChange(idx, 'dosage', e.target.value)}
+                          placeholder="e.g. 1 tab bd"
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePrescriptionItem(idx)}
+                        className="text-rose-500 hover:text-rose-700 p-1.5 mt-5"
+                        title="Remove"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-6 border-t border-slate-100 pt-6">
