@@ -6,16 +6,31 @@ export const followUpService = {
       const response = await apiClient.get('/follow-ups/all', {
         params: { search, page, size }
       });
-      let result = response.data;
-      if (result.result) result = result.result; // Normalize wrapped responses
-      
+      const data = response.data || {};
+      const result = data.result !== undefined ? data.result : data;
+      const followUps = Array.isArray(result)
+        ? result
+        : (result?.content || result?.items || result?.followUps || []);
+
+      const totalElements = typeof data.totalElements === 'number'
+        ? data.totalElements
+        : (typeof result?.totalElements === 'number'
+            ? result.totalElements
+            : (typeof data.noOfElements === 'number' ? data.noOfElements : followUps.length));
+
+      const totalPages = typeof data.noOfPages === 'number'
+        ? data.noOfPages
+        : (typeof result?.totalPages === 'number'
+            ? result.totalPages
+            : (data.totalPages || (totalElements > 0 ? Math.ceil(totalElements / size) : 1)));
+
       return {
         success: true,
-        followUps: result.content || result.items || result.followUps || (Array.isArray(result) ? result : []),
-        totalElements: result.totalElements || 0,
-        totalPages: result.totalPages || 0,
-        page: result.number || page,
-        size: result.size || size
+        followUps,
+        totalElements,
+        totalPages,
+        page: typeof data.number === 'number' ? data.number : page,
+        size: data.size || size
       };
     } catch (error) {
       return {

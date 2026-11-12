@@ -39,6 +39,7 @@ const TherapyAssignment = () => {
     assignmentType: 'therapy', // 'therapy' or 'package'
     selectedTherapyIds: [],
     packageId: '',
+    doctorFees: '',
     assignedDate: new Date().toISOString().split('T')[0],
     assignedTime: new Date().toTimeString().slice(0, 5)
   });
@@ -126,10 +127,13 @@ const TherapyAssignment = () => {
     p => p._id === formData.packageId || p.uuid === formData.packageId
   );
   const packageRevenue = Number(selectedPackage?.price || 0);
+  const doctorFeesAmount = Math.max(0, parseFloat(formData.doctorFees) || 0);
 
-  const totalRevenue = formData.assignmentType === 'therapy' 
+  const therapyOrPackageRevenue = formData.assignmentType === 'therapy' 
     ? totalStandaloneRevenue 
     : packageRevenue;
+
+  const totalRevenue = therapyOrPackageRevenue + doctorFeesAmount;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -178,6 +182,7 @@ const TherapyAssignment = () => {
           patientId: formData.patientId,
           assignmentType: 'Standalone',
           items,
+          doctorFees: doctorFeesAmount,
           assignedDate: formData.assignedDate,
           assignedTime: formattedTime,
           userId: docId
@@ -187,13 +192,14 @@ const TherapyAssignment = () => {
           throw new Error(assignRes.message);
         }
 
-        toast.success(`Successfully assigned ${items.length} therapies on ${formData.assignedDate} at ${formData.assignedTime}! Revenue of ₹${totalStandaloneRevenue.toLocaleString('en-IN')} credited.`);
+        toast.success(`Successfully assigned ${items.length} therapies on ${formData.assignedDate} at ${formData.assignedTime}! Revenue of ₹${totalRevenue.toLocaleString('en-IN')} credited.`);
       } else {
         // Real API Call: POST /api/v1/therapy-assignments/assign (Package)
         const assignRes = await therapyAssignmentService.assign({
           patientId: formData.patientId,
           assignmentType: 'Package',
           packageId: formData.packageId,
+          doctorFees: doctorFeesAmount,
           assignedDate: formData.assignedDate,
           assignedTime: formattedTime,
           userId: docId
@@ -203,7 +209,7 @@ const TherapyAssignment = () => {
           throw new Error(assignRes.message);
         }
 
-        toast.success(`Successfully assigned package on ${formData.assignedDate} at ${formData.assignedTime}! Revenue of ₹${packageRevenue.toLocaleString('en-IN')} credited.`);
+        toast.success(`Successfully assigned package on ${formData.assignedDate} at ${formData.assignedTime}! Revenue of ₹${totalRevenue.toLocaleString('en-IN')} credited.`);
       }
 
       navigate('/doctor/therapy-sessions');
@@ -502,8 +508,31 @@ const TherapyAssignment = () => {
             </div>
           )}
 
+          {/* DOCTOR FEES FIELD */}
+          <div className="p-4 bg-slate-50/70 rounded-xl border border-slate-200/80">
+            <label className="block text-slate-700 text-sm font-bold mb-1.5 flex items-center gap-1.5">
+              <IndianRupee className="w-4 h-4 text-primary" />
+              Doctor Fees (₹)
+            </label>
+            <div className="relative">
+              <span className="absolute left-3.5 top-2.5 text-sm font-semibold text-slate-400">₹</span>
+              <input
+                type="number"
+                min="0"
+                step="any"
+                placeholder="Enter doctor consultation / assignment fees (e.g. 500)"
+                value={formData.doctorFees}
+                onChange={(e) => setFormData({ ...formData, doctorFees: e.target.value })}
+                className="w-full bg-white border border-slate-300 rounded-lg pl-8 pr-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm"
+              />
+            </div>
+            <p className="text-xs text-slate-500 mt-1.5">
+              Included in total generated revenue and attributed to the doctor.
+            </p>
+          </div>
+
           {/* REAL-TIME REVENUE SUMMARY PANEL */}
-          {((formData.assignmentType === 'therapy' && configuredItems.length > 0) || (formData.assignmentType === 'package' && formData.packageId)) && (
+          {((formData.assignmentType === 'therapy' && configuredItems.length > 0) || (formData.assignmentType === 'package' && formData.packageId) || doctorFeesAmount > 0) && (
             <div className="bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-primary/5 border border-emerald-500/20 rounded-xl p-5 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
@@ -515,30 +544,40 @@ const TherapyAssignment = () => {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 border-t border-emerald-500/10">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-emerald-500/10">
                 {formData.assignmentType === 'therapy' ? (
                   <>
                     <div>
-                      <p className="text-xs text-slate-500">Therapies</p>
-                      <p className="text-base font-semibold text-slate-800">{configuredItems.length}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500">Total Sessions</p>
-                      <p className="text-base font-semibold text-slate-800">{totalSessions}</p>
+                      <p className="text-xs text-slate-500">Therapies ({totalSessions} sessions)</p>
+                      <p className="text-base font-semibold text-slate-800">
+                        ₹{totalStandaloneRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
                     </div>
                   </>
                 ) : (
                   <div>
-                    <p className="text-xs text-slate-500">Package Type</p>
-                    <p className="text-base font-semibold text-slate-800">Pre-defined</p>
+                    <p className="text-xs text-slate-500">Package Amount</p>
+                    <p className="text-base font-semibold text-slate-800">
+                      ₹{packageRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
                   </div>
                 )}
-                
-                <div className="col-span-2 sm:col-span-1 bg-white/70 p-2.5 rounded-lg border border-emerald-500/20">
-                  <p className="text-xs text-slate-500 font-medium">Total Generated Revenue</p>
-                  <p className="text-xl font-extrabold text-emerald-600">
-                    ₹{totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
+                <div>
+                  <p className="text-xs text-slate-500">Doctor Fees</p>
+                  <p className="text-base font-semibold text-slate-800">
+                    ₹{doctorFeesAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
+                </div>
+                
+                <div className="col-span-2 bg-white/70 p-2.5 rounded-lg border border-emerald-500/20 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-slate-500 font-medium">Total Generated Revenue</p>
+                    <p className="text-xl font-extrabold text-emerald-600">
+                      ₹{totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  <CheckCircle2 className="w-6 h-6 text-emerald-500/60" />
                 </div>
               </div>
 

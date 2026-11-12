@@ -11,6 +11,7 @@ export const therapyAssignmentService = {
     therapyId = null,
     items = [],
     packageId = null,
+    doctorFees = 0,
     assignedDate = new Date().toISOString().split('T')[0],
     assignedTime = new Date().toTimeString().slice(0, 5) + ':00',
     userId = null
@@ -18,12 +19,14 @@ export const therapyAssignmentService = {
     try {
       const doctorId = userId || localStorage.getItem('userId') || localStorage.getItem('doctorId');
       const formattedTime = assignedTime && assignedTime.length === 5 ? `${assignedTime}:00` : assignedTime;
+      const numericDoctorFees = Math.max(0, Number(doctorFees) || 0);
 
       if (assignmentType === 'Package') {
         const payload = {
           patientId,
           assignmentType: 'Package',
           packageId,
+          doctorFees: numericDoctorFees,
           assignedDate,
           assignedTime: formattedTime,
           userId: doctorId
@@ -51,6 +54,7 @@ export const therapyAssignmentService = {
         therapyId: itemsToAssign[0]?.therapyId || therapyId,
         items: itemsToAssign,
         therapyIds: itemsToAssign.map(i => i.therapyId),
+        doctorFees: numericDoctorFees,
         assignedDate,
         assignedTime: formattedTime,
         userId: doctorId
