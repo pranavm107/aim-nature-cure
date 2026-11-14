@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import therapySessionService from '../../services/therapySessionService';
+import therapyAssignmentService from '../../services/therapyAssignmentService';
 import { toast } from 'react-toastify';
 import Badge from '../common/Badge';
 
 const TherapyHistory = ({ patientId }) => {
   const [sessions, setSessions] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   const [filteredSessions, setFilteredSessions] = useState([]);
   const [stats, setStats] = useState({ total: 0, completed: 0, upcoming: 0, cancelled: 0 });
   const [loading, setLoading] = useState(true);
@@ -28,7 +30,13 @@ const TherapyHistory = ({ patientId }) => {
   const fetchTherapyHistory = async () => {
     setLoading(true);
     try {
-      const res = await therapySessionService.getPatientTherapyHistory(patientId);
+      const [res, asnRes] = await Promise.all([
+        therapySessionService.getPatientTherapyHistory(patientId),
+        therapyAssignmentService.getPatientAssignments(patientId, 0, 50)
+      ]);
+      if (asnRes?.success) {
+        setAssignments(asnRes.assignments || []);
+      }
       if (res.success) {
         setSessions(res.sessions);
         setStats(res.stats);
@@ -122,6 +130,59 @@ const TherapyHistory = ({ patientId }) => {
           </div>
         </div>
       </div>
+
+      {/* Therapy Assignments Summary Table (with Medicine & Doctor Fees) */}
+      {assignments.length > 0 && (
+        <div className="mb-6 border border-gray-200 rounded-lg overflow-hidden">
+          <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600">
+            Prescribed Assignments ({assignments.length})
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-gray-600">
+              <thead className="bg-gray-50/60 border-b border-gray-200 text-[11px] uppercase text-gray-500">
+                <tr>
+                  <th className="px-3 py-2">Date</th>
+                  <th className="px-3 py-2">Type</th>
+                  <th className="px-3 py-2">Therapy / Package</th>
+                  <th className="px-3 py-2">Medicine</th>
+                  <th className="px-3 py-2">Doctor Fees</th>
+                  <th className="px-3 py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {assignments.map((asn) => (
+                  <tr key={asn.uuid || asn._id} className="hover:bg-gray-50/80">
+                    <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-800">
+                      {asn.assignedDate || '—'}
+                    </td>
+                    <td className="px-3 py-2">{asn.assignmentType || 'Standalone'}</td>
+                    <td className="px-3 py-2 font-medium text-gray-800">
+                      {asn.therapyName || asn.packageName || '—'}
+                    </td>
+                    <td className="px-3 py-2">
+                      {asn.medicineName ? (
+                        <span>
+                          <strong className="text-gray-800">{asn.medicineName}</strong>
+                          {asn.medicineQuantity ? ` (Qty: ${asn.medicineQuantity})` : ''}
+                          {asn.medicinePrice != null ? ` • ₹${Number(asn.medicinePrice).toLocaleString('en-IN')}` : ''}
+                        </span>
+                      ) : '—'}
+                    </td>
+                    <td className="px-3 py-2 font-semibold text-teal-700">
+                      {asn.doctorFees != null && Number(asn.doctorFees) > 0
+                        ? `₹${Number(asn.doctorFees).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                        : '₹0.00'}
+                    </td>
+                    <td className="px-3 py-2">
+                      <Badge variant={getStatusBadgeVariant(asn.status)}>{asn.status || 'Active'}</Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">

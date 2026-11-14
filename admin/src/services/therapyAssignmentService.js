@@ -2,7 +2,7 @@ import apiClient from './apiClient';
 
 export const therapyAssignmentService = {
   /**
-   * Assign single or multiple therapies / packages to a patient with Date & Time
+   * Assign single or multiple therapies / packages / medicines to a patient with Date, Time & Doctor Fees
    * Calls: POST /api/v1/therapy-assignments/assign
    */
   assign: async ({
@@ -10,6 +10,7 @@ export const therapyAssignmentService = {
     assignmentType = 'Standalone',
     therapyId = null,
     items = [],
+    medicines = [],
     packageId = null,
     doctorFees = 0,
     assignedDate = new Date().toISOString().split('T')[0],
@@ -21,11 +22,22 @@ export const therapyAssignmentService = {
       const formattedTime = assignedTime && assignedTime.length === 5 ? `${assignedTime}:00` : assignedTime;
       const numericDoctorFees = Math.max(0, Number(doctorFees) || 0);
 
+      const medicinesToAssign = Array.isArray(medicines)
+        ? medicines
+            .filter(m => m && m.medicineId)
+            .map(m => ({
+              medicineId: m.medicineId,
+              quantity: Math.max(1, Number(m.quantity || 1)),
+              price: Math.max(0, Number(m.price || 0))
+            }))
+        : [];
+
       if (assignmentType === 'Package') {
         const payload = {
           patientId,
           assignmentType: 'Package',
           packageId,
+          medicines: medicinesToAssign,
           doctorFees: numericDoctorFees,
           assignedDate,
           assignedTime: formattedTime,
@@ -51,9 +63,10 @@ export const therapyAssignmentService = {
       const payload = {
         patientId,
         assignmentType: 'Standalone',
-        therapyId: itemsToAssign[0]?.therapyId || therapyId,
+        therapyId: itemsToAssign[0]?.therapyId || therapyId || null,
         items: itemsToAssign,
         therapyIds: itemsToAssign.map(i => i.therapyId),
+        medicines: medicinesToAssign,
         doctorFees: numericDoctorFees,
         assignedDate,
         assignedTime: formattedTime,
@@ -97,7 +110,8 @@ export const therapyAssignmentService = {
       return {
         success: true,
         assignments: list,
-        totalElements: data?.totalElements || list.length
+        totalElements: typeof data?.totalElements === 'number' ? data.totalElements : list.length,
+        totalPages: typeof data?.noOfPages === 'number' ? data.noOfPages : 1
       };
     } catch (error) {
       console.error("Error fetching patient therapy assignments:", error);

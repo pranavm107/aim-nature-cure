@@ -11,7 +11,12 @@ export const medicineService = {
    */
   createMedicine: async (data) => {
     try {
-      const response = await apiClient.post('/medicines', data);
+      const payload = {
+        ...data,
+        minimumStockLevel: Number(data.minimumStockLevel ?? 10),
+        stock: Number(data.stock ?? 0)
+      };
+      const response = await apiClient.post('/medicines', payload);
       return {
         success: true,
         data: response.data?.result || response.data,
@@ -70,7 +75,7 @@ export const medicineService = {
   },
 
   /**
-   * Get all active medicines for dropdowns in prescriptions/purchases
+   * Get all active medicines for dropdowns in prescriptions/purchases/therapy-assignments
    */
   getActiveMedicines: async () => {
     try {
@@ -82,7 +87,18 @@ export const medicineService = {
         medicines: items
       };
     } catch (error) {
-      console.error('Error fetching active medicines:', error);
+      console.warn('Fallback to /medicines?active=true for active medicines:', error);
+      try {
+        const fallback = await medicineService.getAllMedicines({ active: true, page: 0, size: 200 });
+        if (fallback.success) {
+          return {
+            success: true,
+            medicines: fallback.medicines
+          };
+        }
+      } catch (innerErr) {
+        console.error('Fallback error fetching active medicines:', innerErr);
+      }
       return {
         success: false,
         medicines: [],
@@ -115,7 +131,13 @@ export const medicineService = {
    */
   updateMedicine: async (id, data) => {
     try {
-      const response = await apiClient.put(`/medicines/${id}`, { ...data, uuid: id });
+      const payload = {
+        ...data,
+        uuid: id,
+        minimumStockLevel: Number(data.minimumStockLevel ?? 10),
+        stock: Number(data.stock ?? 0)
+      };
+      const response = await apiClient.put(`/medicines/${id}`, payload);
       return {
         success: true,
         data: response.data?.result || response.data,

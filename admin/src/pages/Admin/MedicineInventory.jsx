@@ -71,6 +71,7 @@ const MedicineInventory = () => {
     purchasePrice: '',
     sellingPrice: '',
     minimumStockLevel: 10,
+    stock: 0,
     active: true
   });
   const [savingMedicine, setSavingMedicine] = useState(false);
@@ -201,6 +202,7 @@ const MedicineInventory = () => {
         purchasePrice: med.purchasePrice ?? '',
         sellingPrice: med.sellingPrice ?? '',
         minimumStockLevel: med.minimumStockLevel ?? 10,
+        stock: med.stock ?? med.availableStock ?? 0,
         active: med.active ?? true
       });
     } else {
@@ -216,6 +218,7 @@ const MedicineInventory = () => {
         purchasePrice: '',
         sellingPrice: '',
         minimumStockLevel: 10,
+        stock: 0,
         active: true
       });
     }
@@ -242,13 +245,14 @@ const MedicineInventory = () => {
         unit: medicineFormData.unit.trim(),
         purchasePrice: medicineFormData.purchasePrice ? Number(medicineFormData.purchasePrice) : 0,
         sellingPrice: medicineFormData.sellingPrice ? Number(medicineFormData.sellingPrice) : 0,
-        minimumStockLevel: medicineFormData.minimumStockLevel ? Number(medicineFormData.minimumStockLevel) : 10,
+        minimumStockLevel: medicineFormData.minimumStockLevel !== '' ? Number(medicineFormData.minimumStockLevel) : 10,
+        stock: medicineFormData.stock !== '' ? Number(medicineFormData.stock) : 0,
         active: medicineFormData.active
       };
 
       let res;
       if (editingMedicine) {
-        res = await medicineService.updateMedicine(editingMedicine.uuid || editingMedicine._id, payload);
+        res = await medicineService.updateMedicine(editingMedicine.uuid || editingMedicine._id || editingMedicine.medicineId, payload);
       } else {
         res = await medicineService.createMedicine(payload);
       }
@@ -634,9 +638,9 @@ const MedicineInventory = () => {
                               </span>
                             </td>
                             <td className="px-4 py-3 font-bold text-slate-800 text-base">
-                              {item.availableStock || 0}
+                              {item.stock ?? item.availableStock ?? 0}
                             </td>
-                            <td className="px-4 py-3 text-slate-500">{item.minimumStockLevel || 10}</td>
+                            <td className="px-4 py-3 text-slate-500">{item.minimumStockLevel ?? 10}</td>
                             <td className="px-4 py-3">
                               <button
                                 onClick={() => handleViewBatches(item.medicineId, item.medicineName)}
@@ -675,6 +679,7 @@ const MedicineInventory = () => {
                       <th className="px-4 py-3.5">Unit</th>
                       <th className="px-4 py-3.5">Purchase Price</th>
                       <th className="px-4 py-3.5">Selling Price</th>
+                      <th className="px-4 py-3.5">Stock</th>
                       <th className="px-4 py-3.5">Min Stock</th>
                       <th className="px-4 py-3.5">Status</th>
                       <th className="px-4 py-3.5 text-right">Actions</th>
@@ -683,7 +688,7 @@ const MedicineInventory = () => {
                   <tbody className="divide-y divide-slate-100">
                     {catalogList.length === 0 ? (
                       <tr>
-                        <td colSpan="9" className="text-center py-12 text-slate-400">
+                        <td colSpan="10" className="text-center py-12 text-slate-400">
                           No medicines registered in catalog. Click "Add Medicine" to create one.
                         </td>
                       </tr>
@@ -710,7 +715,10 @@ const MedicineInventory = () => {
                           <td className="px-4 py-3 font-semibold text-slate-800">
                             ₹{Number(med.sellingPrice || 0).toFixed(2)}
                           </td>
-                          <td className="px-4 py-3 text-slate-600">{med.minimumStockLevel || 10}</td>
+                          <td className="px-4 py-3 font-bold text-slate-800">
+                            {med.stock ?? med.availableStock ?? 0}
+                          </td>
+                          <td className="px-4 py-3 text-slate-600">{med.minimumStockLevel ?? 10}</td>
                           <td className="px-4 py-3">
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
                               med.active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
@@ -770,8 +778,8 @@ const MedicineInventory = () => {
                       </tr>
                     ) : (
                       lowStockList.map((item) => {
-                        const available = item.availableStock || 0;
-                        const min = item.minimumStockLevel || 10;
+                        const available = item.stock ?? item.availableStock ?? 0;
+                        const min = item.minimumStockLevel ?? 10;
                         const deficit = min - available;
                         return (
                           <tr key={item.medicineId} className="hover:bg-amber-50/30 transition-colors">
@@ -982,7 +990,7 @@ const MedicineInventory = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Default Purchase Cost (₹)</label>
               <input
@@ -1015,6 +1023,17 @@ const MedicineInventory = () => {
                 value={medicineFormData.minimumStockLevel}
                 onChange={(e) => setMedicineFormData({ ...medicineFormData, minimumStockLevel: e.target.value })}
                 placeholder="10"
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Stock (Initial / Available Stock)</label>
+              <input
+                type="number"
+                min="0"
+                value={medicineFormData.stock}
+                onChange={(e) => setMedicineFormData({ ...medicineFormData, stock: e.target.value })}
+                placeholder="0"
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
